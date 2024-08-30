@@ -1,8 +1,7 @@
-import React from 'react'
-import { SectionBadge } from "../ui/section-bade";
+import Container from "../global/container";
 import Images from "../global/images";
 import { Particles } from "../ui/particles";
-import Container from "../global/animation";
+import { SectionBadge } from "../ui/section-bade";
 
 const Connect = () => {
     return (

@@ -1,30 +1,29 @@
 "use client";
 
+import { cn } from "@/functions";
+import { useClerk } from "@clerk/nextjs";
 import { ArrowRightIcon, XIcon } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useState } from 'react'
-import { Button } from "../ui/button";
+import { useEffect, useState } from 'react';
 import Icons from "../global/icons";
-import Menu from "./menu";
 import Wrapper from "../global/wrapper";
+import { Button } from "../ui/button";
+import Menu from "./menu";
 import MobileMenu from "./mobile-menu";
-import { cn } from "@/functions";
-import MenuIcon from "../ui/menu-icon";
-import { Cross as Hamburger } from 'hamburger-react'
 
 const Navbar = () => {
+
+    const { user } = useClerk();
 
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
     useEffect(() => {
-        // Toggle body overflow based on isOpen state
         if (isOpen) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = '';
         }
 
-        // Cleanup to reset overflow when the component unmounts or isOpen changes
         return () => {
             document.body.style.overflow = '';
         };
@@ -52,17 +51,27 @@ const Navbar = () => {
                             </div>
                         </div>
                         <div className="items-center flex gap-2 lg:gap-4">
-                            <Button size="sm" variant="tertiary" asChild className="hover:translate-y-0 hover:scale-100">
-                                <Link href="/auth/login">
-                                    Login
-                                </Link>
-                            </Button>
-                            <Button size="sm" variant="white" asChild className="hidden sm:flex">
-                                <Link href="/pricing">
-                                    Start for free
-                                    <ArrowRightIcon className="w-4 h-4 ml-2 hidden lg:block" />
-                                </Link>
-                            </Button>
+                            {user ? (
+                                <Button size="sm" variant="white" asChild className="hidden sm:flex">
+                                    <Link href="/app">
+                                        Dashboard
+                                    </Link>
+                                </Button>
+                            ) : (
+                                <>
+                                    <Button size="sm" variant="tertiary" asChild className="hover:translate-y-0 hover:scale-100">
+                                        <Link href="/auth/signin">
+                                            Login
+                                        </Link>
+                                    </Button>
+                                    <Button size="sm" variant="white" asChild className="hidden sm:flex">
+                                        <Link href="/auth/signup">
+                                            Start for free
+                                            <ArrowRightIcon className="w-4 h-4 ml-2 hidden lg:block" />
+                                        </Link>
+                                    </Button>
+                                </>
+                            )}
                             <Button
                                 size="icon"
                                 variant="ghost"

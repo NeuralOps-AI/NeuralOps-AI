@@ -14,8 +14,6 @@ export const MODAL_VARIANTS = {
 };
 
 export const FADE_IN_VARIANTS = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1 },
-    exit: { opacity: 0 },
-    transition: { duration: 0.2 },
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { opacity: 1, transition: { duration: 0.4 }, scale: 1 },
 };

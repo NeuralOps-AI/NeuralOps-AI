@@ -1,15 +1,12 @@
 "use client";
 
-import { cn } from "@/functions";
-import React from 'react';
-import { Button } from "../ui/button";
-import { MenuIcon } from "lucide-react";
-import Icons from "../global/icons";
-import { useClickOutside } from "@/hooks";
-import { ArrowRight, Box, CalendarClock, Captions, CircleHelp, CopyCheck, FileText, Gem, Layers3, LineChart, Newspaper, UserCog, Waypoints } from "lucide-react";
-import Link from "next/link";
-import { motion } from "framer-motion";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { cn } from "@/functions";
+import { useClickOutside } from "@/hooks";
+import { motion } from "framer-motion";
+import { Box, CalendarClock, Captions, CircleHelp, CopyCheck, FileText, Gem, Layers3, LineChart, Newspaper, UserCog, Waypoints } from "lucide-react";
+import Link from "next/link";
+import React from 'react';
 
 interface Props {
     isOpen: boolean;

@@ -1,9 +1,8 @@
-import React from 'react'
-import { SectionBadge } from "../ui/section-bade";
 import { PERKS } from "@/constants";
 import { cn } from "@/functions";
 import { LucideIcon } from "lucide-react";
-import Container from "../global/animation";
+import Container from "../global/container";
+import { SectionBadge } from "../ui/section-bade";
 
 const Perks = () => {
     return (

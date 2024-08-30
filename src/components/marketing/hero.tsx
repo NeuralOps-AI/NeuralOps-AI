@@ -1,12 +1,7 @@
-import React from 'react'
-import { Wrapper } from "@/components";
-import { SectionBadge } from "@/components/ui/section-bade";
 import { ArrowRightIcon } from "lucide-react";
-import { Button } from "../ui/button";
 import Link from "next/link";
-import { Badge } from "../ui/badge";
-import { Spotlight } from "../ui/spotlight";
 import { BlurText } from "../ui/blur-text";
+import { Button } from "../ui/button";
 
 const Hero = () => {
     return (
@@ -22,7 +17,7 @@ const Hero = () => {
                 <span className="inline-flex items-center justify-center gap-2 animate-text-gradient animate-background-shine bg-gradient-to-r from-[#b2a8fd] via-[#8678f9] to-[#c7d2fe] bg-[200%_auto] bg-clip-text text-sm text-transparent">
                     Build for the future
                     <span className="text-xs text-secondary-foreground px-1.5 py-0.5 rounded-full bg-gradient-to-b from-foreground/20 to-foreground/10 flex items-center justify-center">
-                        What's new
+                        What&apos;s new
                         <ArrowRightIcon className="w-3.5 h-3.5 ml-1 text-foreground/50" />
                     </span>
                 </span>
@@ -34,18 +29,18 @@ const Hero = () => {
             </h1> */}
             <BlurText
                 word={"Your ultimate social media\n marketing tool"}
-                className="text-5xl lg:text-6xl xl:text-7xl bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent py-2 md:py-0 lg:!leading-snug font-medium tracking-[-0.0125em] mt-6 font-heading"
+                className="text-5xl lg:text-6xl xl:text-7xl bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent py-2 md:py-0 lg:!leading-snug font-medium racking-[-0.0125em] mt-6 font-heading"
             />
             <p className="text-sm sm:text-base lg:text-lg mt-4 text-accent-foreground/60 max-w-2xl mx-auto">
                 Elevate your social media presense with AI-powered content creation and scheduling. Luro is the all-in-one solution for your social media marketing needs.
             </p>
             <div className="flex items-center justify-center md:gap-x-6 mt-8">
                 <Button asChild size="lg">
-                    <Link href="#">
+                    <Link href="/app">
                         Start for free
                     </Link>
                 </Button>
-                <Button asChild size="lg" variant="secondary" className="hidden md:flex">
+                <Button asChild size="lg" variant="outline" className="hidden md:flex">
                     <Link href="#">
                         How it works
                     </Link>

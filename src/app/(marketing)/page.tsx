@@ -1,8 +1,4 @@
-import { Background, Companies, Connect, Container, CTA, Features, Hero, Images, Perks, Pricing, Reviews, Wrapper } from "@/components";
-import { Particles } from "@/components/ui/particles";
-import { SectionBadge } from "@/components/ui/section-bade";
-import { ArrowRightIcon } from "lucide-react";
-import React from 'react'
+import { Background, Companies, Connect, Container, CTA, Features, Hero, Perks, Pricing, Reviews, Wrapper } from "@/components";
 import { Spotlight } from "@/components/ui/spotlight";
 
 const HomePage = () => {
@@ -20,23 +16,11 @@ const HomePage = () => {
                     <Companies />
                 </Container>
                 <Connect />
-                {/* <Container className="py-8 lg:py-20">
-                </Container> */}
                 <Features />
-                {/* <Container className="py-8 lg:py-20">
-                </Container> */}
                 <Perks />
-                {/* <Container className="py-8 lg:py-20">
-                </Container> */}
                 <Pricing />
-                {/* <Container className="py-8 lg:py-20">
-                </Container> */}
                 <Reviews />
-                {/* <Container className="py-8 lg:py-20">
-                </Container> */}
                 <CTA />
-                {/* <Container className="py-8 lg:py-20">
-                </Container> */}
             </Wrapper>
         </Background>
     )

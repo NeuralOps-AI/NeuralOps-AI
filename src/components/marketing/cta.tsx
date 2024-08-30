@@ -1,10 +1,8 @@
-import React from 'react';
-import { SectionBadge } from "../ui/section-bade";
-import { Button } from "../ui/button";
 import Link from "next/link";
-import RetroGrid from "../ui/retro-grid";
+import Container from "../global/container";
+import { Button } from "../ui/button";
 import { Particles } from "../ui/particles";
-import Container from "../global/animation";
+import RetroGrid from "../ui/retro-grid";
 
 const CTA = () => {
     return (

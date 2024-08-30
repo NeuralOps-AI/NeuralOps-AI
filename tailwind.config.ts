@@ -102,6 +102,11 @@ const config = {
           "0%": { opacity: "0", transform: "translate(-72%, -62%) scale(0.5)", },
           "100%": { opacity: "1", transform: "translate(-50%,-40%) scale(1)", },
         },
+        "loading": {
+          "to": {
+            transform: "rotate(360deg)"
+          },
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -111,6 +116,7 @@ const config = {
         "marquee": "marquee var(--duration) linear infinite",
         "ripple": "ripple var(--duration,2s) ease calc(var(--i, 0)*.2s) infinite",
         "spotlight": "spotlight 2s ease .75s 1 forwards",
+        "loading": "loading 0.6s linear infinite",
       },
       spacing: {
         "1/8": "12.5%",

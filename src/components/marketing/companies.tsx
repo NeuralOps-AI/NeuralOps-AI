@@ -1,5 +1,3 @@
-import React from 'react'
-import Icons from "../global/icons";
 import Images from "../global/images";
 import Marquee from "../ui/marquee";
 

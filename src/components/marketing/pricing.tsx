@@ -1,16 +1,15 @@
 "use client";
 
-import React, { useState } from 'react';
-import { SectionBadge } from "../ui/section-bade";
-import { Button } from "../ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PLANS } from "@/constants";
 import { cn } from "@/functions";
+import { AnimatePresence, motion } from "framer-motion";
 import { CheckIcon } from "lucide-react";
 import Link from "next/link";
+import Container from "../global/container";
+import { Button } from "../ui/button";
 import NumberTicker from "../ui/number-ticker";
-import { motion, AnimatePresence } from "framer-motion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Container from "../global/animation";
+import { SectionBadge } from "../ui/section-bade";
 
 type Plan = "monthly" | "yearly";
 
@@ -111,8 +110,8 @@ const Plan = ({
 
             <div
                 className={cn(
-                    "flex flex-col size-full border rounded-2xl relative p-3",
-                    id === "pro" ? "border-primary/80" : "border-border/60"
+                    "flex flex-col size-full border rounded-2xl relative p-3 [background-image:linear-gradient(345deg,rgba(255,255,255,0.01)_0%,rgba(255,255,255,0.03)_100%)]",
+                    id === "pro" ? "border-primary/80" : "border-border/60",
                 )}
             >
                 {id === "pro" && (
@@ -171,9 +170,10 @@ const Plan = ({
                 <div className="p-3 mt- h-auto flex w-full items-center">
                     <Button
                         asChild
-                        variant={id === "pro" ? "default" : "secondary"}
+                        variant={id === "pro" ? "default" : "tertiary"}
                         className="w-full hover:scale-100 hover:translate-y-0 shadow-none"
                     >
+
                         <Link href={""}>
                             {buttonText}
                         </Link>

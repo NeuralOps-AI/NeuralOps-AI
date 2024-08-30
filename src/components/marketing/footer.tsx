@@ -1,10 +1,9 @@
-import React from 'react'
-import Wrapper from "../global/wrapper";
-import Icons from "../global/icons";
-import { Button } from "../ui/button";
-import Link from "next/link";
 import { FOOTER_LINKS } from "@/constants";
-import Container from "../global/animation";
+import Link from "next/link";
+import Container from "../global/container";
+import Icons from "../global/icons";
+import Wrapper from "../global/wrapper";
+import { Button } from "../ui/button";
 import { Particles } from "../ui/particles";
 
 const Footer = () => {
@@ -69,7 +68,6 @@ const Footer = () => {
                             <Icons.discord className="w-5 h-5 text-muted-foreground hover:text-secondary-foreground" />
                         </Link>
                     </div>
-                    {/* <div className="absolute hidden lg:block bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-10 bg-primary -z-20 blur-[6rem]"></div> */}
                 </Wrapper>
             </Container>
         </footer>

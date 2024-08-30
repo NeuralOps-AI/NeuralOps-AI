@@ -4,10 +4,8 @@ import Icons from "../global/icons";
 import Images from "../global/images";
 import MagicCard from "../ui/magic-card";
 import { SectionBadge } from "../ui/section-bade";
-import { Particles } from "../ui/particles";
-// import {Spotlight} from "../ui/spotlight";
+import Container from "../global/container";
 import { Ripple } from "../ui/ripple";
-import Container from "../global/animation";
 
 const Features = () => {
     return (

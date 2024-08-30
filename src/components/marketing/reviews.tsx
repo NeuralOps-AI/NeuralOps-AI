@@ -1,8 +1,7 @@
-import React from 'react';
-import { SectionBadge } from "../ui/section-bade";
-import Marquee from "../ui/marquee";
 import { REVIEWS } from "@/constants";
-import Container from "../global/animation";
+import Container from "../global/container";
+import Marquee from "../ui/marquee";
+import { SectionBadge } from "../ui/section-bade";
 
 const firstRow = REVIEWS.slice(0, REVIEWS.length / 2);
 const secondRow = REVIEWS.slice(REVIEWS.length / 2);

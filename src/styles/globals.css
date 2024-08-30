@@ -111,7 +111,7 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 262 83% 58%;
-    --radius: 0.65rem;
+    --radius: 0.5rem;
   }
 }
 
@@ -129,7 +129,7 @@ colgroup {
 }
 
 ::-webkit-scrollbar {
-  display: none;
+  /* display: none; */
 }
 
 ::-webkit-scrollbar-thumb {

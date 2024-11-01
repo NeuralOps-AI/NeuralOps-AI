@@ -22,11 +22,6 @@ export const generateMetadata = ({
     image = "/thumbnail.png",
     icons = [
         {
-            rel: "apple-touch-icon",
-            sizes: "180x180",
-            url: "/icons/apple-touch-icon.png"
-        },
-        {
             rel: "icon",
             type: "image/png",
             sizes: "32x32",
@@ -38,10 +33,6 @@ export const generateMetadata = ({
             sizes: "16x16",
             url: "/icons/favicon-16x16.png"
         },
-        {
-            rel: "manifest",
-            url: "/site.webmanifest"
-        }
     ],
     noIndex = false,
     keywords = [
@@ -60,7 +51,7 @@ export const generateMetadata = ({
     publishedTime,
     modifiedTime
 }: MetadataProps = {}): Metadata => {
-    const metadataBase = new URL(process.env.NEXT_PUBLIC_APP_URL || "https://luro.ai");
+    const metadataBase = new URL(process.env.NEXT_PUBLIC_APP_URL || "https://luro-ai.vercel.app");
     const imageUrl = image ? new URL(image, metadataBase).toString() : null;
 
     return {

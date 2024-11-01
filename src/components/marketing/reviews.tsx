@@ -2,6 +2,7 @@ import { REVIEWS } from "@/constants";
 import Container from "../global/container";
 import Marquee from "../ui/marquee";
 import { SectionBadge } from "../ui/section-bade";
+import Image from "next/image";
 
 const firstRow = REVIEWS.slice(0, REVIEWS.length / 2);
 const secondRow = REVIEWS.slice(REVIEWS.length / 2);
@@ -58,7 +59,7 @@ const ReviewCard = ({
     return (
         <figure className="relative w-64 cursor-pointer overflow-hidden rounded-xl border border-foreground/5 bg-neutral-50/[.05] hover:bg-foreground/10 p-4 transition-all duration-300 ease-in-out">
             <div className="flex flex-row items-center gap-2">
-                <img className="rounded-full" width="32" height="32" alt="" src={img} />
+                <Image className="rounded-full" width="32" height="32" alt="" src={img} />
                 <div className="flex flex-col">
                     <figcaption className="text-sm font-medium text-foreground">
                         {name}

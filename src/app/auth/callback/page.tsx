@@ -23,7 +23,6 @@ const AuthCallbackPage = async () => {
                 clerkId: user.id,
                 email: user.emailAddresses[0].emailAddress,
                 avatar: user.imageUrl,
-                customerId: ""
             },
         });
 

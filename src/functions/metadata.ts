@@ -1,48 +1,134 @@
 import { Metadata } from "next";
 
-export const generateMetadata = ({
-    title = `${process.env.NEXT_PUBLIC_APP_NAME} - AI powered Content Creation Platform`,
-    description = `${process.env.NEXT_PUBLIC_APP_NAME} is an AI powered content creation platform that helps you create content faster and better with AI.`,
-    image = "/thumbnail.png",
-    icons = [
-        {
-            rel: "apple-touch-icon",
-            sizes: "16x16",
-            url: "/icons/favicon-16x16.png"
-        },
-        {
-            rel: "icon",
-            sizes: "32x32",
-            url: "/icons/favicon-32x32.png"
-        },
-        {
-            rel: "manifest",
-            sizes: "512x512",
-            url: "/icons/logo.png"
-        }
-    ],
-    noIndex = false
-}: {
+interface MetadataProps {
     title?: string;
     description?: string;
     image?: string | null;
     icons?: Metadata["icons"];
     noIndex?: boolean;
-} = {}): Metadata => ({
-    title,
-    description,
-    icons,
-    // openGraph: {
-    //     title,
-    //     description,
-    //     ...(image && { images: [{ url: image }] }),
-    // },
-    // twitter: {
-    //     title,
-    //     description,
-    //     ...(image && { card: "summary_large_image", images: [image] }),
-    //     creator: "@shreyassihasane",
-    // },
-    // metadataBase: new URL(process.env.APP_DOMAIN!),
-    // ...(noIndex && { robots: { index: false, follow: false } }),
-});
+    keywords?: string[];
+    author?: string;
+    twitterHandle?: string;
+    type?: "website" | "article" | "profile";
+    locale?: string;
+    alternates?: Record<string, string>;
+    publishedTime?: string;
+    modifiedTime?: string;
+}
+
+export const generateMetadata = ({
+    title = `${process.env.NEXT_PUBLIC_APP_NAME} - Smart Social Media Marketing Platform`,
+    description = "Streamline your social media management with AI-powered analytics, scheduling, and content optimization. Get real-time insights, automate posts, and boost engagement across all platforms",
+    image = "/thumbnail.png",
+    icons = [
+        {
+            rel: "apple-touch-icon",
+            sizes: "180x180",
+            url: "/icons/apple-touch-icon.png"
+        },
+        {
+            rel: "icon",
+            type: "image/png",
+            sizes: "32x32",
+            url: "/icons/favicon-32x32.png"
+        },
+        {
+            rel: "icon",
+            type: "image/png",
+            sizes: "16x16",
+            url: "/icons/favicon-16x16.png"
+        },
+        {
+            rel: "manifest",
+            url: "/site.webmanifest"
+        }
+    ],
+    noIndex = false,
+    keywords = [
+        "AI content creation",
+        "content automation",
+        "AI writing assistant",
+        "content generation",
+        "artificial intelligence",
+        "content marketing"
+    ],
+    author = process.env.NEXT_PUBLIC_AUTHOR_NAME,
+    twitterHandle = "@yourtwitterhandle",
+    type = "website",
+    locale = "en_US",
+    alternates = {},
+    publishedTime,
+    modifiedTime
+}: MetadataProps = {}): Metadata => {
+    const metadataBase = new URL(process.env.NEXT_PUBLIC_APP_URL || "https://luro.ai");
+    const imageUrl = image ? new URL(image, metadataBase).toString() : null;
+
+    return {
+        metadataBase,
+        title: {
+            template: `%s | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+            default: title
+        },
+        description,
+        keywords,
+        authors: [{ name: author }],
+        creator: author,
+        publisher: process.env.NEXT_PUBLIC_APP_NAME,
+        formatDetection: {
+            email: false,
+            address: false,
+            telephone: false,
+        },
+        icons,
+
+        // OpenGraph
+        openGraph: {
+            type,
+            siteName: process.env.NEXT_PUBLIC_APP_NAME,
+            title,
+            description,
+            ...(imageUrl && {
+                images: [{
+                    url: imageUrl,
+                    width: 1200,
+                    height: 630,
+                    alt: title
+                }]
+            }),
+            locale,
+            alternateLocale: Object.keys(alternates),
+            ...(publishedTime && { publishedTime }),
+            ...(modifiedTime && { modifiedTime })
+        },
+
+        // Twitter
+        twitter: {
+            card: imageUrl ? "summary_large_image" : "summary",
+            site: twitterHandle,
+            creator: twitterHandle,
+            title,
+            description,
+            ...(imageUrl && { images: [imageUrl] })
+        },
+
+        // Robots
+        robots: {
+            index: !noIndex,
+            follow: !noIndex,
+            googleBot: {
+                index: !noIndex,
+                follow: !noIndex,
+                'max-video-preview': -1,
+                'max-image-preview': 'large',
+                'max-snippet': -1,
+            },
+        },
+
+        // Verification
+        verification: {
+            google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+            yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION,
+            yahoo: process.env.NEXT_PUBLIC_YAHOO_VERIFICATION,
+        },
+    };
+};

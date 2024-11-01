@@ -19,27 +19,13 @@ enum Role {
   assistant
 }
 
-enum Plan {
-  FREE
-  PRO
-}
-
 model User {
   id           String  @id @default(cuid()) @map("_id")
   clerkId      String  @unique
   email        String  @unique
   name         String?
   avatar       String?
-  instructions String?
-
-  plan       Plan    @default(FREE)
-  customerId String? @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // messages     Message[]
-  // subscription Subscription?
-
-  // @@unique([customerId, id])
 }

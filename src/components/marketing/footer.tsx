@@ -29,7 +29,9 @@ const Footer = () => {
                             Empower your business with our AI tools.
                         </p>
                         <Button className="mt-8">
-                            Start for free
+                            <Link href="/app">
+                                Start for free
+                            </Link>
                         </Button>
                     </div>
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-lg mt-10 md:mt-0">

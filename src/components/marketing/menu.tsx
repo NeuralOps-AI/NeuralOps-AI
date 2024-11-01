@@ -1,7 +1,7 @@
 "use client"
 
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
-import { Box, CalendarClock, Captions, CircleHelp, FileText, LineChart, Newspaper } from 'lucide-react';
+import { CalendarRangeIcon, CircleHelp, HashIcon, Newspaper, UsersIcon } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import Icons from "../global/icons";
@@ -46,14 +46,14 @@ const Menu = () => {
                                     </Link>
                                 </NavigationMenuLink>
                             </li>
-                            <Item title="Caption Generation" href="/features/caption-generation" icon={<Captions className="w-5 h-5" />}>
-                                Generate captions using AI technology.
+                            <Item title="Content Calendar" href="/features/content-calendar" icon={<CalendarRangeIcon className="w-5 h-5" />}>
+                                Plan and visualize your content strategy.
                             </Item>
-                            <Item title="Post Scheduling" href="/features/post-scheduling" icon={<CalendarClock className="w-5 h-5" />}>
-                                Schedule posts effortlessly in advance.
+                            <Item title="Hashtag Manager" href="/features/hashtag-manager" icon={<HashIcon className="w-5 h-5" />}>
+                                Research and track trending hashtags.
                             </Item>
-                            <Item title="Analytics Dashboard" href="/features/analytics" icon={<LineChart className="w-5 h-5" />}>
-                                Track social media campaign performance.
+                            <Item title="Competitor Analysis" href="/features/competitor-analysis" icon={<UsersIcon className="w-5 h-5" />}>
+                                Monitor and analyze competitor performance.
                             </Item>
                         </ul>
                     </NavigationMenuContent>
@@ -80,12 +80,6 @@ const Menu = () => {
                         <ul className="grid w-[400px] gap-3 p-4 md:w-[400px] md:grid-cols-2 lg:w-[500px] xl:w-[500px]">
                             <Item title="Blog" href="/resources/blog" icon={<Newspaper className="w-5 h-5" />}>
                                 Read our latest articles and updates.
-                            </Item>
-                            <Item title="Case Studies" href="/resources/case-studies" icon={<FileText className="w-5 h-5" />}>
-                                Learn how our customers use Caps AI.
-                            </Item>
-                            <Item title="Tools" href="/resources/tools" icon={<Box className="w-5 h-5" />}>
-                                Access our free tools and resources.
                             </Item>
                             <Item title="Support" href="/resources/support" icon={<CircleHelp className="w-5 h-5" />}>
                                 Get help with any issues you may have.

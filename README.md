@@ -1,9 +1,10 @@
-<img src="https://github.com/user-attachments/assets/e1e0fe16-21f4-44c8-a22d-39b4494433a1" alt="Luro Logo" width="50" height="50">
+<img src="https://github.com/user-attachments/assets/a1d7ced5-e6fc-41fd-9256-9d73a5f33597" alt="Luro Logo" width="50" height="50">
+
 
 # 🔗 Luro - AI Powered Content Creation Platform(Landing Page)
 
 <!-- <img src="https://github.com/user-attachments/assets/deab03fd-4234-44c3-a6ad-484c4a1a02a1" alt="Linkify Thubmnail"> -->
-<img src="https://github.com/user-attachments/assets/ee867e8e-7871-4289-bd56-3eef40adb9b2" alt="Luro Thumbnail" style="border-radius: 12px;" width="1280">
+<img src="https://github.com/user-attachments/assets/0ff7129e-2f5d-48ae-913d-d4fd1507e613" alt="Luro Thumbnail" style="border-radius: 12px;" width="1280">
 
 
 ## 🌟 Introduction
@@ -23,7 +24,7 @@ Check out the live demo of Luro here: [Live Preview](http://luro-ai.vercel.app)
 
 ## 🎥 Watch Demo on YouTube
 
-Check out the tutorial to see how this social media marketing platform was built: [Watch the Tutorial](https://youtu.be/3_sZPAfVR_U) 💻 
+Check out the tutorial to see how this social media marketing platform was built: [Watch the Tutorial](https://youtu.be/q8mOwYrpAHA?si=XpGy9VIKkaWJmfPL) 💻 
 
 ## 💻 Tech Stack
 

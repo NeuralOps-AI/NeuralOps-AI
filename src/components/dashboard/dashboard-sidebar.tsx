@@ -9,6 +9,7 @@ import { Button, buttonVariants } from "../ui/button";
 
 import { cn } from "@/functions";
 import { useClerk } from "@clerk/nextjs";
+import ProfilePage from "../global/profile";
 
 
 const DashboardSidebar = () => {
@@ -79,6 +80,8 @@ const DashboardSidebar = () => {
                                 <LogOutIcon className="size-4 mr-1.5" />
                                 Logout
                             </Button>
+
+                          
                         </div>
                     </Container>
                 </div>

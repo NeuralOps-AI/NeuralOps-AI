@@ -1,4 +1,20 @@
-import { ClockIcon, MessageSquare, BarChart2, FileTextIcon, UserPlusIcon, CreditCardIcon, SettingsIcon, LogOut, Headphones, ChartPieIcon, LucideIcon, MessagesSquareIcon, NewspaperIcon, MegaphoneIcon, LineChartIcon, MessageSquareTextIcon, UsersIcon } from 'lucide-react';
+import { 
+    CpuIcon, 
+    BarChart2, 
+    ZapIcon, 
+    SettingsIcon, 
+    CreditCardIcon, 
+    UsersIcon, 
+    ShieldCheckIcon, 
+    LogOut, 
+    Headphones, 
+    ChartPieIcon, 
+    LucideIcon, 
+    NetworkIcon, 
+    TerminalSquareIcon, 
+    BotIcon, 
+    PlugZapIcon 
+} from 'lucide-react';
 
 type Link = {
     href: string;
@@ -13,24 +29,29 @@ export const SIDEBAR_LINKS: Link[] = [
         icon: ChartPieIcon,
     },
     {
-        href: "/dashboard/campaigns",
-        label: "Campaigns",
-        icon: MegaphoneIcon
+        href: "/dashboard/ai-agents",
+        label: "AI Agents",
+        icon: BotIcon
+    },
+    {
+        href: "/dashboard/workflows",
+        label: "Workflows",
+        icon: PlugZapIcon
     },
     {
         href: "/dashboard/analytics",
         label: "Analytics",
-        icon: LineChartIcon
+        icon: BarChart2
     },
     {
-        href: "/dashboard/posts",
-        label: "Posts",
-        icon: MessageSquareTextIcon
+        href: "/dashboard/integrations",
+        label: "Integrations",
+        icon: NetworkIcon
     },
     {
-        href: "/dashboard/engagement",
-        label: "Engagement",
-        icon: UsersIcon
+        href: "/dashboard/security",
+        label: "Security",
+        icon: ShieldCheckIcon
     },
     {
         href: "/dashboard/billing",
@@ -49,35 +70,34 @@ export const FOOTER_LINKS = [
         title: "Product",
         links: [
             { name: "Home", href: "/" },
-            { name: "Features", href: "/" },
-            { name: "Pricing", href: "/" },
-            { name: "Contact", href: "/" },
-            { name: "Download", href: "/" },
+            { name: "Features", href: "/features" },
+            { name: "Pricing", href: "/pricing" },
+            { name: "Contact", href: "/contact" },
+            { name: "Demo", href: "/demo" },
         ],
     },
     {
         title: "Resources",
         links: [
             { name: "Blog", href: "/blog" },
-            { name: "Help Center", href: "/help-center" },
+            { name: "AI Knowledge Base", href: "/ai-knowledge" },
             { name: "Community", href: "/community" },
-            { name: "Guides", href: "/guides" },
+            { name: "Use Cases", href: "/use-cases" },
         ],
     },
     {
         title: "Legal",
         links: [
-            { name: "Privacy", href: "/privacy" },
-            { name: "Terms", href: "/terms" },
-            { name: "Cookies", href: "/cookies" },
+            { name: "Privacy Policy", href: "/privacy" },
+            { name: "Terms of Service", href: "/terms" },
+            { name: "Data Protection", href: "/data-protection" },
         ],
     },
     {
         title: "Developers",
         links: [
             { name: "API Docs", href: "/api-docs" },
-            { name: "SDKs", href: "/sdks" },
-            { name: "Tools", href: "/tools" },
+            { name: "SDKs & Tools", href: "/sdk-tools" },
             { name: "Open Source", href: "/open-source" },
             { name: "Changelog", href: "/changelog" },
         ],

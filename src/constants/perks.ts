@@ -1,36 +1,61 @@
 import { Icons } from "@/components";
-import { ZapIcon, ChartSplineIcon, LifeBuoyIcon, PaletteIcon, ShieldCheckIcon, WaypointsIcon, BrainCircuitIcon, SparklesIcon } from "lucide-react";
+import { 
+    ZapIcon, 
+    ChartSplineIcon, 
+    LifeBuoyIcon, 
+    BrainCircuitIcon, 
+    ShieldCheckIcon, 
+    WaypointsIcon, 
+    SparklesIcon,
+    CpuIcon,
+    ServerIcon
+} from "lucide-react";
 import React from "react";
 
 export const PERKS = [
     {
         icon: ZapIcon,
-        title: "Fast and Efficient",
-        description: "Experience quick and seamless content creation with our optimized AI tools."
+        title: "Lightning-Fast Automation",
+        description: "Automate complex workflows in real-time with AI-driven speed and efficiency."
     },
     {
         icon: ChartSplineIcon,
-        title: "Insightful Analytics",
-        description: "Gain valuable insights and analytics to enhance your social media strategy."
+        title: "Data-Driven Decisions",
+        description: "Gain real-time insights and analytics to optimize your automated processes."
     },
     {
         icon: LifeBuoyIcon,
-        title: "24/7 Support",
-        description: "Our team is available around the clock to assist with any issues or questions."
+        title: "24/7 AI Support",
+        description: "AI-driven and human support available around the clock to keep your operations running."
     },
     {
-        icon: PaletteIcon,
-        title: "Customizable Solutions",
-        description: "Tailor the tools and features to fit your unique social media needs."
+        icon: BrainCircuitIcon,
+        title: "Adaptive AI Agents",
+        description: "NeuralOps AI learns and adapts to your business processes, making automation smarter over time."
     },
     {
         icon: ShieldCheckIcon,
-        title: "Secure and Reliable",
-        description: "Trust our platform to keep your data safe and ensure consistent performance."
+        title: "Enterprise-Grade Security",
+        description: "Your data is protected with top-tier encryption and security compliance."
     },
     {
         icon: WaypointsIcon,
         title: "Seamless Integration",
-        description: "Easily integrate with your existing social media platforms and tools."
+        description: "Connect effortlessly with APIs, CRMs, cloud services, and more."
     },
+    {
+        icon: SparklesIcon,
+        title: "Custom AI Workflows",
+        description: "Design, train, and deploy AI automation tailored to your specific business needs."
+    },
+    {
+        icon: CpuIcon,
+        title: "Real-Time Monitoring",
+        description: "Stay informed with continuous monitoring and performance tracking of your systems."
+    },
+    {
+        icon: ServerIcon,
+        title: "Scalable Architecture",
+        description: "Easily scale your infrastructure to meet growing demands without sacrificing performance."
+    }
 ];

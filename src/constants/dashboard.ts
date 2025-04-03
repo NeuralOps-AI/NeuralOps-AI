@@ -1,53 +1,53 @@
 export const ANALYTICS_DATA = [
-    { name: 'Jan', engagement: 3000, reach: 5200 },
-    { name: 'Feb', engagement: 3500, reach: 4800 },
-    { name: 'Mar', engagement: 1800, reach: 6900 },
-    { name: 'Apr', engagement: 2900, reach: 4800 },
-    { name: 'May', engagement: 3600, reach: 6200 },
-    { name: 'Jun', engagement: 3800, reach: 6400 },
-    { name: 'Jul', engagement: 4200, reach: 7600 },
-    { name: 'Aug', engagement: 3400, reach: 5800 },
-    { name: 'Sep', engagement: 3800, reach: 6500 },
-    { name: 'Oct', engagement: 4600, reach: 8200 },
-    { name: 'Nov', engagement: 3900, reach: 7000 },
-    { name: 'Dec', engagement: 3200, reach: 5600 }
+    { name: 'Jan', automations: 120, efficiencyGain: 15 },
+    { name: 'Feb', automations: 150, efficiencyGain: 18 },
+    { name: 'Mar', automations: 110, efficiencyGain: 12 },
+    { name: 'Apr', automations: 140, efficiencyGain: 20 },
+    { name: 'May', automations: 180, efficiencyGain: 25 },
+    { name: 'Jun', automations: 200, efficiencyGain: 30 },
+    { name: 'Jul', automations: 220, efficiencyGain: 35 },
+    { name: 'Aug', automations: 210, efficiencyGain: 33 },
+    { name: 'Sep', automations: 230, efficiencyGain: 37 },
+    { name: 'Oct', automations: 250, efficiencyGain: 40 },
+    { name: 'Nov', automations: 270, efficiencyGain: 42 },
+    { name: 'Dec', automations: 290, efficiencyGain: 45 }
 ];
 
 export const ACTIVITIES = [
-    { id: 1, text: 'New campaign "Summer Sale" created', time: '2 hours ago' },
-    { id: 2, text: 'Post scheduled for Instagram', time: '4 hours ago' },
-    { id: 3, text: 'Facebook engagement up by 23%', time: '6 hours ago' },
+    { id: 1, text: 'New NeuralOps AI agent deployed for intelligent workflow optimization', time: '1 hour ago' },
+    { id: 2, text: 'Workflow automation "Sales Funnel" fine-tuned for better conversion rates', time: '3 hours ago' },
+    { id: 3, text: 'NeuralOps AI dashboard updated with real-time operational insights', time: '6 hours ago' },
 ];
 
 export const RECENT_SALES = [
     {
-        name: "Olivia Martin",
-        email: "olivia.martin@email.com",
-        amount: "+$1,999.00"
+        name: "Ava Johnson",
+        email: "ava.johnson@email.com",
+        amount: "+$2,499.00"
     },
     {
-        name: "Jackson Lee",
-        email: "jackson.lee@email.com",
-        amount: "+$39.00"
+        name: "Noah Patel",
+        email: "noah.patel@email.com",
+        amount: "+$59.00"
     },
     {
-        name: "Isabella Nguyen",
-        email: "isabella.nguyen@email.com",
-        amount: "+$299.00"
+        name: "Emma Rodriguez",
+        email: "emma.rodriguez@email.com",
+        amount: "+$349.00"
     },
     {
-        name: "William Kim",
-        email: "will@email.com",
-        amount: "+$99.00"
+        name: "Liam Wilson",
+        email: "liam.wilson@email.com",
+        amount: "+$129.00"
     },
     {
-        name: "Sofia Davis",
-        email: "sofia.davis@email.com",
-        amount: "+$39.00"
+        name: "Sophia Miller",
+        email: "sophia.miller@email.com",
+        amount: "+$49.00"
     },
     {
-        name: "Ethan Thompson",
-        email: "ethan.thompson@email.com",
-        amount: "+$199.00"
+        name: "Benjamin Carter",
+        email: "benjamin.carter@email.com",
+        amount: "+$219.00"
     }
 ];

@@ -14,57 +14,55 @@ export const PLANS: PLAN[] = [
     {
         id: "free",
         title: "Free",
-        desc: "Get started with essential tools for social media content creation",
+        desc: "Get started with essential NeuralOps AI tools for automation and monitoring.",
         monthlyPrice: 0,
         yearlyPrice: 0,
         buttonText: "Get Started",
         features: [
-            "Basic AI content generation",
-            "4 social media integrations",
+            "Basic AI automation",
+            "Real-time monitoring",
+            "Limited integrations",
             "Community support",
-            "1 project limit",
-            "Standard analytics",
-            "Basic image generation"
+            "Single project",
+            "Standard analytics"
         ],
         link: "https://stripe.com/free-plan-link"
     },
     {
         id: "pro",
         title: "Pro",
-        desc: "Unlock advance features for enhanced content and strategy",
+        desc: "Unlock advanced NeuralOps AI features for smarter, data-driven automation.",
         monthlyPrice: 10,
         yearlyPrice: 120,
         badge: "Most Popular",
         buttonText: "Upgrade to Pro",
         features: [
-            "Advanced AI content generation",
-            "10 social media integrations",
-            "Priority email support",
-            "10 project limit",
-            "Enhanced analytics & insights",
-            "Pro model image generation",
-            "Team collaboration tools",
-            "Custom branding options"
+            "Advanced AI automation",
+            "Enhanced real-time analytics",
+            "Priority support",
+            "Multiple project limits",
+            "Custom workflow integrations",
+            "Pro-level security",
+            "Team collaboration tools"
         ],
         link: "https://stripe.com/pro-plan-link"
     },
     {
         id: "enterprise",
         title: "Enterprise",
-        desc: "Tailored solutions for large organizations and agencies",
+        desc: "Tailored NeuralOps AI solutions for large organizations and high-demand operations.",
         monthlyPrice: 15,
         yearlyPrice: 180,
         badge: "Contact Sales",
         buttonText: "Upgrade to Enterprise",
         features: [
-            "Unlimited AI content generation",
-            "All social media integrations",
-            "Dedicated account manager",
+            "Unlimited AI automation",
+            "Comprehensive system integrations",
+            "Dedicated support team",
             "Unlimited projects",
             "Custom analytics & reporting",
             "Enterprise-grade security",
-            "Free updates",
-            // "24/7 priority support"
+            "Bespoke AI workflow solutions"
         ],
         link: "https://stripe.com/enterprise-plan-link"
     }

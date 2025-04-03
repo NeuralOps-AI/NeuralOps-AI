@@ -1,7 +1,7 @@
 "use client"
 
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
-import { CalendarRangeIcon, CircleHelp, HashIcon, Newspaper, UsersIcon } from 'lucide-react';
+import { CalendarRangeIcon, CircleHelp, Newspaper, UsersIcon } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import Icons from "../global/icons";
@@ -38,22 +38,22 @@ const Menu = () => {
                                     >
                                         <Icons.icon className="w-6 h-6" />
                                         <div className="my-2 text-lg font-normal">
-                                            Luro AI
+                                            Neural-Ops AI
                                         </div>
                                         <p className="text-sm text-muted-foreground">
-                                            Your ultimate social media management tool
+                                            Your ultimate AI-driven automation platform
                                         </p>
                                     </Link>
                                 </NavigationMenuLink>
                             </li>
-                            <Item title="Content Calendar" href="/features/content-calendar" icon={<CalendarRangeIcon className="w-5 h-5" />}>
-                                Plan and visualize your content strategy.
+                            <Item title="Workflow Automation" href="/features/workflow-automation" icon={<CalendarRangeIcon className="w-5 h-5" />}>
+                                Automate your business processes in real-time.
                             </Item>
-                            <Item title="Hashtag Manager" href="/features/hashtag-manager" icon={<HashIcon className="w-5 h-5" />}>
-                                Research and track trending hashtags.
+                            <Item title="Real-Time Analytics" href="/features/real-time-analytics" icon={<UsersIcon className="w-5 h-5" />}>
+                                Monitor operations with actionable insights.
                             </Item>
-                            <Item title="Competitor Analysis" href="/features/competitor-analysis" icon={<UsersIcon className="w-5 h-5" />}>
-                                Monitor and analyze competitor performance.
+                            <Item title="Adaptive AI Agents" href="/features/adaptive-ai" icon={<UsersIcon className="w-5 h-5" />}>
+                                Evolve your automation workflows with continuous learning.
                             </Item>
                         </ul>
                     </NavigationMenuContent>
@@ -79,10 +79,10 @@ const Menu = () => {
                     <NavigationMenuContent>
                         <ul className="grid w-[400px] gap-3 p-4 md:w-[400px] md:grid-cols-2 lg:w-[500px] xl:w-[500px]">
                             <Item title="Blog" href="/resources/blog" icon={<Newspaper className="w-5 h-5" />}>
-                                Read our latest articles and updates.
+                                Read the latest AI automation insights and updates.
                             </Item>
                             <Item title="Support" href="/resources/support" icon={<CircleHelp className="w-5 h-5" />}>
-                                Get help with any issues you may have.
+                                Get expert support for your NeuralOps AI platform.
                             </Item>
                         </ul>
                     </NavigationMenuContent>
@@ -121,4 +121,4 @@ const Item = ({ title, href, children, icon, ...props }: Props) => {
 
 Item.displayName = "Item";
 
-export default Menu
+export default Menu;

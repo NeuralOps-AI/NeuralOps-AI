@@ -17,9 +17,9 @@ interface MetadataProps {
 }
 
 export const generateMetadata = ({
-    title = `${process.env.NEXT_PUBLIC_APP_NAME} - Smart Social Media Marketing Platform`,
-    description = "Streamline your social media management with AI-powered analytics, scheduling, and content optimization. Get real-time insights, automate posts, and boost engagement across all platforms",
-    image = "/thumbnail.png",
+    title = `${process.env.NEXT_PUBLIC_APP_NAME} - AI-Powered Business Automation`,
+    description = "NeuralOps AI automates business workflows, optimizes operations, and enhances decision-making with autonomous AI agents. Scale your business efficiency with real-time AI-driven insights.",
+    image = "/neuralops-thumbnail.png",
     icons = [
         {
             rel: "icon",
@@ -36,22 +36,23 @@ export const generateMetadata = ({
     ],
     noIndex = false,
     keywords = [
-        "AI content creation",
-        "content automation",
-        "AI writing assistant",
-        "content generation",
-        "artificial intelligence",
-        "content marketing"
+        "AI automation",
+        "business intelligence",
+        "workflow automation",
+        "NeuralOps AI",
+        "AI-powered decision making",
+        "enterprise AI",
+        "autonomous AI agents"
     ],
-    author = process.env.NEXT_PUBLIC_AUTHOR_NAME,
-    twitterHandle = "@yourtwitterhandle",
+    author = process.env.NEXT_PUBLIC_AUTHOR_NAME || "NeuralOps AI Team",
+    twitterHandle = "@NeuralOpsAI",
     type = "website",
     locale = "en_US",
     alternates = {},
     publishedTime,
     modifiedTime
 }: MetadataProps = {}): Metadata => {
-    const metadataBase = new URL(process.env.NEXT_PUBLIC_APP_URL || "https://luro-ai.vercel.app");
+    const metadataBase = new URL(process.env.NEXT_PUBLIC_APP_URL || "https://neuralops.ai");
     const imageUrl = image ? new URL(image, metadataBase).toString() : null;
 
     return {

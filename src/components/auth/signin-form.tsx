@@ -270,7 +270,9 @@ const OtpInput = ({
           className="relative"
         >
           <input
-            ref={(el) => (inputRefs.current[index] = el)}
+            ref={(el) => {
+              inputRefs.current[index] = el
+            }}
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
@@ -632,7 +634,7 @@ const SignInForm = () => {
 
                 <motion.div variants={ITEM} className="mt-6 p-3 rounded-md border border-zinc-800 bg-zinc-900/50">
                   <p className="text-xs text-zinc-400 italic">
-                    <span className="text-primary">"</span>
+                    <span className="text-primary">&quot;</span>
                     <TypeWriter text="We built Neural-Ops to help teams unlock their full potential through AI-powered workflows." />
                   </p>
                   <p className="text-xs font-medium text-zinc-300 mt-2">— Likhit Tanishq, Founder</p>

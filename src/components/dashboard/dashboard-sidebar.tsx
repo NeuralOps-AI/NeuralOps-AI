@@ -9,7 +9,6 @@ import { Button, buttonVariants } from "../ui/button";
 
 import { cn } from "@/functions";
 import { useClerk } from "@clerk/nextjs";
-import ProfilePage from "../global/profile";
 
 
 const DashboardSidebar = () => {

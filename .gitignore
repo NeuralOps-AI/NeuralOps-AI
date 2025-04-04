@@ -38,3 +38,4 @@ next-env.d.ts
 
 # other
 index.txt
+.vercel

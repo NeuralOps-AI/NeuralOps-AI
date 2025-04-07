@@ -7,18 +7,136 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Roles for NeuralOps AI users.
 enum Role {
   user
   assistant
 }
 
-model User {
-  id        String  @id @default(uuid()) // Change to UUID for PostgreSQL
-  clerkId   String  @unique
-  email     String  @unique
-  name      String?
-  avatar    String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+// Task statuses to track execution progress.
+enum TaskStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+// Agent statuses to monitor autonomous worker availability.
+enum AgentStatus {
+  IDLE
+  BUSY
+  OFFLINE
+}
+
+// The User model represents individuals using the platform.
+model User {
+  id         String    @id @default(uuid())
+  clerkId    String    @unique
+  email      String    @unique
+  name       String?
+  avatar     String?
+  role       Role      @default(user)
+
+  // A user can create multiple projects.
+  projects   Project[]
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+// Projects represent customer initiatives or business domains
+// where NeuralOps AI automates complex workflows.
+model Project {
+  id            String        @id @default(uuid())
+  name          String
+  description   String?
+  ownerId       String
+  owner         User          @relation(fields: [ownerId], references: [id])
+
+  // Each project can have multiple workflows, agents, and integrations.
+  workflows     Workflow[]
+  agents        Agent[]
+  integrations  Integration[]
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+// Workflows are the no-code automation flows created by users via a drag-and-drop builder.
+model Workflow {
+  id            String    @id @default(uuid())
+  projectId     String
+  name          String
+  description   String?
+
+  // Serialized configuration of workflow steps.
+  steps         Json?
+
+  // A workflow consists of multiple tasks to execute specific operations.
+  tasks         Task[]
+
+  project       Project   @relation(fields: [projectId], references: [id])
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// Tasks represent individual operations within a workflow, such as email management or data extraction.
+model Task {
+  id            String     @id @default(uuid())
+  workflowId    String
+  name          String
+  description   String?
+
+  // Dynamic parameters for task execution (e.g., API settings, hyperparameters).
+  parameters    Json?
+
+  // Logs and output details stored as JSON.
+  logs          Json?
+  status        TaskStatus @default(PENDING)
+
+  // Optionally, a task can be assigned to an AI agent.
+  agentId       String?
+  agent         Agent?     @relation(fields: [agentId], references: [id])
+
+  workflow      Workflow   @relation(fields: [workflowId], references: [id])
+
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+// Agents are autonomous AI workers that execute tasks within workflows.
+// They continuously learn and improve to handle new challenges.
+model Agent {
+  id            String       @id @default(uuid())
+  projectId     String
+  name          String       // e.g., "Email Automator", "CRM Updater"
+  type          String       // Agent specialization or function description.
+  status        AgentStatus  @default(IDLE)
+
+  // An agent may process multiple tasks over its lifetime.
+  tasks         Task[]
+
+  project       Project      @relation(fields: [projectId], references: [id])
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+// Integrations allow seamless connections with external systems like Salesforce, Gmail, or Slack.
+// They enable real-time data exchange and operational insights.
+model Integration {
+  id            String    @id @default(uuid())
+  projectId     String
+  name          String    // Integration name, e.g., "Salesforce"
+  provider      String    // External service provider.
+  // Configuration details (API keys, endpoints, credentials) stored as JSON.
+  config        Json?
+
+  project       Project   @relation(fields: [projectId], references: [id])
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }

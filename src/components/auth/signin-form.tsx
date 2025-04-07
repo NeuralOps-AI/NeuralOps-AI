@@ -152,10 +152,15 @@ const TypeWriter = ({ text, speed = 25 }: { text: string; speed?: number }) => {
 const FloatingParticles = () => {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      {[...Array(20)].map((_, i) => (
+      {[...Array(12)].map((_, i) => (
         <motion.div
           key={i}
-          className={`absolute w-${i % 3 === 0 ? "1" : "0.5"} h-${i % 3 === 0 ? "1" : "0.5"} bg-primary/20 rounded-full`}
+          className="absolute rounded-full"
+          style={{
+            width: i % 3 === 0 ? "4px" : "2px",
+            height: i % 3 === 0 ? "4px" : "2px",
+            background: `rgba(var(--primary-rgb), ${i % 2 === 0 ? 0.2 : 0.15})`,
+          }}
           initial={{
             x: `${Math.random() * 100}%`,
             y: `${Math.random() * 100}%`,
@@ -283,10 +288,10 @@ const OtpInput = ({
             onKeyDown={(e) => handleKeyDown(e, index)}
             onPaste={(e) => handlePaste(e, index)}
             className={`
-              w-8 h-10 text-center font-medium text-white bg-zinc-900/80 
-              border-2 ${value[index] ? "border-primary/70" : "border-zinc-800"} 
-              rounded-md focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/70
-              transition-all duration-200
+              w-10 h-12 text-center font-medium text-white bg-zinc-900/80 
+              border-2 ${value[index] ? "border-primary" : "border-zinc-800"} 
+              rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
+              transition-all duration-200 shadow-md
             `}
             aria-label={`Digit ${index + 1}`}
           />
@@ -370,9 +375,11 @@ const SignInForm = () => {
       })
 
       setIsCodeSent(true)
-      toast.success("Verification code sent to your email", {
-        description: "Please check your inbox",
-        icon: <MailIcon className="h-4 w-4" />,
+      toast.success("Verification code sent", {
+        description: "Please check your email inbox",
+        duration: 5000,
+        className: "border-l-4 border-l-green-500 bg-zinc-900",
+        icon: <MailIcon className="h-4 w-4 text-green-500" />,
       })
     } catch (error: any) {
       console.error(JSON.stringify(error, null, 2))
@@ -415,8 +422,9 @@ const SignInForm = () => {
         setIsSuccess(true)
         toast.success("Login successful!", {
           description: "Redirecting you to your dashboard",
-          icon: <CheckIcon className="h-4 w-4" />,
           duration: 3000,
+          className: "border-l-4 border-l-green-500 bg-zinc-900",
+          icon: <CheckIcon className="h-4 w-4 text-green-500" />,
         })
 
         // Small delay for animation
@@ -456,36 +464,15 @@ const SignInForm = () => {
   }, [from])
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black text-white">
+    <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-b from-black to-zinc-900 text-white">
       <Toaster
         position="top-center"
-        toastOptions={{
-          style: {
-            background: "#18181b",
-            color: "#fff",
-            border: "1px solid #27272a",
-            borderRadius: "6px",
-          },
-          success: {
-            icon: <CheckIcon className="h-4 w-4 text-green-500" />,
-            style: {
-              borderLeft: "3px solid #10b981",
-            },
-          },
-          error: {
-            icon: "✕",
-            style: {
-              borderLeft: "3px solid #ef4444",
-            },
-          },
-          loading: {
-            style: {
-              borderLeft: "3px solid #3b82f6",
-            },
-          },
-        }}
         closeButton
         richColors
+        theme="dark"
+        toastOptions={{
+          duration: 4000,
+        }}
       />
 
       <FloatingParticles />
@@ -592,7 +579,7 @@ const SignInForm = () => {
                     onClick={() => handleOAuth("oauth_google")}
                     variant="outline"
                     size="sm"
-                    className="w-full relative border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-white h-8 rounded-md"
+                    className="w-full relative border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-white h-9 rounded-md"
                   >
                     {isGoogleLoading ? <Spinner className="mr-2" /> : <Icons.google className="w-3.5 h-3.5 mr-2" />}
                     <span className="text-xs">Continue with Google</span>
@@ -606,7 +593,7 @@ const SignInForm = () => {
                     onClick={() => handleOAuth("oauth_apple")}
                     variant="outline"
                     size="sm"
-                    className="w-full relative border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-white h-8 rounded-md"
+                    className="w-full relative border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-white h-9 rounded-md"
                   >
                     {isAppleLoading ? <Spinner className="mr-2" /> : <Icons.apple className="w-3.5 h-3.5 mr-2" />}
                     <span className="text-xs">Continue with Apple</span>
@@ -625,7 +612,7 @@ const SignInForm = () => {
                     disabled={isGoogleLoading || isAppleLoading}
                     onClick={() => setIsEmailOpen(false)}
                     size="sm"
-                    className="w-full bg-primary hover:bg-primary/90 h-8 rounded-md"
+                    className="w-full bg-primary hover:bg-primary/90 h-9 rounded-md"
                   >
                     <MailIcon className="w-3.5 h-3.5 mr-2" aria-hidden="true" />
                     <span className="text-xs">Continue with email</span>
@@ -670,7 +657,7 @@ const SignInForm = () => {
                         type="submit"
                         disabled={isCodeLoading || code.length < 6}
                         size="sm"
-                        className="w-full bg-primary hover:bg-primary/90 h-8 rounded-md transition-all duration-200"
+                        className="w-full bg-primary hover:bg-primary/90 h-9 rounded-md transition-all duration-200"
                       >
                         {isCodeLoading ? (
                           <>
@@ -690,7 +677,7 @@ const SignInForm = () => {
                         disabled={isCodeLoading}
                         variant="outline"
                         size="sm"
-                        className="w-full border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-white h-8 rounded-md"
+                        className="w-full border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-white h-9 rounded-md"
                       >
                         <Link href="https://mail.google.com" target="_blank" rel="noopener noreferrer">
                           <Icons.gmail className="w-3.5 h-3.5 mr-1.5" />
@@ -703,7 +690,7 @@ const SignInForm = () => {
                         disabled={isCodeLoading}
                         variant="outline"
                         size="sm"
-                        className="w-full border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-white h-8 rounded-md"
+                        className="w-full border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-white h-9 rounded-md"
                       >
                         <Link href="https://outlook.live.com" target="_blank" rel="noopener noreferrer">
                           <Icons.outlook className="w-3.5 h-3.5 mr-1.5" />
@@ -719,7 +706,7 @@ const SignInForm = () => {
                         size="sm"
                         disabled={isCodeLoading}
                         onClick={() => setIsEmailOpen(true)}
-                        className="w-full text-zinc-400 hover:text-white hover:bg-zinc-800 h-8 rounded-md"
+                        className="w-full text-zinc-400 hover:text-white hover:bg-zinc-800 h-9 rounded-md"
                       >
                         <ArrowLeftIcon className="w-3 h-3 mr-1.5" />
                         <span className="text-xs">Back to login options</span>
@@ -745,7 +732,7 @@ const SignInForm = () => {
                         disabled={isEmailLoading}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Enter your email address"
-                        className="w-full bg-zinc-900/80 border-zinc-800 text-white placeholder:text-zinc-500 h-8 text-sm rounded-md"
+                        className="w-full bg-zinc-900/80 border-zinc-800 text-white placeholder:text-zinc-500 h-9 text-sm rounded-md"
                         required
                       />
                     </motion.div>
@@ -755,7 +742,7 @@ const SignInForm = () => {
                         type="submit"
                         disabled={isEmailLoading}
                         size="sm"
-                        className="w-full bg-primary hover:bg-primary/90 h-8 rounded-md"
+                        className="w-full bg-primary hover:bg-primary/90 h-9 rounded-md"
                       >
                         {isEmailLoading ? (
                           <>
@@ -775,7 +762,7 @@ const SignInForm = () => {
                         size="sm"
                         disabled={isEmailLoading}
                         onClick={() => setIsEmailOpen(true)}
-                        className="w-full text-zinc-400 hover:text-white hover:bg-zinc-800 h-8 rounded-md"
+                        className="w-full text-zinc-400 hover:text-white hover:bg-zinc-800 h-9 rounded-md"
                       >
                         <ArrowLeftIcon className="w-3 h-3 mr-1.5" />
                         <span className="text-xs">Back to login options</span>

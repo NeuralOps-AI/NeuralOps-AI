@@ -1,8 +1,7 @@
 "use client"
 
-import type React from "react"
-
-import { useEffect, useState, useRef } from "react"
+import React from "react"
+import { useEffect, useState, useRef, useMemo, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
@@ -11,6 +10,7 @@ import { ArrowLeftIcon, MailIcon, CheckIcon, LockIcon } from "lucide-react"
 import { Toaster, toast } from "sonner"
 import { useSignIn } from "@clerk/nextjs"
 import type { OAuthStrategy } from "@clerk/types"
+import Head from "next/head"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -49,7 +49,7 @@ const SCALE = {
 
 // Icons components
 const Icons = {
-  google: (props: any) => (
+  google: (props: React.SVGProps<SVGSVGElement>) => (
     <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" {...props}>
       <path
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -70,7 +70,7 @@ const Icons = {
       <path d="M1 1h22v22H1z" fill="none" />
     </svg>
   ),
-  apple: (props: any) => (
+  apple: (props: React.SVGProps<SVGSVGElement>) => (
     <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" {...props}>
       <path
         d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701z"
@@ -78,7 +78,7 @@ const Icons = {
       />
     </svg>
   ),
-  gmail: (props: any) => (
+  gmail: (props: React.SVGProps<SVGSVGElement>) => (
     <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" {...props}>
       <path
         d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"
@@ -86,10 +86,10 @@ const Icons = {
       />
     </svg>
   ),
-  outlook: (props: any) => (
+  outlook: (props: React.SVGProps<SVGSVGElement>) => (
     <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" {...props}>
       <path
-        d="M7.88 12.04q0 .45-.11.87-.1.41-.33.74-.22.33-.58.52-.37.2-.87.2t-.85-.2q-.35-.21-.57-.55-.22-.33-.33-.75-.1-.42-.1-.86t.1-.87q.1-.43.34-.76.22-.34.59-.54.36-.2.87-.2t.86.2q.35.21.57.55.22.34.31.77.1.43.1.88zM24 12v9.38q0 .46-.33.8-.33.32-.8.32H7.13q-.46 0-.8-.33-.32-.33-.32-.8V18H1q-.41 0-.7-.3-.3-.29-.3-.7V7q0-.41.3-.7Q.58 6 1 6h6.5V2.55q0-.44.3-.75.3-.3.75-.3h12.9q.44 0 .75.3.3.3.3.75V10.85l1.24.72h.01q.1.07.18.18.07.12.07.25zm-6-8.25v3h3v-3zm0 4.5v3h3v-3zm0 4.5v1.83l3.05-1.83zm-5.25-9v3h3.75v-3zm0 4.5v3h3.75v-3zm0 4.5v2.03l2.41 1.5 1.34-.8v-2.73zM9 3.75V6h2l.13.01.12.04v-2.3zM5.98 15.98q.9 0 1.6-.3.7-.32 1.19-.86.48-.55.73-1.28.25-.74.25-1.61 0-.83-.25-1.55-.24-.71-.71-1.24t-1.15-.83q-.68-.3-1.55-.3-.92 0-1.64.3-.71.3-1.2.85-.5.54-.75 1.3-.25.74-.25 1.63 0 .85.26 1.56.26.72.74 1.23.48.52 1.17.81.69.3 1.56.3zM7.5 21h12.39L12 16.08V17q0 .41-.3.7-.29.3-.7.3H7.5zm15-.13v-7.24l-5.9 3.54Z"
+        d="M7.88 12.04q0 .45-.11.87-.1.41-.33.74-.22.33-.58.52-.37.2-.87.2t-.85-.2q-.35-.21-.57-.55-.22-.33-.33-.75-.1-.42-.1-.86t.1-.87q.1-.43.34-.76.22-.34.59-.54.36-.2.87-.2t.86.2q.35.21.57.55.22.34.31.77.1.43.1.88zM24 12v9.38q0 .46-.33.8-.33.32-.8.32H7.13q-.46 0-.8-.33-.32-.32-.32-.8V18H1q-.41 0-.7-.3-.3-.29-.3-.7V7q0-.41.3-.7Q.58 6 1 6h6.5V2.55q0-.44.3-.75.3-.3.75-.3h12.9q.44 0 .75.3.3.3.3.75V10.85l1.24.72h.01q.1.07.18.18.07.12.07.25zm-6-8.25v3h3v-3zm0 4.5v3h3v-3zm0 4.5v1.83l3.05-1.83zm-5.25-9v3h3.75v-3zm0 4.5v3h3.75v-3zm0 4.5v2.03l2.41 1.5 1.34-.8v-2.73zM9 3.75V6h2l.13.01.12.04v-2.3zM5.98 15.98q.9 0 1.6-.3.7-.32 1.19-.86.48-.55.73-1.28.25-.74.25-1.61 0-.83-.25-1.55-.24-.71-.71-1.24t-1.15-.83q-.68-.3-1.55-.3-.92 0-1.64.3-.71.3-1.2.85-.5.54-.75 1.3-.25.74-.25 1.63 0 .85.26 1.56.26.72.74 1.23.48.52 1.17.81.69.3 1.56.3zM7.5 21h12.39L12 16.08V17q0 .41-.3.7-.29.3-.7.3H7.5zm15-.13v-7.24l-5.9 3.54Z"
         fill="currentColor"
       />
     </svg>
@@ -111,6 +111,15 @@ const Spinner = ({ className = "" }: { className?: string }) => (
       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
     ></path>
   </svg>
+)
+
+// Loading skeleton for better UX during transitions
+const LoadingSkeleton = () => (
+  <div className="space-y-3 animate-pulse">
+    <div className="h-9 bg-zinc-800/50 rounded-md w-full"></div>
+    <div className="h-9 bg-zinc-800/50 rounded-md w-full"></div>
+    <div className="h-9 bg-zinc-800/50 rounded-md w-full"></div>
+  </div>
 )
 
 // Typing animation component
@@ -149,17 +158,27 @@ const TypeWriter = ({ text, speed = 25 }: { text: string; speed?: number }) => {
 }
 
 // Floating particles component
-const FloatingParticles = () => {
+const FloatingParticles = React.memo(() => {
+  const particles = useMemo(() => {
+    return Array.from({ length: 8 }).map((_, i) => ({
+      id: i,
+      size: i % 3 === 0 ? "4px" : "2px",
+      opacity: i % 2 === 0 ? 0.2 : 0.15,
+      duration: Math.random() * 8 + 8,
+      delay: Math.random() * 2,
+    }))
+  }, [])
+
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      {[...Array(12)].map((_, i) => (
+      {particles.map((particle) => (
         <motion.div
-          key={i}
+          key={particle.id}
           className="absolute rounded-full"
           style={{
-            width: i % 3 === 0 ? "4px" : "2px",
-            height: i % 3 === 0 ? "4px" : "2px",
-            background: `rgba(var(--primary-rgb), ${i % 2 === 0 ? 0.2 : 0.15})`,
+            width: particle.size,
+            height: particle.size,
+            background: `rgba(var(--primary-rgb), ${particle.opacity})`,
           }}
           initial={{
             x: `${Math.random() * 100}%`,
@@ -172,16 +191,17 @@ const FloatingParticles = () => {
             opacity: [0, 0.7, 0],
           }}
           transition={{
-            duration: Math.random() * 8 + 8,
+            duration: particle.duration,
             repeat: Number.POSITIVE_INFINITY,
             ease: "linear",
-            delay: Math.random() * 2,
+            delay: particle.delay,
           }}
         />
       ))}
     </div>
   )
-}
+})
+FloatingParticles.displayName = "FloatingParticles"
 
 // OTP Input component
 const OtpInput = ({
@@ -197,17 +217,65 @@ const OtpInput = ({
 }) => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
-  // Initialize refs array
-  useEffect(() => {
-    inputRefs.current = inputRefs.current.slice(0, length)
-  }, [length])
-
   // Handle input change
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-    const val = e.target.value
-    if (val.length > 1) {
-      // If pasted multiple digits
-      const digits = val.split("").slice(0, length - index)
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+      const val = e.target.value
+      if (val.length > 1) {
+        // If pasted multiple digits
+        const digits = val.split("").slice(0, length - index)
+        let newValue = value.slice(0, index) + digits.join("")
+        if (newValue.length > length) newValue = newValue.slice(0, length)
+        onChange(newValue)
+
+        // Focus on next empty input or last input
+        const nextIndex = Math.min(index + digits.length, length - 1)
+        inputRefs.current[nextIndex]?.focus()
+      } else if (val.length === 1) {
+        // Single digit entered
+        const newValue = value.slice(0, index) + val + value.slice(index + 1)
+        onChange(newValue)
+
+        // Focus next input
+        if (index < length - 1) {
+          inputRefs.current[index + 1]?.focus()
+        }
+      }
+    },
+    [length, onChange, value],
+  )
+
+  // Handle backspace
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+      if (e.key === "Backspace" && !value[index] && index > 0) {
+        // If current input is empty and backspace is pressed, focus previous input
+        const newValue = value.slice(0, index - 1) + value.slice(index)
+        onChange(newValue)
+        inputRefs.current[index - 1]?.focus()
+      } else if (e.key === "ArrowLeft" && index > 0) {
+        inputRefs.current[index - 1]?.focus()
+      } else if (e.key === "ArrowRight" && index < length - 1) {
+        inputRefs.current[index + 1]?.focus()
+      }
+    },
+    [length, onChange, value],
+  )
+
+  // Handle paste
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent<HTMLInputElement>, index: number) => {
+      e.preventDefault()
+      const pastedData = e.clipboardData.getData("text/plain").trim()
+      if (!pastedData) return
+
+      // Only use digits from pasted content
+      const digits = pastedData
+        .split("")
+        .filter((char) => /\d/.test(char))
+        .slice(0, length - index)
+      if (digits.length === 0) return
+
       let newValue = value.slice(0, index) + digits.join("")
       if (newValue.length > length) newValue = newValue.slice(0, length)
       onChange(newValue)
@@ -215,57 +283,15 @@ const OtpInput = ({
       // Focus on next empty input or last input
       const nextIndex = Math.min(index + digits.length, length - 1)
       inputRefs.current[nextIndex]?.focus()
-    } else if (val.length === 1) {
-      // Single digit entered
-      const newValue = value.slice(0, index) + val + value.slice(index + 1)
-      onChange(newValue)
+    },
+    [length, onChange, value],
+  )
 
-      // Focus next input
-      if (index < length - 1) {
-        inputRefs.current[index + 1]?.focus()
-      }
-    }
-  }
-
-  // Handle backspace
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    if (e.key === "Backspace" && !value[index] && index > 0) {
-      // If current input is empty and backspace is pressed, focus previous input
-      const newValue = value.slice(0, index - 1) + value.slice(index)
-      onChange(newValue)
-      inputRefs.current[index - 1]?.focus()
-    } else if (e.key === "ArrowLeft" && index > 0) {
-      inputRefs.current[index - 1]?.focus()
-    } else if (e.key === "ArrowRight" && index < length - 1) {
-      inputRefs.current[index + 1]?.focus()
-    }
-  }
-
-  // Handle paste
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>, index: number) => {
-    e.preventDefault()
-    const pastedData = e.clipboardData.getData("text/plain").trim()
-    if (!pastedData) return
-
-    // Only use digits from pasted content
-    const digits = pastedData
-      .split("")
-      .filter((char) => /\d/.test(char))
-      .slice(0, length - index)
-    if (digits.length === 0) return
-
-    let newValue = value.slice(0, index) + digits.join("")
-    if (newValue.length > length) newValue = newValue.slice(0, length)
-    onChange(newValue)
-
-    // Focus on next empty input or last input
-    const nextIndex = Math.min(index + digits.length, length - 1)
-    inputRefs.current[nextIndex]?.focus()
-  }
-
-  return (
-    <div className="flex justify-between gap-2 w-full">
-      {[...Array(length)].map((_, index) => (
+  // Initialize refs array with useMemo
+  const inputs = useMemo(() => {
+    return Array(length)
+      .fill(null)
+      .map((_, index) => (
         <motion.div
           key={index}
           variants={SCALE}
@@ -288,11 +314,11 @@ const OtpInput = ({
             onKeyDown={(e) => handleKeyDown(e, index)}
             onPaste={(e) => handlePaste(e, index)}
             className={`
-              w-10 h-12 text-center font-medium text-white bg-zinc-900/80 
-              border-2 ${value[index] ? "border-primary" : "border-zinc-800"} 
-              rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
-              transition-all duration-200 shadow-md
-            `}
+            w-10 h-12 text-center font-medium text-white bg-zinc-900/80 
+            border-2 ${value[index] ? "border-primary" : "border-zinc-800"} 
+            rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
+            transition-all duration-200 shadow-md
+          `}
             aria-label={`Digit ${index + 1}`}
           />
           {index < length - 1 && (
@@ -301,9 +327,22 @@ const OtpInput = ({
             </div>
           )}
         </motion.div>
-      ))}
-    </div>
-  )
+      ))
+  }, [length, value, disabled, handleChange, handleKeyDown, handlePaste])
+
+  return <div className="flex justify-between gap-2 w-full">{inputs}</div>
+}
+
+// Toast configuration to prevent duplicates
+const toastConfig = {
+  position: "top-center" as const,
+  closeButton: true,
+  richColors: true,
+  theme: "dark" as const,
+  toastOptions: {
+    duration: 4000,
+    id: (id: string) => id, // Ensure unique IDs
+  },
 }
 
 const SignInForm = () => {
@@ -322,140 +361,173 @@ const SignInForm = () => {
   const [isAppleLoading, setIsAppleLoading] = useState<boolean>(false)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
 
-  const handleOAuth = async (strategy: OAuthStrategy) => {
-    if (strategy === "oauth_google") {
-      setIsGoogleLoading(true)
-    } else {
-      setIsAppleLoading(true)
-    }
+  // Memoize toast functions to prevent duplicate notifications
+  const showSuccessToast = useCallback((message: string, description?: string, id?: string) => {
+    toast.dismiss() // Dismiss any existing toasts
+    toast.success(message, {
+      description,
+      duration: 5000,
+      className: "border-l-4 border-l-green-500 bg-zinc-900",
+      icon: <CheckIcon className="h-4 w-4 text-green-500" />,
+      id: id || "success-toast",
+    })
+  }, [])
 
-    try {
-      await signIn?.authenticateWithRedirect({
-        strategy,
-        redirectUrl: "/auth/signup/sso-callback",
-        redirectUrlComplete: "/auth/callback",
-      })
+  const showErrorToast = useCallback((message: string) => {
+    toast.dismiss() // Dismiss any existing toasts
+    toast.error(message, {
+      id: "error-toast",
+    })
+  }, [])
 
-      toast.loading(`Redirecting to ${strategy === "oauth_google" ? "Google" : "Apple"}...`, {
-        duration: 5000,
-      })
-    } catch (error) {
-      console.error(error)
-      toast.error("An error occurred. Please try again.")
-    } finally {
+  const showLoadingToast = useCallback((message: string) => {
+    toast.dismiss() // Dismiss any existing toasts
+    toast.loading(message, {
+      duration: 5000,
+      id: "loading-toast",
+    })
+  }, [])
+
+  const handleOAuth = useCallback(
+    async (strategy: OAuthStrategy) => {
+      if (!isLoaded || !signIn) return
+
       if (strategy === "oauth_google") {
-        setIsGoogleLoading(false)
+        setIsGoogleLoading(true)
       } else {
-        setIsAppleLoading(false)
+        setIsAppleLoading(true)
       }
-    }
-  }
 
-  const handleEmail = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+      try {
+        // Show loading toast with better UI
+        showLoadingToast(`Connecting to ${strategy === "oauth_google" ? "Google" : "Apple"}...`)
 
-    if (!isLoaded) return
+        // Start authentication with a small delay to allow UI to update
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
-    if (!email) {
-      toast.error("Please enter your email address")
-      return
-    }
+        await signIn.authenticateWithRedirect({
+          strategy,
+          redirectUrl: "/auth/signup/sso-callback",
+          redirectUrlComplete: "/auth/callback",
+        })
+      } catch (error) {
+        console.error(error)
+        showErrorToast("An error occurred. Please try again.")
 
-    setIsEmailLoading(true)
-
-    try {
-      await signIn.create({
-        identifier: email,
-      })
-
-      await signIn.prepareFirstFactor({
-        strategy: "email_code",
-        emailAddressId: signIn.supportedFirstFactors!.find((factor) => factor.strategy === "email_code")!
-          .emailAddressId,
-      })
-
-      setIsCodeSent(true)
-      toast.success("Verification code sent", {
-        description: "Please check your email inbox",
-        duration: 5000,
-        className: "border-l-4 border-l-green-500 bg-zinc-900",
-        icon: <MailIcon className="h-4 w-4 text-green-500" />,
-      })
-    } catch (error: any) {
-      console.error(JSON.stringify(error, null, 2))
-      switch (error.errors?.[0]?.code) {
-        case "form_identifier_not_found":
-          toast.error("This email is not registered. Please sign up first.")
-          router.push("/auth/signup?from=signin")
-          break
-        case "too_many_attempts":
-          toast.error("Too many attempts. Please try again later.")
-          break
-        default:
-          toast.error("An error occurred. Please try again")
-          break
+        // Reset loading state
+        if (strategy === "oauth_google") {
+          setIsGoogleLoading(false)
+        } else {
+          setIsAppleLoading(false)
+        }
       }
-    } finally {
-      setIsEmailLoading(false)
-    }
-  }
+    },
+    [isLoaded, signIn, showErrorToast, showLoadingToast],
+  )
 
-  const handleVerifyCode = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const handleEmail = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
 
-    if (!isLoaded) return
+      if (!isLoaded || !signIn) return
 
-    if (!code || code.length < 6) {
-      toast.error("Please enter the complete 6-digit code")
-      return
-    }
+      if (!email) {
+        showErrorToast("Please enter your email address")
+        return
+      }
 
-    setIsCodeLoading(true)
+      setIsEmailLoading(true)
 
-    try {
-      const signInAttempt = await signIn.attemptFirstFactor({
-        strategy: "email_code",
-        code,
-      })
-
-      if (signInAttempt.status === "complete") {
-        setIsSuccess(true)
-        toast.success("Login successful!", {
-          description: "Redirecting you to your dashboard",
-          duration: 3000,
-          className: "border-l-4 border-l-green-500 bg-zinc-900",
-          icon: <CheckIcon className="h-4 w-4 text-green-500" />,
+      try {
+        await signIn.create({
+          identifier: email,
         })
 
-        // Small delay for animation
-        setTimeout(async () => {
-          await setActive({ session: signInAttempt.createdSessionId })
-          router.push("/auth/callback")
-        }, 1000)
-      } else {
-        console.error(JSON.stringify(signInAttempt, null, 2))
-        toast.error("Invalid code. Please try again.")
+        await signIn.prepareFirstFactor({
+          strategy: "email_code",
+          emailAddressId: signIn.supportedFirstFactors!.find((factor) => factor.strategy === "email_code")!
+            .emailAddressId,
+        })
+
+        setIsCodeSent(true)
+        showSuccessToast("Verification code sent", "Please check your email inbox", "verification-toast")
+      } catch (error: any) {
+        console.error(JSON.stringify(error, null, 2))
+        switch (error.errors?.[0]?.code) {
+          case "form_identifier_not_found":
+            showErrorToast("This email is not registered. Please sign up first.")
+            router.push("/auth/signup?from=signin")
+            break
+          case "too_many_attempts":
+            showErrorToast("Too many attempts. Please try again later.")
+            break
+          default:
+            showErrorToast("An error occurred. Please try again")
+            break
+        }
+      } finally {
+        setIsEmailLoading(false)
       }
-    } catch (error: any) {
-      console.error(JSON.stringify(error, null, 2))
-      switch (error.errors?.[0]?.code) {
-        case "form_code_incorrect":
-          toast.error("Incorrect code. Please enter valid code.")
-          break
-        case "verification_failed":
-          toast.error("Verification failed. Please try after some time.")
-          break
-        case "too_many_attempts":
-          toast.error("Too many attempts. Please try again later.")
-          break
-        default:
-          toast.error("An error occurred. Please try again")
-          break
+    },
+    [email, isLoaded, router, showErrorToast, showSuccessToast, signIn],
+  )
+
+  const handleVerifyCode = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+
+      if (!isLoaded || !signIn) return
+
+      if (!code || code.length < 6) {
+        showErrorToast("Please enter the complete 6-digit code")
+        return
       }
-    } finally {
-      setIsCodeLoading(false)
-    }
-  }
+
+      setIsCodeLoading(true)
+
+      try {
+        const signInAttempt = await signIn.attemptFirstFactor({
+          strategy: "email_code",
+          code,
+        })
+
+        if (signInAttempt.status === "complete") {
+          setIsSuccess(true)
+          showSuccessToast("Login successful!", "Redirecting you to your dashboard", "login-success-toast")
+
+          // Small delay for animation
+          setTimeout(async () => {
+            if (setActive) {
+              await setActive({ session: signInAttempt.createdSessionId })
+              router.push("/auth/callback")
+            }
+          }, 1000)
+        } else {
+          console.error(JSON.stringify(signInAttempt, null, 2))
+          showErrorToast("Invalid code. Please try again.")
+        }
+      } catch (error: any) {
+        console.error(JSON.stringify(error, null, 2))
+        switch (error.errors?.[0]?.code) {
+          case "form_code_incorrect":
+            showErrorToast("Incorrect code. Please enter valid code.")
+            break
+          case "verification_failed":
+            showErrorToast("Verification failed. Please try after some time.")
+            break
+          case "too_many_attempts":
+            showErrorToast("Too many attempts. Please try again later.")
+            break
+          default:
+            showErrorToast("An error occurred. Please try again")
+            break
+        }
+      } finally {
+        setIsCodeLoading(false)
+      }
+    },
+    [code, isLoaded, router, showErrorToast, showSuccessToast, signIn, setActive],
+  )
 
   useEffect(() => {
     if (from) {
@@ -465,15 +537,16 @@ const SignInForm = () => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-b from-black to-zinc-900 text-white">
-      <Toaster
-        position="top-center"
-        closeButton
-        richColors
-        theme="dark"
-        toastOptions={{
-          duration: 4000,
-        }}
-      />
+      <Head>
+        <title>Sign In | Neural-Ops</title>
+        <meta name="description" content="Sign in to Neural-Ops to access AI-powered workflows for your team" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <meta name="theme-color" content="#000000" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </Head>
+
+      <Toaster {...toastConfig} />
 
       <FloatingParticles />
 
@@ -498,7 +571,16 @@ const SignInForm = () => {
             >
               {/* Logo with glow effect */}
               <div className="w-10 h-10 relative">
-                <Image src="/icons/logo.png" alt="Neural-Ops Logo" width={40} height={40} className="object-contain" />
+                <Link href="/" className="block relative z-10">
+                  <Image
+                    src="/icons/logo.png"
+                    alt="Neural-Ops Logo"
+                    width={40}
+                    height={40}
+                    className="object-contain cursor-pointer"
+                    priority
+                  />
+                </Link>
                 <motion.div
                   className="absolute -inset-1.5 rounded-full bg-primary/5 blur-sm"
                   animate={{
@@ -512,6 +594,7 @@ const SignInForm = () => {
                   }}
                 />
               </div>
+              
               <motion.div
                 className="absolute -inset-1 rounded-full bg-primary/10"
                 initial={{ scale: 0 }}
@@ -619,100 +702,113 @@ const SignInForm = () => {
                   </Button>
                 </motion.div>
 
-                <motion.div variants={ITEM} className="mt-6 p-3 rounded-md border border-zinc-800 bg-zinc-900/50">
+                <motion.div
+                  variants={ITEM}
+                  className="mt-6 p-3 rounded-md border border-zinc-800 bg-zinc-900/50 h-[110px] flex flex-col justify-between"
+                >
                   <p className="text-xs text-zinc-400 italic">
-                    <span className="text-primary">&quot;</span>
+                 
                     <TypeWriter text="We built Neural-Ops to help teams unlock their full potential through AI-powered workflows." />
+                 
                   </p>
-                  <p className="text-xs font-medium text-zinc-300 mt-2">— Likhit Tanishq, Founder</p>
+                  <p className="text-xs font-medium text-zinc-300 mt-2 flex items-center">
+                    <span className="w-4 h-0.5 bg-primary/50 mr-4"></span>
+                    Likhit Tanishq, Founder
+                  </p>
                 </motion.div>
               </motion.div>
             ) : (
               <>
                 {isCodeSent ? (
-                  <motion.form
-                    key="code-form"
-                    variants={STAGGER}
-                    initial="hidden"
-                    animate="visible"
-                    exit={{ opacity: 0, y: 10, transition: { duration: 0.2 } }}
-                    onSubmit={handleVerifyCode}
-                    className="space-y-4"
-                  >
-                    <motion.div variants={ITEM} className="space-y-3">
-                      <div className="flex items-center justify-center mb-1">
-                        <LockIcon className="w-3.5 h-3.5 text-primary/70 mr-1.5" />
-                        <span className="text-xs font-medium text-zinc-400">Verification Code</span>
-                      </div>
+                  isCodeLoading ? (
+                    <LoadingSkeleton />
+                  ) : (
+                    <motion.form
+                      key="code-form"
+                      variants={STAGGER}
+                      initial="hidden"
+                      animate="visible"
+                      exit={{ opacity: 0, y: 10, transition: { duration: 0.2 } }}
+                      onSubmit={handleVerifyCode}
+                      className="space-y-4"
+                    >
+                      <motion.div variants={ITEM} className="space-y-3">
+                        <div className="flex items-center justify-center mb-1">
+                          <LockIcon className="w-3.5 h-3.5 text-primary/70 mr-1.5" />
+                          <span className="text-xs font-medium text-zinc-400">Verification Code</span>
+                        </div>
 
-                      <OtpInput length={6} value={code} onChange={setCode} disabled={isCodeLoading} />
+                        <OtpInput length={6} value={code} onChange={setCode} disabled={isCodeLoading} />
 
-                      <p className="text-xs text-zinc-500 text-center mt-1">
-                        Enter the 6-digit code sent to <span className="text-zinc-300">{email}</span>
-                      </p>
-                    </motion.div>
+                        <p className="text-xs text-zinc-500 text-center mt-1">
+                          Enter the 6-digit code sent to <span className="text-zinc-300">{email}</span>
+                        </p>
+                      </motion.div>
 
-                    <motion.div variants={ITEM}>
-                      <Button
-                        type="submit"
-                        disabled={isCodeLoading || code.length < 6}
-                        size="sm"
-                        className="w-full bg-primary hover:bg-primary/90 h-9 rounded-md transition-all duration-200"
-                      >
-                        {isCodeLoading ? (
-                          <>
-                            <Spinner className="mr-2" />
-                            <span className="text-xs">Verifying...</span>
-                          </>
-                        ) : (
-                          <span className="text-xs">Verify code</span>
-                        )}
-                      </Button>
-                    </motion.div>
+                      <motion.div variants={ITEM}>
+                        <Button
+                          type="submit"
+                          disabled={isCodeLoading || code.length < 6}
+                          size="sm"
+                          className="w-full bg-primary hover:bg-primary/90 h-9 rounded-md transition-all duration-200"
+                        >
+                          {isCodeLoading ? (
+                            <>
+                              <Spinner className="mr-2" />
+                              <span className="text-xs">Verifying...</span>
+                            </>
+                          ) : (
+                            <span className="text-xs">Verify code</span>
+                          )}
+                        </Button>
+                      </motion.div>
 
-                    <motion.div variants={ITEM} className="flex items-center gap-2">
-                      <Button
-                        asChild
-                        type="button"
-                        disabled={isCodeLoading}
-                        variant="outline"
-                        size="sm"
-                        className="w-full border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-white h-9 rounded-md"
-                      >
-                        <Link href="https://mail.google.com" target="_blank" rel="noopener noreferrer">
-                          <Icons.gmail className="w-3.5 h-3.5 mr-1.5" />
-                          <span className="text-xs">Gmail</span>
-                        </Link>
-                      </Button>
-                      <Button
-                        asChild
-                        type="button"
-                        disabled={isCodeLoading}
-                        variant="outline"
-                        size="sm"
-                        className="w-full border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-white h-9 rounded-md"
-                      >
-                        <Link href="https://outlook.live.com" target="_blank" rel="noopener noreferrer">
-                          <Icons.outlook className="w-3.5 h-3.5 mr-1.5" />
-                          <span className="text-xs">Outlook</span>
-                        </Link>
-                      </Button>
-                    </motion.div>
+                      <motion.div variants={ITEM} className="flex items-center gap-2">
+                        <Button
+                          asChild
+                          type="button"
+                          disabled={isCodeLoading}
+                          variant="outline"
+                          size="sm"
+                          className="w-full border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-white h-9 rounded-md"
+                        >
+                          <Link href="https://mail.google.com" target="_blank" rel="noopener noreferrer">
+                            <Icons.gmail className="w-3.5 h-3.5 mr-1.5" />
+                            <span className="text-xs">Gmail</span>
+                          </Link>
+                        </Button>
+                        <Button
+                          asChild
+                          type="button"
+                          disabled={isCodeLoading}
+                          variant="outline"
+                          size="sm"
+                          className="w-full border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-white h-9 rounded-md"
+                        >
+                          <Link href="https://outlook.live.com" target="_blank" rel="noopener noreferrer">
+                            <Icons.outlook className="w-3.5 h-3.5 mr-1.5" />
+                            <span className="text-xs">Outlook</span>
+                          </Link>
+                        </Button>
+                      </motion.div>
 
-                    <motion.div variants={ITEM}>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        disabled={isCodeLoading}
-                        onClick={() => setIsEmailOpen(true)}
-                        className="w-full text-zinc-400 hover:text-white hover:bg-zinc-800 h-9 rounded-md"
-                      >
-                        <ArrowLeftIcon className="w-3 h-3 mr-1.5" />
-                        <span className="text-xs">Back to login options</span>
-                      </Button>
-                    </motion.div>
-                  </motion.form>
+                      <motion.div variants={ITEM}>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled={isCodeLoading}
+                          onClick={() => setIsEmailOpen(true)}
+                          className="w-full text-zinc-400 hover:text-white hover:bg-zinc-800 h-9 rounded-md"
+                        >
+                          <ArrowLeftIcon className="w-3 h-3 mr-1.5" />
+                          <span className="text-xs">Back to login options</span>
+                        </Button>
+                      </motion.div>
+                    </motion.form>
+                  )
+                ) : isEmailLoading ? (
+                  <LoadingSkeleton />
                 ) : (
                   <motion.form
                     key="email-form"

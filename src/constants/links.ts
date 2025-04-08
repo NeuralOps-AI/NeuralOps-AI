@@ -59,7 +59,7 @@ export const SIDEBAR_LINKS: Link[] = [
         icon: CreditCardIcon
     },
     {
-        href: "/dashboard/settings",
+        href: "/settings",
         label: "Settings",
         icon: SettingsIcon
     },

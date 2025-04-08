@@ -8,12 +8,19 @@ import { useSignIn, useSignUp } from "@clerk/nextjs"
 import type { OAuthStrategy } from "@clerk/types"
 import { toast, Toaster } from "sonner"
 import Link from "next/link"
-import { ArrowLeftIcon, MailIcon, CheckIcon, LockIcon } from "lucide-react"
+import { ArrowLeftIcon, MailIcon, CheckIcon, LockIcon, Apple, ChromeIcon, InboxIcon } from "lucide-react"
 import Image from "next/image"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import Icons from "@/components/global/icons"
+
+// Icons component
+const Icons = {
+  apple: Apple,
+  google: ChromeIcon,
+  gmail: MailIcon,
+  outlook: InboxIcon,
+}
 
 // Animation variants
 const FADE_IN_VARIANTS = {
@@ -276,7 +283,7 @@ const OtpInput = ({
             className={`
               w-10 h-12 text-center font-medium text-white bg-zinc-900/80 
               border-2 ${value[index] ? "border-primary" : "border-zinc-800"} 
-              rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
+              rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:shadow-[0_0_10px_rgba(var(--primary-rgb),0.2)]
               transition-all duration-200 shadow-md
             `}
             aria-label={`Digit ${index + 1}`}
@@ -299,10 +306,6 @@ const toastConfig = {
   closeButton: true,
   richColors: true,
   theme: "dark" as const,
-  toastOptions: {
-    duration: 4000,
-    id: (id: string) => id, // Ensure unique IDs
-  },
 }
 
 const SignUpForm = () => {
@@ -322,31 +325,31 @@ const SignUpForm = () => {
   const [isAppleLoading, setIsAppleLoading] = useState<boolean>(false)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
 
-  // Memoize toast functions to prevent duplicate notifications
-  const showSuccessToast = useCallback((message: string, description?: string, id?: string) => {
+  // Unified toast function to prevent duplicate notifications
+  const showToast = useCallback((message: string, type: "success" | "error" | "loading" = "success", options = {}) => {
     toast.dismiss() // Dismiss any existing toasts
-    toast.success(message, {
-      description,
-      duration: 5000,
-      className: "border-l-4 border-l-green-500 bg-zinc-900",
-      icon: <CheckIcon className="h-4 w-4 text-green-500" />,
-      id: id || "success-toast",
-    })
-  }, [])
 
-  const showErrorToast = useCallback((message: string) => {
-    toast.dismiss() // Dismiss any existing toasts
-    toast.error(message, {
-      id: "error-toast",
-    })
-  }, [])
-
-  const showLoadingToast = useCallback((message: string) => {
-    toast.dismiss() // Dismiss any existing toasts
-    toast.loading(message, {
-      duration: 5000,
-      id: "loading-toast",
-    })
+    switch (type) {
+      case "success":
+        toast.success(message, {
+          duration: 5000,
+          className: "border-l-4 border-l-green-500 bg-zinc-900",
+          icon: <CheckIcon className="h-4 w-4 text-green-500" />,
+          ...options,
+        })
+        break
+      case "error":
+        toast.error(message, {
+          ...options,
+        })
+        break
+      case "loading":
+        toast.loading(message, {
+          duration: 5000,
+          ...options,
+        })
+        break
+    }
   }, [])
 
   const handleOAuth = useCallback(
@@ -361,7 +364,7 @@ const SignUpForm = () => {
 
       try {
         // Show loading toast with better UI
-        showLoadingToast(`Connecting to ${strategy === "oauth_google" ? "Google" : "Apple"}...`)
+        showToast(`Connecting to ${strategy === "oauth_google" ? "Google" : "Apple"}...`, "loading")
 
         // Start authentication with a small delay to allow UI to update
         await new Promise((resolve) => setTimeout(resolve, 100))
@@ -373,7 +376,7 @@ const SignUpForm = () => {
         })
       } catch (error) {
         console.error(error)
-        showErrorToast("An error occurred. Please try again.")
+        showToast("An error occurred. Please try again.", "error")
 
         // Reset loading state
         if (strategy === "oauth_google") {
@@ -383,7 +386,7 @@ const SignUpForm = () => {
         }
       }
     },
-    [isLoaded, signIn, showErrorToast, showLoadingToast],
+    [isLoaded, signIn, showToast],
   )
 
   const handleEmail = useCallback(
@@ -393,7 +396,7 @@ const SignUpForm = () => {
       if (!isLoaded || !signUp) return
 
       if (!email) {
-        showErrorToast("Please enter your email address")
+        showToast("Please enter your email address", "error")
         return
       }
 
@@ -409,32 +412,35 @@ const SignUpForm = () => {
         })
 
         setIsCodeSent(true)
-        showSuccessToast("Verification code sent", "Please check your email inbox", "verification-toast")
+        showToast("Verification code sent", "success", {
+          description: "Please check your email inbox",
+          id: "verification-toast",
+        })
       } catch (error: any) {
         console.error(JSON.stringify(error, null, 2))
         switch (error.errors?.[0]?.code) {
           case "form_identifier_exists":
-            showErrorToast("This email is already registered. Please sign in.")
+            showToast("This email is already registered. Please sign in.", "error")
             router.push("/auth/signin?from=signup")
             break
           case "form_password_pwned":
-            showErrorToast("The password is too common. Please choose a stronger password.")
+            showToast("The password is too common. Please choose a stronger password.", "error")
             break
           case "form_param_format_invalid":
-            showErrorToast("Invalid email address. Please enter a valid email address.")
+            showToast("Invalid email address. Please enter a valid email address.", "error")
             break
           case "form_password_length_too_short":
-            showErrorToast("Password is too short. Please choose a longer password.")
+            showToast("Password is too short. Please choose a longer password.", "error")
             break
           default:
-            showErrorToast("An error occurred. Please try again")
+            showToast("An error occurred. Please try again", "error")
             break
         }
       } finally {
         setIsEmailLoading(false)
       }
     },
-    [email, isLoaded, router, showErrorToast, showSuccessToast, signUp],
+    [email, isLoaded, router, showToast, signUp],
   )
 
   const handleVerifyCode = useCallback(
@@ -444,7 +450,7 @@ const SignUpForm = () => {
       if (!isLoaded || !signUp) return
 
       if (!code || code.length < 6) {
-        showErrorToast("Please enter the complete 6-digit code")
+        showToast("Please enter the complete 6-digit code", "error")
         return
       }
 
@@ -457,7 +463,10 @@ const SignUpForm = () => {
 
         if (completeSignup.status === "complete") {
           setIsSuccess(true)
-          showSuccessToast("Account created successfully!", "Redirecting you to your dashboard", "signup-success-toast")
+          showToast("Account created successfully!", "success", {
+            description: "Redirecting you to your dashboard",
+            id: "signup-success-toast",
+          })
 
           // Small delay for animation
           setTimeout(async () => {
@@ -468,29 +477,29 @@ const SignUpForm = () => {
           }, 1000)
         } else {
           console.error(JSON.stringify(completeSignup, null, 2))
-          showErrorToast("Invalid verification code. Please try again.")
+          showToast("Invalid verification code. Please try again.", "error")
         }
       } catch (error: any) {
         console.error(JSON.stringify(error, null, 2))
         switch (error.errors?.[0]?.code) {
           case "form_code_incorrect":
-            showErrorToast("Incorrect code. Please enter valid code.")
+            showToast("Incorrect code. Please enter valid code.", "error")
             break
           case "verification_failed":
-            showErrorToast("Verification failed. Please try after some time.")
+            showToast("Verification failed. Please try after some time.", "error")
             break
           case "too_many_attempts":
-            showErrorToast("Too many attempts. Please try again later.")
+            showToast("Too many attempts. Please try again later.", "error")
             break
           default:
-            showErrorToast("An error occurred. Please try again")
+            showToast("An error occurred. Please try again", "error")
             break
         }
       } finally {
         setIsCodeLoading(false)
       }
     },
-    [code, isLoaded, router, showErrorToast, showSuccessToast, signUp, setActive],
+    [code, isLoaded, router, showToast, signUp, setActive],
   )
 
   useEffect(() => {
@@ -649,7 +658,7 @@ const SignUpForm = () => {
                     disabled={isGoogleLoading || isAppleLoading}
                     onClick={() => setIsEmailOpen(false)}
                     size="sm"
-                    className="w-full bg-primary hover:bg-primary/90 h-9 rounded-md"
+                    className="w-full bg-primary hover:bg-primary/90 h-9 rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:translate-y-[-1px]"
                   >
                     <MailIcon className="w-3.5 h-3.5 mr-2" aria-hidden="true" />
                     <span className="text-xs">Continue with email</span>
@@ -669,7 +678,7 @@ const SignUpForm = () => {
                   </p>
                 </motion.div>
 
-                <motion.div variants={ITEM} className="pt-6 text-muted-foreground text-sm items-center">
+                <motion.div variants={ITEM} className="pt-6 text-muted-foreground text-sm text-center">
                   <span className="text-zinc-400">Already have an account?</span>{" "}
                   <Link href="/auth/signin" className="text-white hover:underline">
                     Login
@@ -709,7 +718,7 @@ const SignUpForm = () => {
                           type="submit"
                           disabled={isCodeLoading || code.length < 6}
                           size="sm"
-                          className="w-full bg-primary hover:bg-primary/90 h-9 rounded-md transition-all duration-200"
+                          className="w-full bg-primary hover:bg-primary/90 h-9 rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:translate-y-[-1px]"
                         >
                           {isCodeLoading ? (
                             <>
@@ -797,7 +806,7 @@ const SignUpForm = () => {
                         type="submit"
                         disabled={isEmailLoading}
                         size="sm"
-                        className="w-full bg-primary hover:bg-primary/90 h-9 rounded-md"
+                        className="w-full bg-primary hover:bg-primary/90 h-9 rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:translate-y-[-1px]"
                       >
                         {isEmailLoading ? (
                           <>
@@ -835,4 +844,3 @@ const SignUpForm = () => {
 }
 
 export default SignUpForm
-

@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useUser, useClerk, useAuth } from "@clerk/nextjs"
+
 import { useRouter } from "next/navigation"
 import { toast, Toaster } from "sonner"
 import { cn } from "@/lib/utils"
@@ -1419,18 +1420,19 @@ const SettingsPage = () => {
                           </span>
                         </div>
                         <Progress
-                          value={passwordStrength.score * 25}
-                          className="h-1.5 bg-zinc-700"
-                          indicatorClassName={cn(
-                            passwordStrength.score <= 1
-                              ? "bg-red-500"
-                              : passwordStrength.score === 2
-                                ? "bg-yellow-500"
-                                : passwordStrength.score === 3
-                                  ? "bg-green-500"
-                                  : "bg-green-400",
-                          )}
-                        />
+  value={passwordStrength.score * 25}
+  className="h-1.5 bg-zinc-700"
+  style={{ width: `${passwordStrength.score * 25}%` }} // Or adjust this based on your needs
+>
+  <div
+    className={cn(
+      passwordStrength.score <= 1 ? "bg-red-500" :
+      passwordStrength.score === 2 ? "bg-yellow-500" :
+      passwordStrength.score === 3 ? "bg-green-500" :
+      "bg-green-400"
+    )}
+  />
+</Progress>
                       </div>
                     )}
                   </div>

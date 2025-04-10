@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
 import { useMediaQuery } from "../../../hooks/use-media-query"
+import { syncUserWithDatabase } from "@/actions/user-sync"
 
 // UI Components
 import { Input } from "@/components/ui/input"
@@ -612,51 +613,110 @@ const SettingsPage = () => {
 
   // Handle avatar change
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    try {
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("Image size must be less than 5MB")
-        return
+        toast.error("Image size must be less than 5MB");
+        return;
       }
 
       // Validate file type
       if (!file.type.startsWith("image/")) {
-        toast.error("Only image files are allowed")
-        return
+        toast.error("Only image files are allowed");
+        return;
+      }
+      
+      // Additional validation for supported image formats
+      const supportedFormats = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+      if (!supportedFormats.includes(file.type)) {
+        toast.error("Only JPEG, PNG, GIF, and WebP formats are supported");
+        return;
       }
 
-      setAvatarFile(file)
-      const reader = new FileReader()
+      // Set avatar file for later upload
+      setAvatarFile(file);
+      
+      // Preview the image
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setAvatarPreview(reader.result as string)
+        setAvatarPreview(reader.result as string);
+      };
+      reader.onerror = () => {
+        toast.error("Failed to preview image");
+        setAvatarFile(null);
+      };
+      reader.readAsDataURL(file);
+      
+      toast.success("Image ready for upload. Save profile to apply changes.");
+    } catch (error) {
+      console.error("Error processing avatar:", error);
+      toast.error("Failed to process image");
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
-      reader.readAsDataURL(file)
     }
-  }
+  };
 
   // Handle avatar upload button click
   const handleAvatarUploadClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click()
+    try {
+      if (fileInputRef.current) {
+        // Reset the input value to ensure onChange fires even if selecting the same file
+        fileInputRef.current.value = "";
+        fileInputRef.current.click();
+      }
+    } catch (error) {
+      console.error("Error triggering file input:", error);
+      toast.error("Failed to open file selector");
     }
-  }
+  };
 
   // Handle avatar remove
   const handleAvatarRemove = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      await user?.setProfileImage({ file: null })
-      setAvatarPreview(null)
-      setAvatarFile(null)
-      toast.success("Profile picture removed")
+      // Remove profile image from Clerk
+      await user?.setProfileImage({ file: null });
+      
+      // Reset local state
+      setAvatarPreview(null);
+      setAvatarFile(null);
+      
+      // Sync the change to the database
+      try {
+        await syncUserWithDatabase();
+      } catch (syncError) {
+        console.error("Failed to sync user after avatar removal:", syncError);
+        // Continue anyway as the UI has already been updated
+      }
+      
+      toast.success("Profile picture removed");
+      
+      // Add to activity log
+      const newActivity = {
+        id: Date.now().toString(),
+        action: "Profile picture removed",
+        timestamp: new Date().toISOString(),
+        ip: sessions[0]?.ip || "192.168.1.1",
+        location: sessions[0]?.location || "Unknown Location",
+        status: "success" as const,
+      };
+      
+      setActivityLog([newActivity, ...activityLog]);
     } catch (error) {
-      console.error("Error removing avatar:", error)
-      toast.error("Failed to remove profile picture")
+      console.error("Error removing avatar:", error);
+      toast.error("Failed to remove profile picture");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Handle profile save
   const handleSaveProfile = async () => {
@@ -680,26 +740,39 @@ const SettingsPage = () => {
       const firstName = nameParts[0]
       const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : ""
 
-      // Update profile information with proper error handling
       try {
+        // First, update profile information
         await user?.update({
           firstName: firstName,
           lastName: lastName,
           username: username,
           unsafeMetadata: {
             ...user.unsafeMetadata,
-            bio: bio
+            bio: bio || ""
           }
-        })
+        });
 
-        // Upload avatar if changed
+        // Then handle avatar upload separately
         if (avatarFile) {
-          await user?.setProfileImage({ file: avatarFile })
-          setAvatarFile(null)
+          try {
+            await user?.setProfileImage({ file: avatarFile });
+            setAvatarFile(null);
+          } catch (avatarError) {
+            console.error("Error uploading profile image:", avatarError);
+            toast.error("Profile updated but couldn't upload profile picture");
+          }
         }
 
-        setSaveSuccess(true)
-        toast.success("Profile updated successfully")
+        // Sync user with database after Clerk profile update
+        try {
+          await syncUserWithDatabase();
+        } catch (syncError) {
+          console.error("Failed to sync user with database:", syncError);
+          // Continue anyway as this won't affect the user experience
+        }
+
+        setSaveSuccess(true);
+        toast.success("Profile updated successfully");
         
         // Add to activity log
         const newActivity = {
@@ -709,21 +782,21 @@ const SettingsPage = () => {
           ip: sessions[0]?.ip || "192.168.1.1",
           location: sessions[0]?.location || "Unknown Location",
           status: "success" as const,
-        }
+        };
         
-        setActivityLog([newActivity, ...activityLog])
+        setActivityLog([newActivity, ...activityLog]);
       } catch (clerkError: any) {
-        console.error("Clerk Error:", clerkError)
-        const errorMessage = clerkError.errors?.[0]?.message || "Failed to update profile"
-        toast.error(errorMessage)
+        console.error("Clerk Error:", clerkError);
+        const errorMessage = clerkError.errors?.[0]?.message || "Failed to update profile";
+        toast.error(errorMessage);
       }
     } catch (error: any) {
-      console.error("Error updating profile:", error)
-      toast.error("An unexpected error occurred. Please try again.")
+      console.error("Error updating profile:", error);
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Handle notification settings save
   const handleSaveNotifications = async () => {
@@ -735,6 +808,14 @@ const SettingsPage = () => {
           notificationSettings: notificationSettings
         }
       })
+
+      // Sync user with database after Clerk profile update
+      try {
+        await syncUserWithDatabase();
+      } catch (syncError) {
+        console.error("Failed to sync user with database:", syncError);
+        // Continue anyway as this won't affect the user experience
+      }
 
       setSaveSuccess(true)
       toast.success("Notification preferences saved")
@@ -759,66 +840,6 @@ const SettingsPage = () => {
     }
   }
 
-  // Handle password update
-  const handleUpdatePassword = async () => {
-    // Validate passwords
-    if (!currentPassword) {
-      setPasswordError("Current password is required")
-      return
-    }
-
-    if (newPassword !== confirmPassword) {
-      setPasswordError("Passwords do not match")
-      return
-    }
-
-    if (newPassword.length < 8) {
-      setPasswordError("Password must be at least 8 characters long")
-      return
-    }
-
-    if (passwordStrength.score < 2) {
-      setPasswordError("Password is too weak. Please choose a stronger password.")
-      return
-    }
-
-    setLoading(true)
-    try {
-      // Update password using Clerk's API
-      await user?.updatePassword({
-        currentPassword,
-        newPassword
-      })
-
-      toast.success("Password updated successfully")
-      setCurrentPassword("")
-      setNewPassword("")
-      setConfirmPassword("")
-      setPasswordStrength({ score: 0, feedback: "" })
-
-      // Add to activity log
-      const newActivity = {
-        id: Date.now().toString(),
-        action: "Password changed",
-        timestamp: new Date().toISOString(),
-        ip: sessions[0]?.ip || "192.168.1.1",
-        location: sessions[0]?.location || "Unknown Location",
-        status: "success" as const,
-      }
-
-      setActivityLog([newActivity, ...activityLog])
-    } catch (error: any) {
-      console.error("Error updating password:", error)
-      if (error.errors && error.errors.length > 0) {
-        setPasswordError(error.errors[0].message || "Failed to update password")
-      } else {
-        setPasswordError("Failed to update password. Please check current password is correct.")
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
-
   // Handle two-factor toggle
   const handleToggleTwoFactor = async (enabled: boolean) => {
     setLoading(true)
@@ -837,6 +858,14 @@ const SettingsPage = () => {
       })
 
       setTwoFactorEnabled(enabled)
+
+      // Sync user with database after Clerk profile update
+      try {
+        await syncUserWithDatabase();
+      } catch (syncError) {
+        console.error("Failed to sync user with database:", syncError);
+        // Continue anyway as this won't affect the user experience
+      }
 
       if (enabled) {
         // Generate new recovery codes when enabling 2FA
@@ -881,6 +910,74 @@ const SettingsPage = () => {
     } catch (error) {
       console.error("Error toggling 2FA:", error)
       toast.error("Failed to update two-factor authentication")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Handle password update
+  const handleUpdatePassword = async () => {
+    // Validate passwords
+    if (!currentPassword) {
+      setPasswordError("Current password is required")
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Passwords do not match")
+      return
+    }
+
+    if (newPassword.length < 8) {
+      setPasswordError("Password must be at least 8 characters long")
+      return
+    }
+
+    if (passwordStrength.score < 2) {
+      setPasswordError("Password is too weak. Please choose a stronger password.")
+      return
+    }
+
+    setLoading(true)
+    try {
+      // Update password using Clerk's API
+      await user?.updatePassword({
+        currentPassword,
+        newPassword
+      })
+
+      // Sync user with database after Clerk profile update
+      try {
+        await syncUserWithDatabase();
+      } catch (syncError) {
+        console.error("Failed to sync user with database:", syncError);
+        // Continue anyway as this won't affect the user experience
+      }
+
+      toast.success("Password updated successfully")
+      setCurrentPassword("")
+      setNewPassword("")
+      setConfirmPassword("")
+      setPasswordStrength({ score: 0, feedback: "" })
+
+      // Add to activity log
+      const newActivity = {
+        id: Date.now().toString(),
+        action: "Password changed",
+        timestamp: new Date().toISOString(),
+        ip: sessions[0]?.ip || "192.168.1.1",
+        location: sessions[0]?.location || "Unknown Location",
+        status: "success" as const,
+      }
+
+      setActivityLog([newActivity, ...activityLog])
+    } catch (error: any) {
+      console.error("Error updating password:", error)
+      if (error.errors && error.errors.length > 0) {
+        setPasswordError(error.errors[0].message || "Failed to update password")
+      } else {
+        setPasswordError("Failed to update password. Please check current password is correct.")
+      }
     } finally {
       setLoading(false)
     }
@@ -1407,7 +1504,7 @@ const SettingsPage = () => {
                       transition={{ type: "spring", stiffness: 500, damping: 25 }}
                       className="p-1.5 rounded-full bg-primary/10"
                     >
-                      <Bell className="h-4 w-4 text-primary" />
+                      <Mail className="h-4 w-4 text-primary" />
                     </motion.div>
                     Notification Preferences
                   </CardTitle>

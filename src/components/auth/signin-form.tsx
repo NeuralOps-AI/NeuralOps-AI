@@ -353,6 +353,7 @@ const SignInForm = () => {
   const { isLoaded, signIn, setActive } = useSignIn()
 
   const [email, setEmail] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
   const [code, setCode] = useState<string>("")
   const [isEmailOpen, setIsEmailOpen] = useState<boolean>(true)
   const [isCodeSent, setIsCodeSent] = useState<boolean>(false)
@@ -537,11 +538,15 @@ const SignInForm = () => {
   const handleOAuthSignIn = async (strategy: OAuthStrategy) => {
     try {
       setIsOAuthLoading(true)
-      await signIn.authenticateWithRedirect({
-        strategy,
-        redirectUrl: "/auth/callback",
-        redirectUrlComplete: "/app",
-      })
+      if (signIn) {
+        await signIn.authenticateWithRedirect({
+          strategy,
+          redirectUrl: "/auth/callback",
+          redirectUrlComplete: "/app",
+        })
+      } else {
+        throw new Error("signIn is undefined");
+      }
       // Note: We don't need to sync here because the redirect will trigger a new page load
     } catch (err: any) {
       console.error("OAuth error:", err)
@@ -557,6 +562,10 @@ const SignInForm = () => {
     try {
       setIsPasswordLoading(true)
       
+      if (!signIn) {
+        throw new Error("signIn is undefined");
+      }
+
       const result = await signIn.attemptFirstFactor({
         strategy: "password",
         password,

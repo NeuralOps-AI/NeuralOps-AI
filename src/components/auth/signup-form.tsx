@@ -318,6 +318,7 @@ const SignUpForm = () => {
 
   const [email, setEmail] = useState<string>("")
   const [code, setCode] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
   const [isEmailOpen, setIsEmailOpen] = useState<boolean>(true)
   const [isCodeSent, setIsCodeSent] = useState<boolean>(false)
   const [isEmailLoading, setIsEmailLoading] = useState<boolean>(false)
@@ -518,6 +519,10 @@ const SignUpForm = () => {
         return
       }
 
+      if (!signUp) {
+        throw new Error("signUp is undefined");
+      }
+
       // Complete the sign-up process
       await signUp.attemptEmailAddressVerification({
         code,
@@ -525,7 +530,6 @@ const SignUpForm = () => {
 
       if (signUp.status === "complete") {
         // Sign up successful
-
         try {
           // Sync user to database immediately after sign-up
           await syncUserWithDatabase();

@@ -1,5 +1,6 @@
 import DashboardNavbar from "@/components/dashboard/dashboard-navbar";
 import DashboardSidebar from "@/components/dashboard/dashboard-sidebar";
+import { AuthSync } from "@/components/auth/auth-sync";
 import React from 'react';
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 const DashboardLayout = ({ children }: Props) => {
     return (
         <div className="flex flex-col min-h-screen w-full">
+            <AuthSync />
             <DashboardNavbar />
             <main className="flex flex-col lg:flex-row flex-1 size-full">
                 <DashboardSidebar />

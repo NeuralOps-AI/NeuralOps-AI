@@ -22,6 +22,8 @@ export default clerkMiddleware((auth, req) => {
     if (userId && isAuthRoute(req)) {
         return NextResponse.redirect(new URL("/app", req.url));
     }
+
+    return NextResponse.next();
 });
 
 export const config = {

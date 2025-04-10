@@ -10,6 +10,7 @@ import { toast, Toaster } from "sonner"
 import Link from "next/link"
 import { ArrowLeftIcon, MailIcon, CheckIcon, LockIcon, Apple, ChromeIcon, InboxIcon } from "lucide-react"
 import Image from "next/image"
+import { syncUserWithDatabase } from "@/actions/user-sync"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -324,6 +325,7 @@ const SignUpForm = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false)
   const [isAppleLoading, setIsAppleLoading] = useState<boolean>(false)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Unified toast function to prevent duplicate notifications
   const showToast = useCallback((message: string, type: "success" | "error" | "loading" = "success", options = {}) => {
@@ -501,6 +503,53 @@ const SignUpForm = () => {
     },
     [code, isLoaded, router, showToast, signUp, setActive],
   )
+
+  // Handle form submission for final sign up
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    try {
+      setIsLoading(true)
+
+      // Basic validation
+      if (password.length < 8) {
+        toast.error("Password must be at least 8 characters long")
+        setIsLoading(false)
+        return
+      }
+
+      // Complete the sign-up process
+      await signUp.attemptEmailAddressVerification({
+        code,
+      })
+
+      if (signUp.status === "complete") {
+        // Sign up successful
+
+        try {
+          // Sync user to database immediately after sign-up
+          await syncUserWithDatabase();
+          toast.success("Account created successfully!");
+        } catch (syncError) {
+          console.error("User sync error:", syncError);
+          // Continue anyway, as the AuthSync component will retry
+        }
+
+        setIsSuccess(true)
+        // Redirect to the app after a short delay to show success message
+        setTimeout(() => {
+          router.push("/app")
+        }, 1000)
+      } else {
+        toast.error("Failed to create account")
+      }
+    } catch (err: any) {
+      console.error("Error signing up:", err)
+      toast.error(err.errors?.[0]?.message || "Failed to create account")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (from) {

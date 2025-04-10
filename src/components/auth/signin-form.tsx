@@ -14,6 +14,7 @@ import Head from "next/head"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { syncUserWithDatabase } from "@/actions/user-sync"
 
 // Animation variants
 const FADE_UP = {
@@ -360,6 +361,9 @@ const SignInForm = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false)
   const [isAppleLoading, setIsAppleLoading] = useState<boolean>(false)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
+  const [isPasswordLoading, setIsPasswordLoading] = useState<boolean>(false)
+  const [isOAuthLoading, setIsOAuthLoading] = useState<boolean>(false)
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
 
   // Memoize toast functions to prevent duplicate notifications
   const showSuccessToast = useCallback((message: string, description?: string, id?: string) => {
@@ -528,6 +532,59 @@ const SignInForm = () => {
     },
     [code, isLoaded, router, showErrorToast, showSuccessToast, signIn, setActive],
   )
+
+  // Handle OAuth sign in
+  const handleOAuthSignIn = async (strategy: OAuthStrategy) => {
+    try {
+      setIsOAuthLoading(true)
+      await signIn.authenticateWithRedirect({
+        strategy,
+        redirectUrl: "/auth/callback",
+        redirectUrlComplete: "/app",
+      })
+      // Note: We don't need to sync here because the redirect will trigger a new page load
+    } catch (err: any) {
+      console.error("OAuth error:", err)
+      toast.error(err.errors?.[0]?.message || "Failed to authenticate")
+      setIsOAuthLoading(false)
+    }
+  }
+
+  // Handle complete sign in
+  const handleCompleteSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    
+    try {
+      setIsPasswordLoading(true)
+      
+      const result = await signIn.attemptFirstFactor({
+        strategy: "password",
+        password,
+      })
+      
+      if (result.status === "complete") {
+        // Successful sign-in
+        try {
+          // Sync user to database immediately after sign-in
+          await syncUserWithDatabase();
+          toast.success("Signed in successfully!");
+        } catch (syncError) {
+          console.error("User sync error:", syncError);
+          // Continue anyway, as the AuthSync component will retry
+        }
+        
+        // Redirect user
+        router.push(redirectUrl || "/app")
+      } else {
+        toast.error("Sign-in failed with an unexpected status")
+      }
+    } catch (err: any) {
+      console.error("Password error:", err)
+      toast.error(err.errors?.[0]?.message || "Failed to sign in")
+    } finally {
+      setIsPasswordLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (from) {

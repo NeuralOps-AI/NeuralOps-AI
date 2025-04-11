@@ -563,7 +563,7 @@ const SignUpForm = () => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-b from-black to-zinc-900 text-white">
-      <Toaster {...toastConfig} />
+   
 
       <FloatingParticles />
 

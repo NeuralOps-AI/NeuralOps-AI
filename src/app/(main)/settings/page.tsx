@@ -1198,7 +1198,7 @@ const SettingsPage = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6 mt-4 ml-0 sm:ml-4 text-zinc-100">
-      <Toaster position="top-center" richColors closeButton theme="dark" />
+    
 
       {/* Hidden file input for avatar upload */}
       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleAvatarChange} />

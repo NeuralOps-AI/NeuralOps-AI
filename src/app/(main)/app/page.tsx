@@ -5,7 +5,7 @@ import { ArrowDownIcon, MessageSquareIcon, ArrowUpIcon, BarChart3Icon, Share2Ico
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
-import { ANALYTICS_DATA, RECENT_SALES } from "@/constants/dashboard"
+import { NEURAL_OPS_DATA, RECENT_ACTIVITY } from "@/constants/dashboard"
 import {
     ChartConfig,
     ChartContainer,
@@ -15,12 +15,12 @@ import {
 import { Container } from "@/components"
 
 const chartConfig = {
-    reach: {
-        label: "Total Reach",
+    processingSpeed: {
+        label: "Processing Speed",
         color: "hsl(var(--chart-1))",
     },
-    engagement: {
-        label: "Engagement",
+    efficiency: {
+        label: "Efficiency",
         color: "hsl(var(--chart-2))",
     },
 } satisfies ChartConfig
@@ -29,20 +29,20 @@ const Page = () => {
     return (
         <div className="p-4 w-full bg-black text-white">
             <div className="flex flex-col w-full">
-                {/* Dashboard Cards */}
+                {/* Demo Dashboard Cards */}
                 <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Container>
                         <Card className="bg-black border border-gray-800">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-white">
-                                    Total Reach
+                                    AI Ops Processing
                                 </CardTitle>
-                                <UsersIcon className="h-4 w-4 text-gray-400" />
+                                <BarChart3Icon className="h-4 w-4 text-gray-400" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-white">2.4M</div>
+                                <div className="text-2xl font-bold text-white">1.8K Ops</div>
                                 <p className="text-xs text-gray-400">
-                                    +20.1% from last month
+                                    +15.2% from last cycle
                                     <ArrowUpIcon className="ml-1 h-4 w-4 text-green-500 inline" />
                                 </p>
                             </CardContent>
@@ -52,14 +52,14 @@ const Page = () => {
                         <Card className="bg-black border border-gray-800">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-white">
-                                    Engagement Rate
+                                    Neural Network Accuracy
                                 </CardTitle>
                                 <Share2Icon className="h-4 w-4 text-gray-400" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-white">4.3%</div>
+                                <div className="text-2xl font-bold text-white">98.7%</div>
                                 <p className="text-xs text-gray-400">
-                                    +1.2% from last month
+                                    +0.8% improvement
                                     <ArrowUpIcon className="ml-1 h-4 w-4 text-green-500 inline" />
                                 </p>
                             </CardContent>
@@ -69,14 +69,14 @@ const Page = () => {
                         <Card className="bg-black border border-gray-800">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-white">
-                                    Active Campaigns
+                                    Active IA Agents
                                 </CardTitle>
-                                <BarChart3Icon className="h-4 w-4 text-gray-400" />
+                                <UsersIcon className="h-4 w-4 text-gray-400" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-white">12</div>
+                                <div className="text-2xl font-bold text-white">24</div>
                                 <p className="text-xs text-gray-400">
-                                    -2 from last month
+                                    -1 from last cycle
                                     <ArrowDownIcon className="ml-1 h-4 w-4 text-red-500 inline" />
                                 </p>
                             </CardContent>
@@ -86,14 +86,14 @@ const Page = () => {
                         <Card className="bg-black border border-gray-800">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-white">
-                                    Total Posts
+                                    Processed Data Points
                                 </CardTitle>
                                 <MessageSquareIcon className="h-4 w-4 text-gray-400" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-white">842</div>
+                                <div className="text-2xl font-bold text-white">4.2M</div>
                                 <p className="text-xs text-gray-400">
-                                    +48 from last month
+                                    +320K since last update
                                     <ArrowUpIcon className="ml-1 h-4 w-4 text-green-500 inline" />
                                 </p>
                             </CardContent>
@@ -102,70 +102,52 @@ const Page = () => {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 mt-8">
-                    {/* Chart */}
+                    {/* Performance Chart */}
                     <Container delay={0.2} className="col-span-4">
                         <Card className="bg-black border border-gray-800">
                             <CardHeader>
-                                <CardTitle className="text-white">Performance Overview</CardTitle>
+                                <CardTitle className="text-white">Neural Ops Performance</CardTitle>
                             </CardHeader>
                             <CardContent className="py-2 w-full">
                                 <ChartContainer config={chartConfig}>
                                     <AreaChart
-                                        accessibilityLayer
-                                        data={ANALYTICS_DATA}
+                                        data={NEURAL_OPS_DATA}
                                         margin={{
                                             left: 12,
                                             right: 12,
                                         }}
                                     >
-                                        <CartesianGrid vertical={false} stroke="#333" />
+                                        <CartesianGrid vertical={false} stroke="#444" />
                                         <XAxis
                                             dataKey="name"
                                             tickLine={false}
                                             axisLine={false}
                                             tickMargin={8}
-                                            tickFormatter={(value) => value.slice(0, 3)}
-                                            stroke="#888"
+                                            stroke="#aaa"
                                         />
                                         <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
                                         <defs>
-                                            <linearGradient id="fillReach" x1="0" y1="0" x2="0" y2="1">
-                                                <stop
-                                                    offset="5%"
-                                                    stopColor="hsl(var(--chart-1))"
-                                                    stopOpacity={0.8}
-                                                />
-                                                <stop
-                                                    offset="95%"
-                                                    stopColor="hsl(var(--chart-1))"
-                                                    stopOpacity={0.1}
-                                                />
+                                            <linearGradient id="fillProcessingSpeed" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8} />
+                                                <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.1} />
                                             </linearGradient>
-                                            <linearGradient id="fillEngagement" x1="0" y1="0" x2="0" y2="1">
-                                                <stop
-                                                    offset="5%"
-                                                    stopColor="hsl(var(--chart-2))"
-                                                    stopOpacity={0.8}
-                                                />
-                                                <stop
-                                                    offset="95%"
-                                                    stopColor="hsl(var(--chart-2))"
-                                                    stopOpacity={0.1}
-                                                />
+                                            <linearGradient id="fillEfficiency" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.8} />
+                                                <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0.1} />
                                             </linearGradient>
                                         </defs>
                                         <Area
-                                            dataKey="engagement"
+                                            dataKey="efficiencyGain"
                                             type="natural"
-                                            fill="url(#fillEngagement)"
+                                            fill="url(#fillEfficiency)"
                                             fillOpacity={0.4}
                                             stroke="hsl(var(--chart-2))"
                                             stackId="a"
                                         />
                                         <Area
-                                            dataKey="reach"
+                                            dataKey="automations"
                                             type="natural"
-                                            fill="url(#fillReach)"
+                                            fill="url(#fillProcessingSpeed)"
                                             fillOpacity={0.4}
                                             stroke="hsl(var(--chart-1))"
                                             stackId="a"
@@ -176,27 +158,24 @@ const Page = () => {
                         </Card>
                     </Container>
 
-                    {/* Activities */}
+                    {/* Recent Activity */}
                     <Container delay={0.3} className="col-span-2">
                         <Card className="bg-black border border-gray-800">
                             <CardHeader>
-                                <CardTitle className="text-white">Recent Sales</CardTitle>
+                                <CardTitle className="text-white">Recent AI Activity</CardTitle>
                                 <p className="text-sm text-gray-400">
-                                    You made 265 sales this month.
+                                    Total operations: 1,680 this cycle.
                                 </p>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-8">
-                                    {RECENT_SALES.map((sale) => (
-                                        <div key={sale.email} className="flex items-center">
+                                    {RECENT_ACTIVITY.map((activity) => (
+                                        <div key={activity.id} className="flex items-center">
                                             <div className="space-y-1">
                                                 <p className="text-sm font-medium text-white leading-none">
-                                                    {sale.name}
+                                                    {activity.text}
                                                 </p>
-                                                <p className="text-sm text-gray-400">{sale.email}</p>
-                                            </div>
-                                            <div className="ml-auto font-medium text-white">
-                                                {sale.amount}
+                                                <p className="text-sm text-gray-400">{activity.time}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -210,4 +189,4 @@ const Page = () => {
     )
 };
 
-export default Page;
+export default Page

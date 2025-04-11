@@ -335,16 +335,7 @@ const OtpInput = ({
 }
 
 // Toast configuration to prevent duplicates
-const toastConfig = {
-  position: "top-center" as const,
-  closeButton: true,
-  richColors: true,
-  theme: "dark" as const,
-  toastOptions: {
-    duration: 4000,
-    id: (id: string) => id, // Ensure unique IDs
-  },
-}
+
 
 const SignInForm = () => {
   const router = useRouter()
@@ -612,7 +603,7 @@ const SignInForm = () => {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </Head>
 
-      <Toaster {...toastConfig} />
+  
 
       <FloatingParticles />
 

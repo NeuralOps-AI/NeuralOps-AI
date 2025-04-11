@@ -24,12 +24,12 @@ type Link = {
 
 export const SIDEBAR_LINKS: Link[] = [
     {
-        href: "/dashboard",
+        href: "/app",
         label: "Dashboard",
         icon: ChartPieIcon,
     },
     {
-        href: "/dashboard/ai-agents",
+        href: "/ai-agents",
         label: "AI Agents",
         icon: BotIcon
     },

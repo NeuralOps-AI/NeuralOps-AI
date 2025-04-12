@@ -1,9 +1,7 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef, useCallback, useMemo, useEffect } from "react"
-import Image from "next/image"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -25,6 +23,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Bot,
+  Activity,
   Settings2,
   Trash2,
   Search,
@@ -55,7 +54,6 @@ import {
   PanelLeft,
   MoreHorizontal,
   Moon,
-  Sun,
   CheckIcon as Checkbox,
   Sparkles,
 } from "lucide-react"
@@ -117,9 +115,9 @@ const INITIAL_FORM_STATE = {
 }
 
 const AGENT_STATUSES = {
-  Active: { label: "Active", color: "text-emerald-400", bgColor: "bg-emerald-500/20", icon: CheckCircle2 },
-  Maintenance: { label: "Maintenance", color: "text-amber-400", bgColor: "bg-amber-500/20", icon: Settings2 },
-  Offline: { label: "Offline", color: "text-rose-400", bgColor: "bg-rose-500/20", icon: AlertCircle },
+  Active: { label: "Active", color: "text-green-400", bgColor: "bg-green-500/20", icon: CheckCircle2 },
+  Maintenance: { label: "Maintenance", color: "text-yellow-400", bgColor: "bg-yellow-500/20", icon: Settings2 },
+  Offline: { label: "Offline", color: "text-red-400", bgColor: "bg-red-500/20", icon: AlertCircle },
 } as const
 
 const AGENT_TYPES = {
@@ -127,29 +125,29 @@ const AGENT_TYPES = {
     label: "AI Assistant",
     description: "Handles user interactions and queries",
     icon: Bot,
-    color: "text-cyan-400",
-    bgColor: "bg-cyan-500/20",
+    color: "text-blue-400",
+    bgColor: "bg-blue-500/20",
   },
   Processor: {
     label: "Data Processor",
     description: "Processes and transforms data",
     icon: Zap,
-    color: "text-fuchsia-400",
-    bgColor: "bg-fuchsia-500/20",
+    color: "text-purple-400",
+    bgColor: "bg-purple-500/20",
   },
   Analyzer: {
     label: "Data Analyzer",
     description: "Analyzes and generates insights",
     icon: BarChart3,
-    color: "text-teal-400",
-    bgColor: "bg-teal-500/20",
+    color: "text-emerald-400",
+    bgColor: "bg-emerald-500/20",
   },
 } as const
 
 const AGENT_PRIORITIES = {
-  Low: { label: "Low", color: "text-slate-400", bgColor: "bg-slate-500/20" },
-  Medium: { label: "Medium", color: "text-cyan-400", bgColor: "bg-cyan-500/20" },
-  High: { label: "High", color: "text-rose-400", bgColor: "bg-rose-500/20" },
+  Low: { label: "Low", color: "text-gray-400", bgColor: "bg-gray-500/20" },
+  Medium: { label: "Medium", color: "text-blue-400", bgColor: "bg-blue-500/20" },
+  High: { label: "High", color: "text-red-400", bgColor: "bg-red-500/20" },
 } as const
 
 const SAMPLE_CAPABILITIES = [
@@ -250,8 +248,7 @@ const AgentCreationPage = () => {
   const [viewMode, setViewMode] = useState<"list" | "grid" | "analytics">("grid")
   const [selectedAgents, setSelectedAgents] = useState<number[]>([])
   const [isSelectMode, setIsSelectMode] = useState(false)
-  const [showCreateDialog, setShowCreateDialog] = useState(false)
-  const [showTemplatesDialog, setShowTemplatesDialog] = useState(false)
+  const [showTemplates, setShowTemplates] = useState(false)
   const [pageLoaded, setPageLoaded] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const importFileRef = useRef<HTMLInputElement>(null)
@@ -382,17 +379,6 @@ const AgentCreationPage = () => {
     [formData.tags, handleInputChange],
   )
 
-  const resetForm = useCallback(() => {
-    setFormData(INITIAL_FORM_STATE)
-    setUploadedFile(null)
-    setPreviewAvatar(null)
-    setSelectedDate(undefined)
-    setError(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
-    }
-  }, [])
-
   const handleCreateAgent = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault()
@@ -432,8 +418,14 @@ const AgentCreationPage = () => {
         await new Promise((resolve) => setTimeout(resolve, 800))
 
         setAgents((prev) => [...prev, newAgent])
-        resetForm()
-        setShowCreateDialog(false)
+        setFormData(INITIAL_FORM_STATE)
+        setUploadedFile(null)
+        setPreviewAvatar(null)
+        setSelectedDate(undefined)
+
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""
+        }
 
         toast.success("Agent created", {
           description: `${newAgent.name} has been successfully created.`,
@@ -447,7 +439,7 @@ const AgentCreationPage = () => {
         setLoading(false)
       }
     },
-    [formData, previewAvatar, generateAvatar, resetForm],
+    [formData, previewAvatar, generateAvatar],
   )
 
   const handleUpdateAgent = useCallback((updatedAgent: Agent) => {
@@ -898,26 +890,6 @@ const AgentCreationPage = () => {
     }
   }, [agents])
 
-  const handleUseTemplate = useCallback(
-    (template: any) => {
-      setFormData({
-        ...INITIAL_FORM_STATE,
-        name: template.name,
-        description: template.description,
-        type: template.type as any,
-        capabilities: template.capabilities,
-        category: template.category,
-      })
-      updatePreviewAvatar(template.name)
-      setShowTemplatesDialog(false)
-      setShowCreateDialog(true)
-      toast.success("Template loaded", {
-        description: `${template.name} template has been loaded into the form.`,
-      })
-    },
-    [INITIAL_FORM_STATE, updatePreviewAvatar],
-  )
-
   const renderAgentCard = useCallback(
     (agent: Agent) => {
       const StatusIcon = AGENT_STATUSES[agent.status].icon
@@ -926,8 +898,8 @@ const AgentCreationPage = () => {
       return (
         <motion.div key={agent.id} initial="hidden" animate="visible" whileHover="hover" variants={cardVariants} layout>
           <Card
-            className={`bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 hover:border-violet-700 transition-colors shadow-lg ${
-              selectedAgents.includes(agent.id) ? "ring-2 ring-violet-500" : ""
+            className={`bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 hover:border-purple-700 transition-colors shadow-lg ${
+              selectedAgents.includes(agent.id) ? "ring-2 ring-purple-500" : ""
             } mb-6 overflow-hidden`}
           >
             <CardHeader className="pb-5 pt-8">
@@ -939,28 +911,19 @@ const AgentCreationPage = () => {
                         type="checkbox"
                         checked={selectedAgents.includes(agent.id)}
                         onChange={() => toggleAgentSelection(agent.id)}
-                        className="h-5 w-5 rounded border-gray-600 text-violet-600 focus:ring-violet-500"
-                        aria-label={`Select ${agent.name}`}
+                        className="h-5 w-5 rounded border-gray-600 text-purple-600 focus:ring-purple-500"
                       />
                     </div>
                   )}
                   {agent.avatarUrl ? (
                     <div className="relative">
-                      <div className="absolute inset-0 rounded-full blur-md opacity-20"></div>
-                      <div className="relative h-20 w-20 rounded-full overflow-hidden border-3 border-gray-800 shadow-xl">
-                        {agent.avatarUrl.startsWith("data:") || agent.avatarUrl.startsWith("http") ? (
-                          <Image
-                            src={agent.avatarUrl || "/placeholder.svg"}
-                            alt={`${agent.name} Avatar`}
-                            width={80}
-                            height={80}
-                            className="object-cover"
-                            priority
-                          />
-                        ) : (
-                          <div dangerouslySetInnerHTML={{ __html: agent.avatarUrl }} className="h-full w-full" />
-                        )}
-                      </div>
+                      <div className="absolute inset- rounded-full blur-md opacity-20"></div>
+                      <img
+                        src={agent.avatarUrl || "/placeholder.svg"}
+                        alt={`${agent.name} Avatar`}
+                        className="h-20 w-20 rounded-full border-3 shadow-xl relative z-10"
+                        loading="lazy"
+                      />
                       <div
                         className={`absolute -bottom-1 -right-1 rounded-full p-1.5 ${AGENT_STATUSES[agent.status].bgColor} border-2 border-gray-900 z-20`}
                       >
@@ -979,7 +942,7 @@ const AgentCreationPage = () => {
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ type: "spring", stiffness: 500, damping: 15 }}
                         >
-                          <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
+                          <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
                         </motion.div>
                       )}
                     </div>
@@ -993,12 +956,7 @@ const AgentCreationPage = () => {
                 <div className="flex gap-3">
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-9 w-9 rounded-full hover:bg-gray-800"
-                        aria-label="Agent options"
-                      >
+                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-gray-800">
                         <MoreHorizontal className="h-5 w-5" />
                       </Button>
                     </PopoverTrigger>
@@ -1010,7 +968,7 @@ const AgentCreationPage = () => {
                           className="justify-start hover:bg-gray-800"
                           onClick={() => incrementUsage(agent.id)}
                         >
-                          <Zap className="mr-2 h-4 w-4 text-violet-400" />
+                          <Zap className="mr-2 h-4 w-4 text-purple-400" />
                           Activate Agent
                         </Button>
                         <Button
@@ -1021,7 +979,7 @@ const AgentCreationPage = () => {
                         >
                           {agent.favorited ? (
                             <>
-                              <Star className="mr-2 h-4 w-4 fill-amber-400 text-amber-400" />
+                              <Star className="mr-2 h-4 w-4 fill-yellow-400 text-yellow-400" />
                               Remove from Favorites
                             </>
                           ) : (
@@ -1037,13 +995,13 @@ const AgentCreationPage = () => {
                           className="justify-start hover:bg-gray-800"
                           onClick={() => duplicateAgent(agent)}
                         >
-                          <Copy className="mr-2 h-4 w-4 text-cyan-400" />
+                          <Copy className="mr-2 h-4 w-4 text-blue-400" />
                           Duplicate
                         </Button>
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button variant="ghost" size="sm" className="justify-start hover:bg-gray-800">
-                              <History className="mr-2 h-4 w-4 text-teal-400" />
+                              <History className="mr-2 h-4 w-4 text-emerald-400" />
                               View History
                             </Button>
                           </DialogTrigger>
@@ -1079,7 +1037,7 @@ const AgentCreationPage = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="justify-start text-rose-400 hover:text-rose-300 hover:bg-gray-800 w-full"
+                            className="justify-start text-red-400 hover:text-red-300 hover:bg-gray-800 w-full"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete Agent
@@ -1114,14 +1072,14 @@ const AgentCreationPage = () => {
                         className="bg-gray-800 hover:bg-gray-700 border-gray-700 text-white"
                         aria-label={`Edit ${agent.name}`}
                       >
-                        <Settings2 className="w-4 h-4 mr-2 text-violet-400" />
+                        <Settings2 className="w-4 h-4 mr-2 text-purple-400" />
                         Edit
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="bg-gray-900 border border-gray-800 max-w-lg">
                       <DialogHeader>
                         <DialogTitle className="text-2xl flex items-center gap-2 text-white">
-                          <Bot className="w-6 h-6 text-violet-400" />
+                          <Bot className="w-6 h-6 text-purple-400" />
                           Edit Agent
                         </DialogTitle>
                       </DialogHeader>
@@ -1172,7 +1130,7 @@ const AgentCreationPage = () => {
 
               <div className="grid grid-cols-2 gap-3 text-sm text-gray-300 mt-3">
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-violet-400" />
+                  <Clock className="w-4 h-4 text-purple-400" />
                   {agent.lastActive ? (
                     <span>Active {formatTimeAgo(agent.lastActive)}</span>
                   ) : (
@@ -1181,7 +1139,7 @@ const AgentCreationPage = () => {
                 </div>
 
                 <div className="flex items-center gap-2 justify-end">
-                  <Zap className="w-4 h-4 text-amber-400" />
+                  <Zap className="w-4 h-4 text-yellow-400" />
                   <span>Uses: {agent.usageCount || 0}</span>
                 </div>
 
@@ -1267,11 +1225,11 @@ const AgentCreationPage = () => {
       >
         {templates.map((template, index) => (
           <motion.div key={index} variants={cardVariants} whileHover="hover">
-            <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 hover:border-violet-700 transition-all shadow-md overflow-hidden">
+            <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 hover:border-purple-700 transition-all shadow-md overflow-hidden">
               <CardHeader className="pb-4 pt-7">
                 <div className="flex items-center gap-4 mb-2">
                   <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center relative overflow-hidden">
-                    <div className="absolute inset-0 bg-violet-500 opacity-10"></div>
+                    <div className="absolute inset-0 bg-purple-500 opacity-10"></div>
                     {(() => {
                       const TypeIcon = AGENT_TYPES[template.type as keyof typeof AGENT_TYPES].icon
                       return (
@@ -1299,14 +1257,28 @@ const AgentCreationPage = () => {
                   ))}
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-300 mt-3">
-                  <Folder className="w-4 h-4 text-violet-400" />
+                  <Folder className="w-4 h-4 text-purple-400" />
                   <span>Category: {template.category}</span>
                 </div>
               </CardContent>
               <CardFooter className="pt-2 pb-5 border-t border-gray-800">
                 <Button
-                  className="w-full bg-violet-700 hover:bg-violet-600 text-white"
-                  onClick={() => handleUseTemplate(template)}
+                  className="w-full bg-purple-700 hover:bg-purple-600 text-white"
+                  onClick={() => {
+                    setFormData({
+                      ...INITIAL_FORM_STATE,
+                      name: template.name,
+                      description: template.description,
+                      type: template.type as any,
+                      capabilities: template.capabilities,
+                      category: template.category,
+                    })
+                    updatePreviewAvatar(template.name)
+                    setShowTemplates(false)
+                    toast.success("Template loaded", {
+                      description: `${template.name} template has been loaded into the form.`,
+                    })
+                  }}
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   Use Template
@@ -1317,7 +1289,7 @@ const AgentCreationPage = () => {
         ))}
       </motion.div>
     )
-  }, [handleUseTemplate])
+  }, [INITIAL_FORM_STATE, updatePreviewAvatar])
 
   const renderAnalytics = useCallback(() => {
     const analytics = getAgentAnalytics()
@@ -1374,7 +1346,7 @@ const AgentCreationPage = () => {
                 <div>
                   <div className="flex items-center gap-2">
                     <div className="text-xl font-bold truncate text-white">{analytics.topPerformer.name}</div>
-                    <div className="text-sm font-medium text-emerald-400">{analytics.topPerformer.performance}%</div>
+                    <div className="text-sm font-medium text-green-400">{analytics.topPerformer.performance}%</div>
                   </div>
                   <p className="text-xs text-gray-400 mt-1">
                     {analytics.topPerformer.usageCount || 0} uses • {analytics.topPerformer.type}
@@ -1476,286 +1448,6 @@ const AgentCreationPage = () => {
     )
   }, [getAgentAnalytics])
 
-  const renderAgentForm = () => (
-    <form onSubmit={handleCreateAgent} className="space-y-4">
-      {error && (
-        <div className="p-3 bg-rose-900/30 border border-rose-800 rounded-md text-rose-300 text-sm" role="alert">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" />
-            {error}
-          </div>
-        </div>
-      )}
-
-      <div>
-        <Label htmlFor="name" className="text-sm font-medium text-gray-300">
-          Agent Name*
-        </Label>
-        <Input
-          id="name"
-          value={formData.name}
-          onChange={(e) => handleInputChange("name", e.target.value)}
-          className="mt-1 bg-gray-800 border-gray-700 text-white"
-          placeholder="Enter agent name"
-          required
-          aria-required="true"
-        />
-      </div>
-
-      <div>
-        <Label htmlFor="description" className="text-sm font-medium text-gray-300">
-          Description*
-        </Label>
-        <Textarea
-          id="description"
-          value={formData.description}
-          onChange={(e) => handleInputChange("description", e.target.value)}
-          className="mt-1 bg-gray-800 border-gray-700 text-white"
-          placeholder="Enter agent description"
-          required
-          aria-required="true"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="status" className="text-sm font-medium text-gray-300">
-            Status
-          </Label>
-          <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
-            <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
-              <SelectValue placeholder="Select status" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-900 border-gray-700">
-              {Object.entries(AGENT_STATUSES).map(([value, { label }]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label htmlFor="type" className="text-sm font-medium text-gray-300">
-            Type
-          </Label>
-          <Select value={formData.type} onValueChange={(value) => handleInputChange("type", value)}>
-            <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
-              <SelectValue placeholder="Select type" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-900 border-gray-700">
-              {Object.entries(AGENT_TYPES).map(([value, { label }]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="priority" className="text-sm font-medium text-gray-300">
-            Priority
-          </Label>
-          <Select value={formData.priority} onValueChange={(value) => handleInputChange("priority", value)}>
-            <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
-              <SelectValue placeholder="Select priority" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-900 border-gray-700">
-              {Object.entries(AGENT_PRIORITIES).map(([value, { label }]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label htmlFor="category" className="text-sm font-medium text-gray-300">
-            Category
-          </Label>
-          <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
-            <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-900 border-gray-700">
-              {SAMPLE_CATEGORIES.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div>
-        <Label htmlFor="version" className="text-sm font-medium text-gray-300">
-          Version
-        </Label>
-        <Input
-          id="version"
-          value={formData.version}
-          onChange={(e) => handleInputChange("version", e.target.value)}
-          className="mt-1 bg-gray-800 border-gray-700 text-white"
-          placeholder="1.0.0"
-        />
-      </div>
-
-      <div>
-        <Label htmlFor="schedule" className="text-sm font-medium text-gray-300">
-          Schedule (Optional)
-        </Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full justify-start text-left font-normal mt-1 bg-gray-800 border-gray-700 text-white"
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {selectedDate ? format(selectedDate, "PPP") : "Select date"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-gray-900 border-gray-700">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              initialFocus
-              className="bg-gray-900"
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-
-      <div>
-        <Label htmlFor="capabilities" className="text-sm font-medium text-gray-300">
-          Capabilities
-        </Label>
-        <div className="flex mt-1 mb-2">
-          <Input
-            id="capabilities"
-            value={newCapability}
-            onChange={(e) => setNewCapability(e.target.value)}
-            placeholder="Add capability"
-            className="rounded-r-none bg-gray-800 border-gray-700 text-white"
-          />
-          <Button type="button" onClick={addCapability} className="rounded-l-none" variant="secondary">
-            Add
-          </Button>
-        </div>
-
-        {formData.capabilities.length > 0 ? (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {formData.capabilities.map((capability, index) => (
-              <Badge key={index} variant="secondary" className="flex items-center gap-1 bg-gray-800 text-gray-300">
-                {capability}
-                <X
-                  className="w-3 h-3 cursor-pointer hover:text-rose-400"
-                  onClick={() => removeCapability(capability)}
-                />
-              </Badge>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-gray-400 mt-1">No capabilities added. Default capabilities will be assigned.</p>
-        )}
-      </div>
-
-      <div>
-        <Label htmlFor="tags" className="text-sm font-medium text-gray-300">
-          Tags
-        </Label>
-        <div className="flex mt-1 mb-2">
-          <Input
-            id="tags"
-            value={newTag}
-            onChange={(e) => setNewTag(e.target.value)}
-            placeholder="Add tag"
-            className="rounded-r-none bg-gray-800 border-gray-700 text-white"
-          />
-          <Button type="button" onClick={addTag} className="rounded-l-none" variant="secondary">
-            Add
-          </Button>
-        </div>
-
-        {formData.tags && formData.tags.length > 0 ? (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {formData.tags.map((tag, index) => (
-              <Badge key={index} variant="outline" className="flex items-center gap-1 border-gray-700 text-gray-300">
-                #{tag}
-                <X className="w-3 h-3 cursor-pointer hover:text-rose-400" onClick={() => removeTag(tag)} />
-              </Badge>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-gray-400 mt-1">No tags added. Tags help categorize your agents.</p>
-        )}
-      </div>
-
-      <div>
-        <Label htmlFor="notes" className="text-sm font-medium text-gray-300">
-          Notes (Optional)
-        </Label>
-        <Textarea
-          id="notes"
-          value={formData.notes}
-          onChange={(e) => handleInputChange("notes", e.target.value)}
-          className="mt-1 bg-gray-800 border-gray-700 text-white"
-          placeholder="Additional notes about this agent"
-        />
-      </div>
-
-      <div>
-        <Label htmlFor="avatar" className="text-sm font-medium text-gray-300">
-          Upload Avatar (Optional)
-        </Label>
-        <Input
-          id="avatar"
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          className="mt-1 bg-gray-800 border-gray-700 text-white"
-          accept="image/*"
-          aria-label="Upload agent avatar"
-        />
-        <p className="text-xs text-gray-400 mt-1">
-          Max file size: 5MB. If no avatar is uploaded, one will be generated.
-        </p>
-      </div>
-
-      <div className="pt-2">
-        <Button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-gradient-to-r from-violet-600 to-violet-800 hover:from-violet-500 hover:to-violet-700 text-white font-medium"
-          aria-busy={loading}
-        >
-          {loading ? (
-            <div className="flex items-center">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-              </motion.div>
-              Creating...
-            </div>
-          ) : (
-            <>
-              <Sparkles className="w-4 h-4 mr-2" />
-              Create Agent
-            </>
-          )}
-        </Button>
-      </div>
-    </form>
-  )
-
   return (
     <main className="min-h-screen bg-black text-gray-100" role="main">
       <Container className="py-12 max-w-7xl">
@@ -1767,7 +1459,7 @@ const AgentCreationPage = () => {
         >
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-fuchsia-500">
+              <h1 className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">
                 NeuralOps AI: Agent Management
               </h1>
               <p className="text-lg text-gray-300 max-w-3xl">
@@ -1775,15 +1467,10 @@ const AgentCreationPage = () => {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                aria-label="Toggle theme"
-                className="bg-gray-900 border-gray-800"
-              >
-                {theme === "dark" ? <Sun className="h-5 w-5 text-amber-300" /> : <Moon className="h-5 w-5" />}
-              </Button>
+              <div className="flex items-center gap-1 text-purple-300 text-sm bg-gray-900 px-3 py-1.5 rounded-md border border-purple-900/50">
+                <Moon className="h-4 w-4 text-purple-300" />
+                <span>Dark Mode</span>
+              </div>
               <Button
                 variant="outline"
                 size="sm"
@@ -1793,7 +1480,6 @@ const AgentCreationPage = () => {
                     setSelectedAgents([])
                   }
                 }}
-                className="bg-gray-900 border-gray-800"
               >
                 {isSelectMode ? (
                   <>
@@ -1811,47 +1497,435 @@ const AgentCreationPage = () => {
           </div>
         </motion.header>
 
-        <div className="grid grid-cols-1 gap-10">
-          {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          {/* Left Column: Agent Creation Form */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
+            className="lg:col-span-1 space-y-6"
+          >
+            <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 shadow-md overflow-hidden">
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-xl flex items-center gap-2 text-white">
+                    <Plus className="w-5 h-5 text-purple-400" />
+                    Create New AI Agent
+                  </CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowTemplates(!showTemplates)}
+                    className="text-xs hover:bg-gray-800"
+                  >
+                    <FolderPlus className="w-4 h-4 mr-1 text-purple-400" />
+                    Templates
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {showTemplates ? (
+                  <>
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-medium text-white">Agent Templates</h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowTemplates(false)}
+                        className="text-xs hover:bg-gray-800"
+                      >
+                        <X className="w-4 h-4 mr-1" />
+                        Close
+                      </Button>
+                    </div>
+                    {renderAgentTemplates()}
+                  </>
+                ) : (
+                  <form onSubmit={handleCreateAgent} className="space-y-4">
+                    {error && (
+                      <div
+                        className="p-3 bg-red-900/30 border border-red-800 rounded-md text-red-300 text-sm"
+                        role="alert"
+                      >
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4" />
+                          {error}
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <Label htmlFor="name" className="text-sm font-medium text-gray-300">
+                        Agent Name*
+                      </Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => handleInputChange("name", e.target.value)}
+                        className="mt-1 bg-gray-800 border-gray-700 text-white"
+                        placeholder="Enter agent name"
+                        required
+                        aria-required="true"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="description" className="text-sm font-medium text-gray-300">
+                        Description*
+                      </Label>
+                      <Textarea
+                        id="description"
+                        value={formData.description}
+                        onChange={(e) => handleInputChange("description", e.target.value)}
+                        className="mt-1 bg-gray-800 border-gray-700 text-white"
+                        placeholder="Enter agent description"
+                        required
+                        aria-required="true"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="status" className="text-sm font-medium text-gray-300">
+                          Status
+                        </Label>
+                        <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
+                          <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-gray-900 border-gray-700">
+                            {Object.entries(AGENT_STATUSES).map(([value, { label }]) => (
+                              <SelectItem key={value} value={value}>
+                                {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="type" className="text-sm font-medium text-gray-300">
+                          Type
+                        </Label>
+                        <Select value={formData.type} onValueChange={(value) => handleInputChange("type", value)}>
+                          <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-gray-900 border-gray-700">
+                            {Object.entries(AGENT_TYPES).map(([value, { label }]) => (
+                              <SelectItem key={value} value={value}>
+                                {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="priority" className="text-sm font-medium text-gray-300">
+                          Priority
+                        </Label>
+                        <Select
+                          value={formData.priority}
+                          onValueChange={(value) => handleInputChange("priority", value)}
+                        >
+                          <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
+                            <SelectValue placeholder="Select priority" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-gray-900 border-gray-700">
+                            {Object.entries(AGENT_PRIORITIES).map(([value, { label }]) => (
+                              <SelectItem key={value} value={value}>
+                                {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="category" className="text-sm font-medium text-gray-300">
+                          Category
+                        </Label>
+                        <Select
+                          value={formData.category}
+                          onValueChange={(value) => handleInputChange("category", value)}
+                        >
+                          <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-gray-900 border-gray-700">
+                            {SAMPLE_CATEGORIES.map((category) => (
+                              <SelectItem key={category} value={category}>
+                                {category}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="version" className="text-sm font-medium text-gray-300">
+                        Version
+                      </Label>
+                      <Input
+                        id="version"
+                        value={formData.version}
+                        onChange={(e) => handleInputChange("version", e.target.value)}
+                        className="mt-1 bg-gray-800 border-gray-700 text-white"
+                        placeholder="1.0.0"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="schedule" className="text-sm font-medium text-gray-300">
+                        Schedule (Optional)
+                      </Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start text-left font-normal mt-1 bg-gray-800 border-gray-700 text-white"
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {selectedDate ? format(selectedDate, "PPP") : "Select date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 bg-gray-900 border-gray-700">
+                          <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={setSelectedDate}
+                            initialFocus
+                            className="bg-gray-900"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="capabilities" className="text-sm font-medium text-gray-300">
+                        Capabilities
+                      </Label>
+                      <div className="flex mt-1 mb-2">
+                        <Input
+                          id="capabilities"
+                          value={newCapability}
+                          onChange={(e) => setNewCapability(e.target.value)}
+                          placeholder="Add capability"
+                          className="rounded-r-none bg-gray-800 border-gray-700 text-white"
+                        />
+                        <Button type="button" onClick={addCapability} className="rounded-l-none" variant="secondary">
+                          Add
+                        </Button>
+                      </div>
+
+                      {formData.capabilities.length > 0 ? (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {formData.capabilities.map((capability, index) => (
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="flex items-center gap-1 bg-gray-800 text-gray-300"
+                            >
+                              {capability}
+                              <X
+                                className="w-3 h-3 cursor-pointer hover:text-red-400"
+                                onClick={() => removeCapability(capability)}
+                              />
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-400 mt-1">
+                          No capabilities added. Default capabilities will be assigned.
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="tags" className="text-sm font-medium text-gray-300">
+                        Tags
+                      </Label>
+                      <div className="flex mt-1 mb-2">
+                        <Input
+                          id="tags"
+                          value={newTag}
+                          onChange={(e) => setNewTag(e.target.value)}
+                          placeholder="Add tag"
+                          className="rounded-r-none bg-gray-800 border-gray-700 text-white"
+                        />
+                        <Button type="button" onClick={addTag} className="rounded-l-none" variant="secondary">
+                          Add
+                        </Button>
+                      </div>
+
+                      {formData.tags && formData.tags.length > 0 ? (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {formData.tags.map((tag, index) => (
+                            <Badge
+                              key={index}
+                              variant="outline"
+                              className="flex items-center gap-1 border-gray-700 text-gray-300"
+                            >
+                              #{tag}
+                              <X className="w-3 h-3 cursor-pointer hover:text-red-400" onClick={() => removeTag(tag)} />
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-400 mt-1">No tags added. Tags help categorize your agents.</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="notes" className="text-sm font-medium text-gray-300">
+                        Notes (Optional)
+                      </Label>
+                      <Textarea
+                        id="notes"
+                        value={formData.notes}
+                        onChange={(e) => handleInputChange("notes", e.target.value)}
+                        className="mt-1 bg-gray-800 border-gray-700 text-white"
+                        placeholder="Additional notes about this agent"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="avatar" className="text-sm font-medium text-gray-300">
+                        Upload Avatar (Optional)
+                      </Label>
+                      <Input
+                        id="avatar"
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        className="mt-1 bg-gray-800 border-gray-700 text-white"
+                        accept="image/*"
+                        aria-label="Upload agent avatar"
+                      />
+                      <p className="text-xs text-gray-400 mt-1">
+                        Max file size: 5MB. If no avatar is uploaded, one will be generated.
+                      </p>
+                    </div>
+
+                    <div className="pt-2">
+                      <Button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white font-medium"
+                        aria-busy={loading}
+                      >
+                        {loading ? (
+                          <div className="flex items-center">
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                            >
+                              <RefreshCw className="w-4 h-4 mr-2" />
+                            </motion.div>
+                            Creating...
+                          </div>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            Create Agent
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Live Preview */}
+            <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 shadow-md overflow-hidden">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl flex items-center gap-2 text-white">
+                  <Activity className="w-5 h-5 text-purple-400" />
+                  Live Preview
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-3 pb-8">
+                <div className="flex items-center space-x-5">
+                  {previewAvatar ? (
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-purple-500 rounded-full blur-md opacity-20"></div>
+                      <img
+                        src={previewAvatar || "/placeholder.svg"}
+                        alt="Agent Avatar Preview"
+                        className="h-24 w-24 rounded-full border-3 border-gray-700 shadow-xl relative z-10"
+                      />
+                      <div
+                        className={`absolute -bottom-1 -right-1 rounded-full p-1.5 ${
+                          AGENT_STATUSES[formData.status as keyof typeof AGENT_STATUSES].bgColor
+                        } border-2 border-gray-900 z-20`}
+                      >
+                        {(() => {
+                          const StatusIcon = AGENT_STATUSES[formData.status as keyof typeof AGENT_STATUSES].icon
+                          return (
+                            <StatusIcon
+                              className={`w-4 h-4 ${AGENT_STATUSES[formData.status as keyof typeof AGENT_STATUSES].color}`}
+                            />
+                          )
+                        })()}
+                      </div>
+                    </div>
+                  ) : (
+                    <Skeleton className="h-24 w-24 rounded-full" />
+                  )}
+                  <div>
+                    <h3 className="text-2xl font-bold text-white mb-1">{formData.name || "Agent Name"}</h3>
+                    <p className="text-gray-300 text-base line-clamp-2 mb-2">
+                      {formData.description || "Agent description will appear here."}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span
+                        className={`text-sm px-2 py-0.5 rounded ${AGENT_STATUSES[formData.status].bgColor} ${AGENT_STATUSES[formData.status].color}`}
+                      >
+                        {formData.status}
+                      </span>
+                      <span className="text-xs text-gray-500">•</span>
+                      <span className={`text-sm ${AGENT_TYPES[formData.type].color}`}>
+                        {AGENT_TYPES[formData.type].label}
+                      </span>
+                      {formData.version && (
+                        <>
+                          <span className="text-xs text-gray-500">•</span>
+                          <span className="text-sm text-gray-300">v{formData.version}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Right Column: Agent List */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="lg:col-span-2"
           >
             <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 shadow-md overflow-hidden">
               <CardHeader className="pb-2">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <CardTitle className="text-xl flex items-center gap-2 text-white">
-                    <Bot className="w-5 h-5 text-violet-400" />
+                    <Bot className="w-5 h-5 text-purple-400" />
                     Your AI Agents ({filteredAndSortedAgents.length})
                   </CardTitle>
 
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={() => setShowCreateDialog(true)}
-                      className="bg-gradient-to-r from-violet-600 to-violet-800 hover:from-violet-500 hover:to-violet-700 text-white"
-                    >
-                      <Plus className="w-4 h-4 mr-1" />
-                      Create Agent
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowTemplatesDialog(true)}
-                      className="text-xs bg-gray-900 border-gray-800"
-                    >
-                      <FolderPlus className="w-4 h-4 mr-1 text-violet-400" />
-                      Templates
-                    </Button>
-
+                  <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setViewMode("list")}
-                      className={`text-xs ${viewMode === "list" ? "bg-gray-800 border-violet-700" : "bg-gray-900 border-gray-800"}`}
+                      className={`text-xs ${viewMode === "list" ? "bg-gray-800 border-purple-700" : "bg-gray-900 border-gray-700"}`}
                     >
                       <PanelLeft className="w-3.5 h-3.5 mr-1" />
                       List
@@ -1860,7 +1934,7 @@ const AgentCreationPage = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => setViewMode("grid")}
-                      className={`text-xs ${viewMode === "grid" ? "bg-gray-800 border-violet-700" : "bg-gray-900 border-gray-800"}`}
+                      className={`text-xs ${viewMode === "grid" ? "bg-gray-800 border-purple-700" : "bg-gray-900 border-gray-700"}`}
                     >
                       <Layers className="w-3.5 h-3.5 mr-1" />
                       Grid
@@ -1869,7 +1943,7 @@ const AgentCreationPage = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => setViewMode("analytics")}
-                      className={`text-xs ${viewMode === "analytics" ? "bg-gray-800 border-violet-700" : "bg-gray-900 border-gray-800"}`}
+                      className={`text-xs ${viewMode === "analytics" ? "bg-gray-800 border-purple-700" : "bg-gray-900 border-gray-700"}`}
                     >
                       <BarChart2 className="w-3.5 h-3.5 mr-1" />
                       Analytics
@@ -1877,13 +1951,13 @@ const AgentCreationPage = () => {
 
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="text-xs bg-gray-900 border-gray-800">
+                        <Button variant="outline" size="sm" className="text-xs bg-gray-900 border-gray-700">
                           <Download className="w-3.5 h-3.5 mr-1" />
                           Export
                           <ChevronDown className="w-3.5 h-3.5 ml-1" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-48 bg-gray-900 border-gray-800" align="end">
+                      <PopoverContent className="w-48 bg-gray-900 border-gray-700" align="end">
                         <div className="grid gap-1">
                           <Button
                             variant="ghost"
@@ -1933,7 +2007,7 @@ const AgentCreationPage = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => importFileRef.current?.click()}
-                        className="text-xs bg-gray-900 border-gray-800"
+                        className="text-xs bg-gray-900 border-gray-700"
                       >
                         <Upload className="w-3.5 h-3.5 mr-1" />
                         Import
@@ -1949,16 +2023,16 @@ const AgentCreationPage = () => {
                         <TabsTrigger value="all" className="data-[state=active]:bg-gray-800">
                           All
                         </TabsTrigger>
-                        <TabsTrigger value="active" className="text-emerald-400 data-[state=active]:bg-gray-800">
+                        <TabsTrigger value="active" className="text-green-400 data-[state=active]:bg-gray-800">
                           Active
                         </TabsTrigger>
-                        <TabsTrigger value="maintenance" className="text-amber-400 data-[state=active]:bg-gray-800">
+                        <TabsTrigger value="maintenance" className="text-yellow-400 data-[state=active]:bg-gray-800">
                           Maintenance
                         </TabsTrigger>
-                        <TabsTrigger value="offline" className="text-rose-400 data-[state=active]:bg-gray-800">
+                        <TabsTrigger value="offline" className="text-red-400 data-[state=active]:bg-gray-800">
                           Offline
                         </TabsTrigger>
-                        <TabsTrigger value="favorites" className="text-amber-400 data-[state=active]:bg-gray-800">
+                        <TabsTrigger value="favorites" className="text-yellow-400 data-[state=active]:bg-gray-800">
                           Favorites
                         </TabsTrigger>
                       </TabsList>
@@ -2017,14 +2091,14 @@ const AgentCreationPage = () => {
                       </div>
 
                       {isSelectMode && selectedAgents.length > 0 && (
-                        <div className="bg-violet-900/20 border border-violet-800 rounded-md p-2 mb-2">
+                        <div className="bg-purple-900/20 border border-purple-800 rounded-md p-2 mb-2">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <input
                                 type="checkbox"
                                 checked={selectedAgents.length === filteredAndSortedAgents.length}
                                 onChange={toggleSelectAll}
-                                className="h-4 w-4 rounded border-gray-600 text-violet-600 focus:ring-violet-500"
+                                className="h-4 w-4 rounded border-gray-600 text-purple-600 focus:ring-purple-500"
                               />
                               <span className="text-sm font-medium text-white">
                                 {selectedAgents.length} agent{selectedAgents.length !== 1 ? "s" : ""} selected
@@ -2152,100 +2226,10 @@ const AgentCreationPage = () => {
           className="mt-10 text-center"
         >
           <p className="text-gray-400">
-            Powered by <span className="text-violet-400">NeuralOps AI</span> &copy; {new Date().getFullYear()}
+            Powered by <span className="text-purple-400">NeuralOps AI</span> &copy; {new Date().getFullYear()}
           </p>
         </motion.footer>
       </Container>
-
-      {/* Create Agent Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="bg-gray-900 border border-gray-800 max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-2xl flex items-center gap-2 text-white">
-              <Plus className="w-6 h-6 text-violet-400" />
-              Create New AI Agent
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="mt-2">
-            {previewAvatar && (
-              <div className="flex justify-center mb-4">
-                <div className="relative">
-                  <div className="absolute inset-0 rounded-full blur-md opacity-20"></div>
-                  <div className="relative h-24 w-24 rounded-full overflow-hidden border-3 border-gray-800 shadow-xl">
-                    {previewAvatar.startsWith("data:") || previewAvatar.startsWith("http") ? (
-                      <Image
-                        src={previewAvatar || "/placeholder.svg"}
-                        alt="Agent Avatar Preview"
-                        width={96}
-                        height={96}
-                        className="object-cover"
-                        priority
-                      />
-                    ) : (
-                      <div dangerouslySetInnerHTML={{ __html: previewAvatar }} className="h-full w-full" />
-                    )}
-                  </div>
-                  <div
-                    className={`absolute -bottom-1 -right-1 rounded-full p-1.5 ${
-                      AGENT_STATUSES[formData.status as keyof typeof AGENT_STATUSES].bgColor
-                    } border-2 border-gray-900 z-20`}
-                  >
-                    {(() => {
-                      const StatusIcon = AGENT_STATUSES[formData.status as keyof typeof AGENT_STATUSES].icon
-                      return (
-                        <StatusIcon
-                          className={`w-4 h-4 ${AGENT_STATUSES[formData.status as keyof typeof AGENT_STATUSES].color}`}
-                        />
-                      )
-                    })()}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {renderAgentForm()}
-          </div>
-
-          <DialogFooter className="mt-4">
-            <Button
-              variant="outline"
-              onClick={() => {
-                resetForm()
-                setShowCreateDialog(false)
-              }}
-              className="border-gray-700 text-gray-300 hover:bg-gray-800"
-            >
-              Cancel
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Templates Dialog */}
-      <Dialog open={showTemplatesDialog} onOpenChange={setShowTemplatesDialog}>
-        <DialogContent className="bg-gray-900 border border-gray-800 max-w-4xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl flex items-center gap-2 text-white">
-              <FolderPlus className="w-6 h-6 text-violet-400" />
-              Agent Templates
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="mt-2">{renderAgentTemplates()}</div>
-
-          <DialogFooter className="mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setShowTemplatesDialog(false)}
-              className="border-gray-700 text-gray-300 hover:bg-gray-800"
-            >
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       <Toaster richColors closeButton position="top-right" />
     </main>
   )
@@ -2543,7 +2527,7 @@ const EditAgentForm = ({
                     <Badge key={index} variant="secondary" className="flex items-center gap-1 bg-gray-800 text-white">
                       {capability}
                       <X
-                        className="w-3 h-3 cursor-pointer hover:text-rose-400"
+                        className="w-3 h-3 cursor-pointer hover:text-red-400"
                         onClick={() => removeCapability(capability)}
                       />
                     </Badge>
@@ -2574,7 +2558,7 @@ const EditAgentForm = ({
                   {formData.tags.map((tag, index) => (
                     <Badge key={index} variant="outline" className="flex items-center gap-1 border-gray-700 text-white">
                       #{tag}
-                      <X className="w-3 h-3 cursor-pointer hover:text-rose-400" onClick={() => removeTag(tag)} />
+                      <X className="w-3 h-3 cursor-pointer hover:text-red-400" onClick={() => removeTag(tag)} />
                     </Badge>
                   ))}
                 </div>
@@ -2628,7 +2612,7 @@ const EditAgentForm = ({
             <Separator className="bg-gray-800" />
 
             <div>
-              <Label className="text-sm font-medium text-rose-400">Danger Zone</Label>
+              <Label className="text-sm font-medium text-red-400">Danger Zone</Label>
               <p className="text-xs text-gray-400 mt-1 mb-2">These actions cannot be undone.</p>
 
               {!confirmDelete ? (
@@ -2638,7 +2622,7 @@ const EditAgentForm = ({
                 </Button>
               ) : (
                 <div className="space-y-2">
-                  <p className="text-sm text-rose-400">
+                  <p className="text-sm text-red-400">
                     Are you sure you want to delete <strong className="text-white">{agent.name}</strong>?
                   </p>
                   <div className="flex gap-2">
@@ -2667,7 +2651,7 @@ const EditAgentForm = ({
           <div className="flex justify-end gap-2 mt-4">
             <Button
               type="submit"
-              className="bg-gradient-to-r from-violet-600 to-violet-800 hover:from-violet-500 hover:to-violet-700 text-white"
+              className="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white"
             >
               <Save className="w-4 h-4 mr-2" />
               Save Changes
@@ -2693,9 +2677,9 @@ const formatTimeAgo = (date: Date) => {
 }
 
 const getPerformanceColor = (performance: number) => {
-  if (performance >= 80) return "bg-emerald-400"
-  if (performance >= 50) return "bg-amber-400"
-  return "bg-rose-400"
+  if (performance >= 80) return "bg-green-400"
+  if (performance >= 50) return "bg-yellow-400"
+  return "bg-red-400"
 }
 
 export default AgentCreationPage

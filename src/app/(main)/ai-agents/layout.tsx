@@ -2,6 +2,7 @@ import DashboardNavbar from "@/components/dashboard/dashboard-navbar";
 import DashboardSidebar from "@/components/dashboard/dashboard-sidebar";
 import { AuthSync } from "@/components/auth/auth-sync";
 import React from 'react';
+import { ThemeProvider } from "@/components/ui/ThemeProvider";
 
 interface Props {
     children: React.ReactNode;
@@ -15,7 +16,10 @@ const DashboardLayout = ({ children }: Props) => {
             <main className="flex flex-col lg:flex-row flex-1 size-full">
                 <DashboardSidebar />
                 <div className="w-full pt-14 lg:ml-72">
-                    {children}
+                <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
+          {children}
+        </ThemeProvider>
+                
                 </div>
             </main>
         </div>

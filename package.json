@@ -45,6 +45,7 @@
     "next": "15.2.4",
     "next-themes": "^0.3.0",
     "react": "^18.3.1",
+    "react-day-picker": "8.10.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.55.0",
     "react-parallax-tilt": "^1.7.289",

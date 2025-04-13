@@ -1,154 +1,207 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef, useCallback, useMemo, useEffect } from "react"
-import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
+
+import { useState, useEffect, useCallback, useMemo } from "react"
+import {
+  Bot,
+  Plus,
+  X,
+  Check,
+  Settings,
+  AlertCircle,
+  Trash,
+  Edit,
+  Save,
+  Copy,
+  Sparkles,
+  Zap,
+  Clock,
+  Star,
+  Filter,
+  Cpu,
+  Workflow,
+  MessageSquare,
+  Database,
+  ChevronRight,
+  BarChart,
+  CheckCircle,
+  Circle,
+  HelpCircle,
+  Lightbulb,
+  Loader2,
+  RefreshCw,
+  Shield,
+  Sliders,
+  ChevronLeft,
+  Search,
+  Command,
+  MoreHorizontal,
+  Play,
+  Power,
+  ArrowRight,
+  ArrowDown,
+  Cog,
+} from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Switch } from "@/components/ui/switch"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { toast, Toaster } from "sonner"
-import { motion } from "framer-motion"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
-  AlertCircle,
-  CheckCircle2,
-  Bot,
-  Activity,
-  Settings2,
-  Trash2,
-  Search,
-  Filter,
-  SortAsc,
-  SortDesc,
-  Download,
-  Upload,
-  RefreshCw,
-  Plus,
-  Zap,
-  BarChart3,
-  Clock,
-  Tag,
-  Save,
-  X,
-  CalendarIcon,
-  ChevronDown,
-  BarChart2,
-  History,
-  FileText,
-  Copy,
-  Clipboard,
-  Star,
-  Layers,
-  Folder,
-  FolderPlus,
-  PanelLeft,
-  MoreHorizontal,
-  Moon,
-  CheckIcon as Checkbox,
-  Sparkles,
-} from "lucide-react"
-import { format } from "date-fns"
-import { useTheme } from "next-themes"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Switch } from "@/components/ui/switch"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Progress } from "@/components/ui/progress"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface Agent {
   id: number
   name: string
   description: string
   status: "Active" | "Maintenance" | "Offline"
-  avatarUrl?: string
-  createdAt: Date
-  lastActive?: Date
-  capabilities: string[]
   type: "Assistant" | "Processor" | "Analyzer"
-  performance?: number
+  createdAt: Date
+  avatarUrl: string
+  capabilities?: string[]
   tags?: string[]
-  schedule?: Date
   version?: string
-  creator?: string
-  usageCount?: number
-  favorited?: boolean
-  notes?: string
-  category?: string
   priority?: "Low" | "Medium" | "High"
-  lastModified?: Date
-  history?: AgentHistoryEntry[]
-}
-
-interface AgentHistoryEntry {
-  date: Date
-  action: string
-  details?: string
-}
-
-interface AgentAnalytics {
-  totalAgents: number
-  activeAgents: number
-  totalUsage: number
-  averagePerformance: number
-  topPerformer?: Agent
-  recentActivity: number
-  typeDistribution: Record<string, number>
-  statusDistribution: Record<string, number>
-}
-
-const INITIAL_FORM_STATE = {
-  name: "",
-  description: "",
-  status: "Active" as const,
-  capabilities: [] as string[],
-  type: "Assistant" as const,
-  tags: [] as string[],
-  priority: "Medium" as const,
-  category: "",
-  version: "1.0.0",
-  notes: "",
+  favorited?: boolean
+  usageCount?: number
+  lastActive?: Date
+  performance?: number
 }
 
 const AGENT_STATUSES = {
-  Active: { label: "Active", color: "text-green-400", bgColor: "bg-green-500/20", icon: CheckCircle2 },
-  Maintenance: { label: "Maintenance", color: "text-yellow-400", bgColor: "bg-yellow-500/20", icon: Settings2 },
-  Offline: { label: "Offline", color: "text-red-400", bgColor: "bg-red-500/20", icon: AlertCircle },
-} as const
+  Active: {
+    label: "Active",
+    color: "text-emerald-400",
+    bgColor: "bg-emerald-500/10",
+    icon: <CheckCircle className="h-3 w-3 text-emerald-400" />,
+  },
+  Maintenance: {
+    label: "Maintenance",
+    color: "text-amber-400",
+    bgColor: "bg-amber-500/10",
+    icon: <RefreshCw className="h-3 w-3 text-amber-400" />,
+  },
+  Offline: {
+    label: "Offline",
+    color: "text-rose-400",
+    bgColor: "bg-rose-500/10",
+    icon: <Circle className="h-3 w-3 text-rose-400" />,
+  },
+}
 
 const AGENT_TYPES = {
   Assistant: {
     label: "AI Assistant",
     description: "Handles user interactions and queries",
-    icon: Bot,
-    color: "text-blue-400",
-    bgColor: "bg-blue-500/20",
+    color: "text-sky-400",
+    bgColor: "bg-sky-500/10",
+    icon: <MessageSquare className="h-3 w-3" />,
+    fullIcon: <MessageSquare className="h-4 w-4 text-sky-400" />,
   },
   Processor: {
     label: "Data Processor",
     description: "Processes and transforms data",
-    icon: Zap,
-    color: "text-purple-400",
-    bgColor: "bg-purple-500/20",
+    color: "text-violet-400",
+    bgColor: "bg-violet-500/10",
+    icon: <Database className="h-3 w-3" />,
+    fullIcon: <Database className="h-4 w-4 text-violet-400" />,
   },
   Analyzer: {
     label: "Data Analyzer",
     description: "Analyzes and generates insights",
-    icon: BarChart3,
     color: "text-emerald-400",
-    bgColor: "bg-emerald-500/20",
+    bgColor: "bg-emerald-500/10",
+    icon: <Cpu className="h-3 w-3" />,
+    fullIcon: <Cpu className="h-4 w-4 text-emerald-400" />,
   },
-} as const
+}
 
 const AGENT_PRIORITIES = {
-  Low: { label: "Low", color: "text-gray-400", bgColor: "bg-gray-500/20" },
-  Medium: { label: "Medium", color: "text-blue-400", bgColor: "bg-blue-500/20" },
-  High: { label: "High", color: "text-red-400", bgColor: "bg-red-500/20" },
-} as const
+  Low: {
+    label: "Low",
+    color: "text-gray-400",
+    bgColor: "bg-gray-500/10",
+    icon: <Sliders className="h-3 w-3 text-gray-400" />,
+  },
+  Medium: {
+    label: "Medium",
+    color: "text-sky-400",
+    bgColor: "bg-sky-500/10",
+    icon: <Sliders className="h-3 w-3 text-sky-400" />,
+  },
+  High: {
+    label: "High",
+    color: "text-rose-400",
+    bgColor: "bg-rose-500/10",
+    icon: <Sliders className="h-3 w-3 text-rose-400" />,
+  },
+}
+
+const AGENT_TEMPLATES = [
+  {
+    name: "Customer Support Assistant",
+    description: "AI agent designed to handle customer inquiries and support tickets",
+    type: "Assistant",
+    status: "Active",
+    capabilities: ["Natural Language Processing", "Knowledge Base", "Multi-language Support"],
+    tags: ["support", "customer service", "help desk"],
+    priority: "Medium",
+    version: "1.0.0",
+    icon: <MessageSquare className="h-4 w-4 text-sky-400" />,
+  },
+  {
+    name: "Data Analysis Engine",
+    description: "Powerful agent for processing and analyzing large datasets",
+    type: "Analyzer",
+    status: "Active",
+    capabilities: ["Data Analysis", "Predictive Analytics", "Visualization"],
+    tags: ["analytics", "data", "insights"],
+    priority: "High",
+    version: "2.1.0",
+    icon: <BarChart className="h-4 w-4 text-emerald-400" />,
+  },
+  {
+    name: "Content Creation Assistant",
+    description: "Creative agent that helps generate and optimize content",
+    type: "Assistant",
+    status: "Active",
+    capabilities: ["Natural Language Processing", "Content Generation", "SEO Optimization"],
+    tags: ["content", "creation", "writing"],
+    priority: "Medium",
+    version: "1.5.0",
+    icon: <Lightbulb className="h-4 w-4 text-sky-400" />,
+  },
+  {
+    name: "Workflow Automation Agent",
+    description: "Agent that automates repetitive tasks and workflows",
+    type: "Processor",
+    status: "Active",
+    capabilities: ["Task Automation", "Workflow Management", "Integration"],
+    tags: ["automation", "workflow", "productivity"],
+    priority: "High",
+    version: "3.0.0",
+    icon: <Workflow className="h-4 w-4 text-violet-400" />,
+  },
+]
 
 const SAMPLE_CAPABILITIES = [
   "Natural Language Processing",
@@ -165,98 +218,25 @@ const SAMPLE_CAPABILITIES = [
   "Predictive Analytics",
 ]
 
-const SAMPLE_CATEGORIES = [
-  "Customer Support",
-  "Data Processing",
-  "Content Creation",
-  "Research",
-  "Analytics",
-  "Automation",
-  "Monitoring",
-  "Personal Assistant",
-  "Development",
-  "Marketing",
-]
-
-const Container = ({ className, children }: { className?: string; children: React.ReactNode }) => (
-  <div className={`container mx-auto px-4 ${className || ""}`}>{children}</div>
-)
-
-// Animation variants
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.4 } },
-}
-
-const slideUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-}
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-}
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 15,
-    },
-  },
-  hover: {
-    y: -5,
-    boxShadow: "0 10px 25px -5px rgba(124, 58, 237, 0.2)",
-    borderColor: "rgba(139, 92, 246, 0.5)",
-    transition: {
-      type: "spring",
-      stiffness: 400,
-      damping: 10,
-    },
-  },
-}
-
-const AgentCreationPage = () => {
-  const { theme, setTheme } = useTheme()
+export default function AIAgentsDivider() {
   const [agents, setAgents] = useState<Agent[]>([])
-  const [formData, setFormData] = useState(INITIAL_FORM_STATE)
-  const [loading, setLoading] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [previewAvatar, setPreviewAvatar] = useState<string | null>(null)
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [editFormData, setEditFormData] = useState<Partial<Agent>>({})
+  const [activeTab, setActiveTab] = useState("all")
   const [searchTerm, setSearchTerm] = useState("")
   const [filterStatus, setFilterStatus] = useState<string>("all")
   const [filterType, setFilterType] = useState<string>("all")
-  const [filterCategory, setFilterCategory] = useState<string>("all")
-  const [filterPriority, setFilterPriority] = useState<string>("all")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
-  const [sortField, setSortField] = useState<"createdAt" | "name" | "performance" | "priority">("createdAt")
-  const [newCapability, setNewCapability] = useState("")
-  const [newTag, setNewTag] = useState("")
-  const [activeTab, setActiveTab] = useState("all")
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
-  const [viewMode, setViewMode] = useState<"list" | "grid" | "analytics">("grid")
-  const [selectedAgents, setSelectedAgents] = useState<number[]>([])
-  const [isSelectMode, setIsSelectMode] = useState(false)
-  const [showTemplates, setShowTemplates] = useState(false)
-  const [pageLoaded, setPageLoaded] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const importFileRef = useRef<HTMLInputElement>(null)
-
-  // Set page loaded after initial render
-  useEffect(() => {
-    setPageLoaded(true)
-  }, [])
+  const [showFilters, setShowFilters] = useState(false)
+  const [formStep, setFormStep] = useState(1)
+  const [formProgress, setFormProgress] = useState(33)
+  const [isCreating, setIsCreating] = useState(false)
+  const [isWorkflowDialogOpen, setIsWorkflowDialogOpen] = useState(false)
+  const [selectedWorkflow, setSelectedWorkflow] = useState<string | null>(null)
 
   // Load agents from localStorage on mount
   useEffect(() => {
@@ -269,22 +249,17 @@ const AgentCreationPage = () => {
             ...agent,
             createdAt: new Date(agent.createdAt),
             lastActive: agent.lastActive ? new Date(agent.lastActive) : undefined,
-            schedule: agent.schedule ? new Date(agent.schedule) : undefined,
-            lastModified: agent.lastModified ? new Date(agent.lastModified) : undefined,
-            history: agent.history
-              ? agent.history.map((entry: any) => ({
-                  ...entry,
-                  date: new Date(entry.date),
-                }))
-              : [],
           })),
         )
       }
+
+      // Check if onboarding has been shown before
+      const onboardingShown = localStorage.getItem("onboardingShown")
+      if (!onboardingShown) {
+        setShowOnboarding(true)
+      }
     } catch (err) {
       console.error("Error loading agents from localStorage:", err)
-      toast.error("Error loading agents", {
-        description: "There was a problem loading your saved agents.",
-      })
     }
   }, [])
 
@@ -294,9 +269,15 @@ const AgentCreationPage = () => {
       localStorage.setItem("agents", JSON.stringify(agents))
     } catch (err) {
       console.error("Error saving agents to localStorage:", err)
-      toast.error("Error saving agents", {
-        description: "There was a problem saving your agents.",
-      })
+    }
+  }, [agents])
+
+  // Show filters when agents exist
+  useEffect(() => {
+    if (agents.length > 0) {
+      setShowFilters(true)
+    } else {
+      setShowFilters(false)
     }
   }, [agents])
 
@@ -304,14 +285,143 @@ const AgentCreationPage = () => {
     return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(agentName)}`
   }, [])
 
+  const handleCreateAgent = (agent: Omit<Agent, "id" | "createdAt" | "avatarUrl">) => {
+    setIsCreating(true)
+
+    // Simulate a delay for the creation process
+    setTimeout(() => {
+      const now = new Date()
+      const newAgent: Agent = {
+        ...agent,
+        id: Date.now(),
+        createdAt: now,
+        lastActive: now,
+        avatarUrl: generateAvatar(agent.name),
+        usageCount: 0,
+        performance: Math.floor(Math.random() * 100),
+        favorited: false,
+      }
+
+      setAgents((prev) => [...prev, newAgent])
+      setIsCreateDialogOpen(false)
+      setIsCreating(false)
+      setFormStep(1)
+      setFormProgress(33)
+
+      toast.success("Agent created", {
+        description: `${newAgent.name} has been successfully created.`,
+        className: "bg-black border border-gray-800 text-white",
+      })
+    }, 800)
+  }
+
+  const handleDeleteAgent = (agentId: number) => {
+    const agentToDelete = agents.find((agent) => agent.id === agentId)
+    if (!agentToDelete) return
+
+    setAgents((prev) => prev.filter((agent) => agent.id !== agentId))
+
+    if (selectedAgent?.id === agentId) {
+      setSelectedAgent(null)
+    }
+
+    toast.success("Agent deleted", {
+      description: `${agentToDelete.name} has been successfully deleted.`,
+      className: "bg-black border border-gray-800 text-white",
+    })
+  }
+
+  const handleDuplicateAgent = (agent: Agent) => {
+    const now = new Date()
+    const newAgent: Agent = {
+      ...agent,
+      id: Date.now(),
+      name: `${agent.name} (Copy)`,
+      createdAt: now,
+      lastActive: now,
+      usageCount: 0,
+    }
+
+    setAgents((prev) => [...prev, newAgent])
+    toast.success("Agent duplicated", {
+      description: `${agent.name} has been duplicated as ${newAgent.name}`,
+      className: "bg-black border border-gray-800 text-white",
+    })
+  }
+
+  const handleToggleFavorite = (agentId: number) => {
+    setAgents((prev) =>
+      prev.map((agent) => {
+        if (agent.id === agentId) {
+          return {
+            ...agent,
+            favorited: !agent.favorited,
+          }
+        }
+        return agent
+      }),
+    )
+
+    // If the selected agent is the one being favorited, update it
+    if (selectedAgent?.id === agentId) {
+      setSelectedAgent((prev) => {
+        if (!prev) return null
+        return {
+          ...prev,
+          favorited: !prev.favorited,
+        }
+      })
+    }
+  }
+
+  const handleIncrementUsage = (agentId: number) => {
+    const now = new Date()
+    setAgents((prev) =>
+      prev.map((agent) => {
+        if (agent.id === agentId) {
+          return {
+            ...agent,
+            usageCount: (agent.usageCount || 0) + 1,
+            lastActive: now,
+          }
+        }
+        return agent
+      }),
+    )
+
+    // If the selected agent is the one being used, update it
+    if (selectedAgent?.id === agentId) {
+      setSelectedAgent((prev) => {
+        if (!prev) return null
+        return {
+          ...prev,
+          usageCount: (prev.usageCount || 0) + 1,
+          lastActive: now,
+        }
+      })
+    }
+
+    toast.success("Agent activated", {
+      description: "Usage count incremented and timestamp updated",
+      className: "bg-black border border-gray-800 text-white",
+    })
+  }
+
+  const dismissOnboarding = () => {
+    setShowOnboarding(false)
+    localStorage.setItem("onboardingShown", "true")
+  }
+
+  const handleAgentClick = (agent: Agent) => {
+    setSelectedAgent(agent)
+    setIsEditMode(false)
+    setEditFormData({})
+  }
+
   const updatePreviewAvatar = useCallback(
-    (agentName: string, file?: File | null) => {
-      if (file) {
-        const reader = new FileReader()
-        reader.onloadend = () => setPreviewAvatar(reader.result as string)
-        reader.readAsDataURL(file)
-      } else if (agentName.trim().length > 0) {
-        setPreviewAvatar(generateAvatar(agentName))
+    (name: string) => {
+      if (name.trim().length > 0) {
+        setPreviewAvatar(generateAvatar(name))
       } else {
         setPreviewAvatar(null)
       }
@@ -319,229 +429,95 @@ const AgentCreationPage = () => {
     [generateAvatar],
   )
 
-  const handleInputChange = useCallback(
-    (field: keyof typeof INITIAL_FORM_STATE, value: any) => {
-      setFormData((prev) => ({ ...prev, [field]: value }))
-      if (field === "name") {
-        updatePreviewAvatar(value, uploadedFile)
-      }
-    },
-    [uploadedFile, updatePreviewAvatar],
-  )
+  const handleEditAgent = () => {
+    if (!selectedAgent) return
+    setEditFormData({ ...selectedAgent })
+    setIsEditMode(true)
+  }
 
-  const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0]
-      if (file) {
-        if (file.size > 5 * 1024 * 1024) {
-          setError("File size must be less than 5MB")
-          toast.error("File too large", {
-            description: "Avatar image must be less than 5MB",
-          })
-          return
-        }
-        setUploadedFile(file)
-        updatePreviewAvatar(formData.name, file)
-        setError(null)
-      }
-    },
-    [formData.name, updatePreviewAvatar],
-  )
+  const handleSaveEdit = () => {
+    if (!selectedAgent || !editFormData) return
 
-  const addCapability = useCallback(() => {
-    if (newCapability.trim() && !formData.capabilities.includes(newCapability.trim())) {
-      handleInputChange("capabilities", [...formData.capabilities, newCapability.trim()])
-      setNewCapability("")
-    }
-  }, [formData.capabilities, handleInputChange, newCapability])
-
-  const removeCapability = useCallback(
-    (capability: string) => {
-      handleInputChange(
-        "capabilities",
-        formData.capabilities.filter((c) => c !== capability),
-      )
-    },
-    [formData.capabilities, handleInputChange],
-  )
-
-  const addTag = useCallback(() => {
-    if (newTag.trim() && !formData.tags?.includes(newTag.trim())) {
-      handleInputChange("tags", [...(formData.tags || []), newTag.trim()])
-      setNewTag("")
-    }
-  }, [formData.tags, handleInputChange, newTag])
-
-  const removeTag = useCallback(
-    (tag: string) => {
-      handleInputChange("tags", formData.tags?.filter((t) => t !== tag) || [])
-    },
-    [formData.tags, handleInputChange],
-  )
-
-  const handleCreateAgent = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault()
-      try {
-        setLoading(true)
-        setError(null)
-
-        if (!formData.name.trim() || !formData.description.trim()) {
-          throw new Error("Please fill in all required fields")
-        }
-
-        const now = new Date()
-        const newAgent: Agent = {
-          id: Date.now(),
-          ...formData,
-          createdAt: now,
-          lastActive: now,
-          lastModified: now,
-          avatarUrl: previewAvatar || generateAvatar(formData.name),
-          capabilities:
-            formData.capabilities.length > 0
-              ? formData.capabilities
-              : [SAMPLE_CAPABILITIES[Math.floor(Math.random() * SAMPLE_CAPABILITIES.length)]],
-          performance: Math.floor(Math.random() * 100),
-          usageCount: 0,
-          favorited: false,
-          history: [
-            {
-              date: now,
-              action: "Created",
-              details: `Agent created with status: ${formData.status}`,
-            },
-          ],
-        }
-
-        // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, 800))
-
-        setAgents((prev) => [...prev, newAgent])
-        setFormData(INITIAL_FORM_STATE)
-        setUploadedFile(null)
-        setPreviewAvatar(null)
-        setSelectedDate(undefined)
-
-        if (fileInputRef.current) {
-          fileInputRef.current.value = ""
-        }
-
-        toast.success("Agent created", {
-          description: `${newAgent.name} has been successfully created.`,
-        })
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred")
-        toast.error("Error creating agent", {
-          description: err instanceof Error ? err.message : "An error occurred",
-        })
-      } finally {
-        setLoading(false)
-      }
-    },
-    [formData, previewAvatar, generateAvatar],
-  )
-
-  const handleUpdateAgent = useCallback((updatedAgent: Agent) => {
-    const now = new Date()
-    const agentWithHistory = {
-      ...updatedAgent,
-      lastModified: now,
-      history: [
-        ...(updatedAgent.history || []),
-        {
-          date: now,
-          action: "Updated",
-          details: `Agent updated with status: ${updatedAgent.status}`,
-        },
-      ],
+    const updatedAgent = {
+      ...selectedAgent,
+      ...editFormData,
     }
 
-    setAgents((prev) => prev.map((agent) => (agent.id === updatedAgent.id ? agentWithHistory : agent)))
+    setAgents((prev) => prev.map((agent) => (agent.id === selectedAgent.id ? updatedAgent : agent)))
+
+    setSelectedAgent(updatedAgent)
+    setIsEditMode(false)
+    setEditFormData({})
+
     toast.success("Agent updated", {
       description: `${updatedAgent.name} has been successfully updated.`,
+      className: "bg-black border border-gray-800 text-white",
     })
-  }, [])
+  }
 
-  const handleDeleteAgent = useCallback((agentId: number, agentName: string) => {
-    setAgents((prev) => prev.filter((agent) => agent.id !== agentId))
-    toast.success("Agent deleted", {
-      description: `${agentName} has been successfully deleted.`,
-    })
-  }, [])
+  const handleCancelEdit = () => {
+    setIsEditMode(false)
+    setEditFormData({})
+  }
 
-  const importAgents = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const handleEditFormChange = (field: keyof Agent, value: any) => {
+    setEditFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+  }
 
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      try {
-        const importedAgents = JSON.parse(event.target?.result as string)
-        if (!Array.isArray(importedAgents)) {
-          throw new Error("Invalid format: imported data is not an array")
-        }
+  const handleUseTemplate = (template: (typeof AGENT_TEMPLATES)[0]) => {
+    setIsCreating(true)
 
-        const now = new Date()
-        const processedAgents = importedAgents.map((agent: any) => ({
-          ...agent,
-          createdAt: new Date(agent.createdAt),
-          lastActive: agent.lastActive ? new Date(agent.lastActive) : undefined,
-          schedule: agent.schedule ? new Date(agent.schedule) : undefined,
-          lastModified: now,
-          history: [
-            ...(agent.history
-              ? agent.history.map((entry: any) => ({
-                  ...entry,
-                  date: new Date(entry.date),
-                }))
-              : []),
-            {
-              date: now,
-              action: "Imported",
-              details: "Agent was imported from file",
-            },
-          ],
-        }))
-
-        setAgents((prev) => {
-          // Merge with existing agents, avoiding duplicates by ID
-          const existingIds = new Set(prev.map((a) => a.id))
-          const newAgents = processedAgents.filter((a: Agent) => !existingIds.has(a.id))
-          return [...prev, ...newAgents]
-        })
-
-        toast.success("Agents imported", {
-          description: `${processedAgents.length} agents imported successfully.`,
-        })
-      } catch (err) {
-        console.error("Error importing agents:", err)
-        toast.error("Import failed", {
-          description: "There was a problem importing your agents. Please check the file format.",
-        })
+    // Simulate a delay for the creation process
+    setTimeout(() => {
+      const templateData = {
+        name: template.name,
+        description: template.description,
+        status: template.status as Agent["status"],
+        type: template.type as Agent["type"],
+        capabilities: template.capabilities,
+        tags: template.tags,
+        priority: template.priority as Agent["priority"],
+        version: template.version,
       }
+
+      handleCreateAgent(templateData)
+    }, 600)
+  }
+
+  const handleOpenWorkflow = (agentName: string) => {
+    setSelectedWorkflow(agentName)
+    setIsWorkflowDialogOpen(true)
+  }
+
+  const nextFormStep = () => {
+    if (formStep < 3) {
+      setFormStep(formStep + 1)
+      setFormProgress(formStep === 1 ? 66 : formStep === 2 ? 100 : 100)
     }
-    reader.readAsText(file)
+  }
 
-    // Reset the input
-    e.target.value = ""
-  }, [])
+  const prevFormStep = () => {
+    if (formStep > 1) {
+      setFormStep(formStep - 1)
+      setFormProgress(formStep === 3 ? 66 : formStep === 2 ? 33 : 33)
+    }
+  }
 
-  // Define filteredAndSortedAgents before it's used in toggleSelectAll
-  const filteredAndSortedAgents = useMemo(() => {
+  // Filter and sort agents
+  const filteredAgents = useMemo(() => {
     return [...agents]
       .filter((agent) => {
         const matchesSearch =
           agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           agent.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          agent.capabilities.some((cap) => cap.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          agent.tags?.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          agent.category?.toLowerCase().includes(searchTerm.toLowerCase())
+          agent.capabilities?.some((cap) => cap.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          agent.tags?.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
 
         const matchesStatus = filterStatus === "all" || agent.status === filterStatus
         const matchesType = filterType === "all" || agent.type === filterType
-        const matchesCategory = filterCategory === "all" || agent.category === filterCategory
-        const matchesPriority = filterPriority === "all" || agent.priority === filterPriority
 
         const matchesTab =
           activeTab === "all" ||
@@ -550,2136 +526,1949 @@ const AgentCreationPage = () => {
           (activeTab === "offline" && agent.status === "Offline") ||
           (activeTab === "favorites" && agent.favorited)
 
-        return matchesSearch && matchesStatus && matchesType && matchesCategory && matchesPriority && matchesTab
+        return matchesSearch && matchesStatus && matchesType && matchesTab
       })
       .sort((a, b) => {
-        if (sortField === "name") {
-          return sortOrder === "asc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
-        } else if (sortField === "performance") {
-          const perfA = a.performance || 0
-          const perfB = b.performance || 0
-          return sortOrder === "asc" ? perfA - perfB : perfB - perfA
-        } else if (sortField === "priority") {
-          const priorityRank = { High: 3, Medium: 2, Low: 1 }
-          const rankA = priorityRank[a.priority || "Medium"]
-          const rankB = priorityRank[b.priority || "Medium"]
-          return sortOrder === "asc" ? rankA - rankB : rankB - rankA
-        } else {
-          // Default sort by createdAt
-          const dateA = a.createdAt.getTime()
-          const dateB = b.createdAt.getTime()
-          return sortOrder === "asc" ? dateA - dateB : dateB - dateA
-        }
+        // Sort by creation date
+        const dateA = a.createdAt.getTime()
+        const dateB = b.createdAt.getTime()
+        return sortOrder === "asc" ? dateA - dateB : dateB - dateA
       })
-  }, [agents, searchTerm, filterStatus, filterType, filterCategory, filterPriority, sortOrder, sortField, activeTab])
+  }, [agents, searchTerm, filterStatus, filterType, activeTab, sortOrder])
 
-  const handleBatchDelete = useCallback(() => {
-    if (selectedAgents.length === 0) return
-
-    const agentsToDelete = agents.filter((agent) => selectedAgents.includes(agent.id))
-    const agentNames = agentsToDelete.map((agent) => agent.name).join(", ")
-
-    setAgents((prev) => prev.filter((agent) => !selectedAgents.includes(agent.id)))
-    setSelectedAgents([])
-    setIsSelectMode(false)
-
-    toast.success("Agents deleted", {
-      description: `${selectedAgents.length} agents have been deleted: ${agentNames}`,
-    })
-  }, [agents, selectedAgents])
-
-  const handleBatchStatusChange = useCallback(
-    (status: "Active" | "Maintenance" | "Offline") => {
-      if (selectedAgents.length === 0) return
-
-      const now = new Date()
-      setAgents((prev) =>
-        prev.map((agent) => {
-          if (selectedAgents.includes(agent.id)) {
-            return {
-              ...agent,
-              status,
-              lastModified: now,
-              history: [
-                ...(agent.history || []),
-                {
-                  date: now,
-                  action: "Status Changed",
-                  details: `Status changed to ${status} in batch operation`,
-                },
-              ],
-            }
-          }
-          return agent
-        }),
-      )
-
-      toast.success("Status updated", {
-        description: `${selectedAgents.length} agents updated to ${status} status`,
-      })
-      setSelectedAgents([])
-      setIsSelectMode(false)
-    },
-    [selectedAgents],
-  )
-
-  const toggleAgentSelection = useCallback((agentId: number) => {
-    setSelectedAgents((prev) => (prev.includes(agentId) ? prev.filter((id) => id !== agentId) : [...prev, agentId]))
-  }, [])
-
-  const toggleSelectAll = useCallback(() => {
-    if (selectedAgents.length === filteredAndSortedAgents.length) {
-      setSelectedAgents([])
-    } else {
-      setSelectedAgents(filteredAndSortedAgents.map((agent) => agent.id))
-    }
-  }, [selectedAgents.length, filteredAndSortedAgents])
-
-  const toggleFavorite = useCallback((agentId: number) => {
-    setAgents((prev) =>
-      prev.map((agent) => {
-        if (agent.id === agentId) {
-          const now = new Date()
-          return {
-            ...agent,
-            favorited: !agent.favorited,
-            lastModified: now,
-            history: [
-              ...(agent.history || []),
-              {
-                date: now,
-                action: agent.favorited ? "Unfavorited" : "Favorited",
-                details: agent.favorited ? "Removed from favorites" : "Added to favorites",
-              },
-            ],
-          }
-        }
-        return agent
-      }),
-    )
-  }, [])
-
-  const incrementUsage = useCallback((agentId: number) => {
-    setAgents((prev) =>
-      prev.map((agent) => {
-        if (agent.id === agentId) {
-          const now = new Date()
-          return {
-            ...agent,
-            usageCount: (agent.usageCount || 0) + 1,
-            lastActive: now,
-            lastModified: now,
-            history: [
-              ...(agent.history || []),
-              {
-                date: now,
-                action: "Used",
-                details: `Agent was used. Total usage: ${(agent.usageCount || 0) + 1}`,
-              },
-            ],
-          }
-        }
-        return agent
-      }),
-    )
-
-    toast.success("Agent activated", {
-      description: "Usage count incremented and timestamp updated",
-    })
-  }, [])
-
-  const duplicateAgent = useCallback((agent: Agent) => {
+  const formatTimeAgo = (date: Date) => {
     const now = new Date()
-    const newAgent: Agent = {
-      ...agent,
-      id: Date.now(),
-      name: `${agent.name} (Copy)`,
-      createdAt: now,
-      lastActive: now,
-      lastModified: now,
-      usageCount: 0,
-      history: [
-        {
-          date: now,
-          action: "Created",
-          details: `Agent created as a copy of ${agent.name}`,
-        },
-      ],
-    }
-
-    setAgents((prev) => [...prev, newAgent])
-    toast.success("Agent duplicated", {
-      description: `${agent.name} has been duplicated as ${newAgent.name}`,
-    })
-  }, [])
-
-  const exportAgents = useCallback(() => {
-    try {
-      const dataStr = JSON.stringify(agents, null, 2)
-      const dataBlob = new Blob([dataStr], { type: "application/json" })
-      const url = URL.createObjectURL(dataBlob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = `agents-${new Date().toISOString().split("T")[0]}.json`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
-
-      toast.success("Agents exported", {
-        description: `${agents.length} agents exported successfully.`,
-      })
-    } catch (err) {
-      console.error("Error exporting agents:", err)
-      toast.error("Export failed", {
-        description: "There was a problem exporting your agents.",
-      })
-    }
-  }, [agents])
-
-  const exportSelectedAgents = useCallback(() => {
-    try {
-      if (selectedAgents.length === 0) {
-        toast.error("No agents selected", {
-          description: "Please select agents to export",
-        })
-        return
-      }
-
-      const selectedAgentsData = agents.filter((agent) => selectedAgents.includes(agent.id))
-      const dataStr = JSON.stringify(selectedAgentsData, null, 2)
-      const dataBlob = new Blob([dataStr], { type: "application/json" })
-      const url = URL.createObjectURL(dataBlob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = `selected-agents-${new Date().toISOString().split("T")[0]}.json`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
-
-      toast.success("Selected agents exported", {
-        description: `${selectedAgents.length} agents exported successfully.`,
-      })
-      setSelectedAgents([])
-      setIsSelectMode(false)
-    } catch (err) {
-      console.error("Error exporting selected agents:", err)
-      toast.error("Export failed", {
-        description: "There was a problem exporting your selected agents.",
-      })
-    }
-  }, [agents, selectedAgents])
-
-  const exportAsCSV = useCallback(() => {
-    try {
-      // Create CSV header
-      const headers = [
-        "id",
-        "name",
-        "description",
-        "status",
-        "type",
-        "createdAt",
-        "lastActive",
-        "performance",
-        "capabilities",
-        "tags",
-        "usageCount",
-        "favorited",
-        "priority",
-        "category",
-      ]
-
-      // Convert agents to CSV rows
-      const rows = agents.map((agent) => [
-        agent.id,
-        `"${agent.name.replace(/"/g, '""')}"`,
-        `"${agent.description.replace(/"/g, '""')}"`,
-        agent.status,
-        agent.type,
-        agent.createdAt.toISOString(),
-        agent.lastActive?.toISOString() || "",
-        agent.performance || 0,
-        `"${(agent.capabilities || []).join(", ").replace(/"/g, '""')}"`,
-        `"${(agent.tags || []).join(", ").replace(/"/g, '""')}"`,
-        agent.usageCount || 0,
-        agent.favorited ? "Yes" : "No",
-        agent.priority || "Medium",
-        agent.category || "",
-      ])
-
-      // Combine header and rows
-      const csvContent = [headers.join(","), ...rows.map((row) => row.join(","))].join("\n")
-
-      // Create and download the file
-      const dataBlob = new Blob([csvContent], { type: "text/csv" })
-      const url = URL.createObjectURL(dataBlob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = `agents-${new Date().toISOString().split("T")[0]}.csv`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
-
-      toast.success("Agents exported as CSV", {
-        description: `${agents.length} agents exported successfully.`,
-      })
-    } catch (err) {
-      console.error("Error exporting agents as CSV:", err)
-      toast.error("CSV export failed", {
-        description: "There was a problem exporting your agents as CSV.",
-      })
-    }
-  }, [agents])
-
-  const resetFilters = useCallback(() => {
-    setSearchTerm("")
-    setFilterStatus("all")
-    setFilterType("all")
-    setFilterCategory("all")
-    setFilterPriority("all")
-    setSortOrder("desc")
-    setSortField("createdAt")
-    setActiveTab("all")
-    toast.success("Filters reset", {
-      description: "All filters have been reset to default values.",
-    })
-  }, [])
-
-  const getAgentAnalytics = useCallback((): AgentAnalytics => {
-    const totalAgents = agents.length
-    const activeAgents = agents.filter((agent) => agent.status === "Active").length
-    const totalUsage = agents.reduce((sum, agent) => sum + (agent.usageCount || 0), 0)
-
-    const performances = agents.map((agent) => agent.performance || 0)
-    const averagePerformance = performances.length
-      ? Math.round(performances.reduce((sum, perf) => sum + perf, 0) / performances.length)
-      : 0
-
-    const topPerformer = agents.length
-      ? [...agents].sort((a, b) => (b.performance || 0) - (a.performance || 0))[0]
-      : undefined
-
-    // Count agents with activity in the last 24 hours
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
-    const recentActivity = agents.filter((agent) => agent.lastActive && agent.lastActive > oneDayAgo).length
-
-    // Calculate type distribution
-    const typeDistribution: Record<string, number> = {}
-    agents.forEach((agent) => {
-      typeDistribution[agent.type] = (typeDistribution[agent.type] || 0) + 1
-    })
-
-    // Calculate status distribution
-    const statusDistribution: Record<string, number> = {}
-    agents.forEach((agent) => {
-      statusDistribution[agent.status] = (statusDistribution[agent.status] || 0) + 1
-    })
-
-    return {
-      totalAgents,
-      activeAgents,
-      totalUsage,
-      averagePerformance,
-      topPerformer,
-      recentActivity,
-      typeDistribution,
-      statusDistribution,
-    }
-  }, [agents])
-
-  const renderAgentCard = useCallback(
-    (agent: Agent) => {
-      const StatusIcon = AGENT_STATUSES[agent.status].icon
-      const TypeIcon = AGENT_TYPES[agent.type].icon
-
-      return (
-        <motion.div key={agent.id} initial="hidden" animate="visible" whileHover="hover" variants={cardVariants} layout>
-          <Card
-            className={`bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 hover:border-purple-700 transition-colors shadow-lg ${
-              selectedAgents.includes(agent.id) ? "ring-2 ring-purple-500" : ""
-            } mb-6 overflow-hidden`}
-          >
-            <CardHeader className="pb-5 pt-8">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-5">
-                  {isSelectMode && (
-                    <div className="flex items-center mr-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedAgents.includes(agent.id)}
-                        onChange={() => toggleAgentSelection(agent.id)}
-                        className="h-5 w-5 rounded border-gray-600 text-purple-600 focus:ring-purple-500"
-                      />
-                    </div>
-                  )}
-                  {agent.avatarUrl ? (
-                    <div className="relative">
-                      <div className="absolute inset- rounded-full blur-md opacity-20"></div>
-                      <img
-                        src={agent.avatarUrl || "/placeholder.svg"}
-                        alt={`${agent.name} Avatar`}
-                        className="h-20 w-20 rounded-full border-3 shadow-xl relative z-10"
-                        loading="lazy"
-                      />
-                      <div
-                        className={`absolute -bottom-1 -right-1 rounded-full p-1.5 ${AGENT_STATUSES[agent.status].bgColor} border-2 border-gray-900 z-20`}
-                      >
-                        <StatusIcon className={`w-4 h-4 ${AGENT_STATUSES[agent.status].color}`} />
-                      </div>
-                    </div>
-                  ) : (
-                    <Skeleton className="h-16 w-16 rounded-full" />
-                  )}
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <CardTitle className="text-2xl font-bold text-white">{agent.name}</CardTitle>
-                      {agent.favorited && (
-                        <motion.div
-                          initial={{ scale: 0.5, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                        >
-                          <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-                        </motion.div>
-                      )}
-                    </div>
-                    <CardDescription className="text-gray-300 flex items-center gap-1 text-base">
-                      <TypeIcon className={`w-4 h-4 ${AGENT_TYPES[agent.type].color}`} />
-                      {AGENT_TYPES[agent.type].label}
-                      {agent.version && <span className="ml-1">v{agent.version}</span>}
-                    </CardDescription>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-gray-800">
-                        <MoreHorizontal className="h-5 w-5" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-64 bg-gray-900 border border-gray-800" align="end">
-                      <div className="grid gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="justify-start hover:bg-gray-800"
-                          onClick={() => incrementUsage(agent.id)}
-                        >
-                          <Zap className="mr-2 h-4 w-4 text-purple-400" />
-                          Activate Agent
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="justify-start hover:bg-gray-800"
-                          onClick={() => toggleFavorite(agent.id)}
-                        >
-                          {agent.favorited ? (
-                            <>
-                              <Star className="mr-2 h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              Remove from Favorites
-                            </>
-                          ) : (
-                            <>
-                              <Star className="mr-2 h-4 w-4 text-gray-400" />
-                              Add to Favorites
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="justify-start hover:bg-gray-800"
-                          onClick={() => duplicateAgent(agent)}
-                        >
-                          <Copy className="mr-2 h-4 w-4 text-blue-400" />
-                          Duplicate
-                        </Button>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="ghost" size="sm" className="justify-start hover:bg-gray-800">
-                              <History className="mr-2 h-4 w-4 text-emerald-400" />
-                              View History
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-md bg-gray-900 border border-gray-800">
-                            <DialogHeader>
-                              <DialogTitle className="text-xl text-white">Agent History</DialogTitle>
-                            </DialogHeader>
-                            <ScrollArea className="h-[300px] pr-4">
-                              {agent.history && agent.history.length > 0 ? (
-                                <div className="space-y-4">
-                                  {agent.history
-                                    .sort((a, b) => b.date.getTime() - a.date.getTime())
-                                    .map((entry, i) => (
-                                      <div key={i} className="border-b border-gray-800 pb-3 last:border-0">
-                                        <div className="flex justify-between">
-                                          <span className="font-medium text-white">{entry.action}</span>
-                                          <span className="text-sm text-gray-500">{formatTimeAgo(entry.date)}</span>
-                                        </div>
-                                        {entry.details && <p className="text-sm text-gray-400 mt-1">{entry.details}</p>}
-                                      </div>
-                                    ))}
-                                </div>
-                              ) : (
-                                <p className="text-center text-gray-500 py-4">No history available</p>
-                              )}
-                            </ScrollArea>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                      <Separator className="my-2 bg-gray-800" />
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="justify-start text-red-400 hover:text-red-300 hover:bg-gray-800 w-full"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Agent
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="bg-gray-900 border border-gray-800">
-                          <DialogHeader>
-                            <DialogTitle className="text-white">Confirm Deletion</DialogTitle>
-                          </DialogHeader>
-                          <p className="text-gray-300">
-                            Are you sure you want to delete <strong className="text-white">{agent.name}</strong>? This
-                            action cannot be undone.
-                          </p>
-                          <div className="flex justify-end gap-2 mt-4">
-                            <Button variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800">
-                              Cancel
-                            </Button>
-                            <Button variant="destructive" onClick={() => handleDeleteAgent(agent.id, agent.name)}>
-                              Delete
-                            </Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    </PopoverContent>
-                  </Popover>
-
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="bg-gray-800 hover:bg-gray-700 border-gray-700 text-white"
-                        aria-label={`Edit ${agent.name}`}
-                      >
-                        <Settings2 className="w-4 h-4 mr-2 text-purple-400" />
-                        Edit
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="bg-gray-900 border border-gray-800 max-w-lg">
-                      <DialogHeader>
-                        <DialogTitle className="text-2xl flex items-center gap-2 text-white">
-                          <Bot className="w-6 h-6 text-purple-400" />
-                          Edit Agent
-                        </DialogTitle>
-                      </DialogHeader>
-                      <EditAgentForm
-                        agent={agent}
-                        onUpdate={handleUpdateAgent}
-                        onDelete={handleDeleteAgent}
-                        agentTypes={AGENT_TYPES}
-                        agentStatuses={AGENT_STATUSES}
-                        agentPriorities={AGENT_PRIORITIES}
-                        categories={SAMPLE_CATEGORIES}
-                      />
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pb-6 pt-3">
-              <p className="text-gray-300 text-base line-clamp-2 mb-4">{agent.description}</p>
-
-              <div className="flex flex-wrap gap-2 mb-4">
-                {agent.capabilities.slice(0, 3).map((capability, index) => (
-                  <Badge key={index} variant="secondary" className="text-sm py-1 px-3 bg-gray-800 text-gray-300">
-                    {capability}
-                  </Badge>
-                ))}
-                {agent.capabilities.length > 3 && (
-                  <Badge variant="secondary" className="text-sm py-1 px-3 bg-gray-800 text-gray-300">
-                    +{agent.capabilities.length - 3} more
-                  </Badge>
-                )}
-              </div>
-
-              {agent.tags && agent.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {agent.tags.slice(0, 3).map((tag, index) => (
-                    <Badge key={index} variant="outline" className="text-sm border-gray-700 text-gray-300">
-                      #{tag}
-                    </Badge>
-                  ))}
-                  {agent.tags.length > 3 && (
-                    <Badge variant="outline" className="text-sm border-gray-700 text-gray-300">
-                      +{agent.tags.length - 3} more
-                    </Badge>
-                  )}
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-3 text-sm text-gray-300 mt-3">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-purple-400" />
-                  {agent.lastActive ? (
-                    <span>Active {formatTimeAgo(agent.lastActive)}</span>
-                  ) : (
-                    <span>Created {formatTimeAgo(agent.createdAt)}</span>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2 justify-end">
-                  <Zap className="w-4 h-4 text-yellow-400" />
-                  <span>Uses: {agent.usageCount || 0}</span>
-                </div>
-
-                {agent.priority && (
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        AGENT_PRIORITIES[agent.priority as keyof typeof AGENT_PRIORITIES].bgColor
-                      } ${AGENT_PRIORITIES[agent.priority as keyof typeof AGENT_PRIORITIES].color}`}
-                    >
-                      {agent.priority} Priority
-                    </span>
-                  </div>
-                )}
-
-                {agent.performance !== undefined && (
-                  <div className="flex items-center gap-2 justify-end">
-                    <span>Performance: {agent.performance}%</span>
-                    <div className="w-20 h-2 bg-gray-800 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${getPerformanceColor(agent.performance)} transition-all duration-500`}
-                        style={{ width: `${agent.performance}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )
-    },
-    [
-      handleUpdateAgent,
-      handleDeleteAgent,
-      selectedAgents,
-      isSelectMode,
-      toggleAgentSelection,
-      incrementUsage,
-      toggleFavorite,
-      duplicateAgent,
-    ],
-  )
-
-  const renderAgentTemplates = useCallback(() => {
-    const templates = [
-      {
-        name: "Customer Support Assistant",
-        description: "AI agent designed to handle customer inquiries and support tickets",
-        type: "Assistant",
-        capabilities: ["Natural Language Processing", "Knowledge Base", "Multi-language Support"],
-        category: "Customer Support",
-      },
-      {
-        name: "Data Analysis Engine",
-        description: "Powerful agent for processing and analyzing large datasets",
-        type: "Analyzer",
-        capabilities: ["Data Analysis", "Predictive Analytics", "Visualization"],
-        category: "Analytics",
-      },
-      {
-        name: "Content Creation Assistant",
-        description: "Creative agent that helps generate and optimize content",
-        type: "Assistant",
-        capabilities: ["Natural Language Processing", "Content Generation", "SEO Optimization"],
-        category: "Content Creation",
-      },
-      {
-        name: "Workflow Automation Agent",
-        description: "Agent that automates repetitive tasks and workflows",
-        type: "Processor",
-        capabilities: ["Task Automation", "Workflow Management", "Integration"],
-        category: "Automation",
-      },
-    ]
-
-    return (
-      <motion.div
-        variants={staggerContainer}
-        initial="hidden"
-        animate="visible"
-        className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6"
-      >
-        {templates.map((template, index) => (
-          <motion.div key={index} variants={cardVariants} whileHover="hover">
-            <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 hover:border-purple-700 transition-all shadow-md overflow-hidden">
-              <CardHeader className="pb-4 pt-7">
-                <div className="flex items-center gap-4 mb-2">
-                  <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center relative overflow-hidden">
-                    <div className="absolute inset-0 bg-purple-500 opacity-10"></div>
-                    {(() => {
-                      const TypeIcon = AGENT_TYPES[template.type as keyof typeof AGENT_TYPES].icon
-                      return (
-                        <TypeIcon
-                          className={`w-8 h-8 ${AGENT_TYPES[template.type as keyof typeof AGENT_TYPES].color} relative z-10`}
-                        />
-                      )
-                    })()}
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl text-white">{template.name}</CardTitle>
-                    <CardDescription className="text-gray-300">
-                      {AGENT_TYPES[template.type as keyof typeof AGENT_TYPES].label}
-                    </CardDescription>
-                  </div>
-                </div>
-                <p className="text-gray-300 mt-2">{template.description}</p>
-              </CardHeader>
-              <CardContent className="pb-5 pt-2">
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {template.capabilities.map((capability, idx) => (
-                    <Badge key={idx} variant="secondary" className="text-sm py-1 px-3 bg-gray-800 text-gray-300">
-                      {capability}
-                    </Badge>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-300 mt-3">
-                  <Folder className="w-4 h-4 text-purple-400" />
-                  <span>Category: {template.category}</span>
-                </div>
-              </CardContent>
-              <CardFooter className="pt-2 pb-5 border-t border-gray-800">
-                <Button
-                  className="w-full bg-purple-700 hover:bg-purple-600 text-white"
-                  onClick={() => {
-                    setFormData({
-                      ...INITIAL_FORM_STATE,
-                      name: template.name,
-                      description: template.description,
-                      type: template.type as any,
-                      capabilities: template.capabilities,
-                      category: template.category,
-                    })
-                    updatePreviewAvatar(template.name)
-                    setShowTemplates(false)
-                    toast.success("Template loaded", {
-                      description: `${template.name} template has been loaded into the form.`,
-                    })
-                  }}
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Use Template
-                </Button>
-              </CardFooter>
-            </Card>
-          </motion.div>
-        ))}
-      </motion.div>
-    )
-  }, [INITIAL_FORM_STATE, updatePreviewAvatar])
-
-  const renderAnalytics = useCallback(() => {
-    const analytics = getAgentAnalytics()
-
-    return (
-      <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="space-y-6">
-        <motion.div variants={slideUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-400">Total Agents</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-white">{analytics.totalAgents}</div>
-              <p className="text-xs text-gray-400 mt-1">
-                {analytics.activeAgents} active (
-                {Math.round((analytics.activeAgents / analytics.totalAgents) * 100) || 0}%)
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-400">Total Usage</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-white">{analytics.totalUsage}</div>
-              <p className="text-xs text-gray-400 mt-1">{analytics.recentActivity} agents used in last 24h</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-400">Avg. Performance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-white">{analytics.averagePerformance}%</div>
-              <div className="w-full h-2 bg-gray-800 dark:bg-gray-700 rounded-full mt-2">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${analytics.averagePerformance}%` }}
-                  transition={{ duration: 1, ease: "easeOut" }}
-                  className={`h-full ${getPerformanceColor(analytics.averagePerformance)} rounded-full`}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-400">Top Performer</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {analytics.topPerformer ? (
-                <div>
-                  <div className="flex items-center gap-2">
-                    <div className="text-xl font-bold truncate text-white">{analytics.topPerformer.name}</div>
-                    <div className="text-sm font-medium text-green-400">{analytics.topPerformer.performance}%</div>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {analytics.topPerformer.usageCount || 0} uses • {analytics.topPerformer.type}
-                  </p>
-                </div>
-              ) : (
-                <div className="text-gray-400">No data available</div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={slideUp} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-lg text-white">Agent Types</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {Object.entries(analytics.typeDistribution).length > 0 ? (
-                <div className="space-y-4">
-                  {Object.entries(analytics.typeDistribution).map(([type, count]) => (
-                    <div key={type} className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <div className="flex items-center">
-                          {(() => {
-                            const TypeIcon = AGENT_TYPES[type as keyof typeof AGENT_TYPES].icon
-                            return (
-                              <TypeIcon
-                                className={`w-4 h-4 mr-2 ${AGENT_TYPES[type as keyof typeof AGENT_TYPES].color}`}
-                              />
-                            )
-                          })()}
-                          <span className="text-white">{AGENT_TYPES[type as keyof typeof AGENT_TYPES].label}</span>
-                        </div>
-                        <div className="text-gray-300">
-                          {count} ({Math.round((count / analytics.totalAgents) * 100)}%)
-                        </div>
-                      </div>
-                      <div className="w-full h-2 bg-gray-800 rounded-full">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${(count / analytics.totalAgents) * 100}%` }}
-                          transition={{ duration: 1, ease: "easeOut" }}
-                          className={`h-full ${AGENT_TYPES[type as keyof typeof AGENT_TYPES].bgColor} rounded-full`}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-400">No data available</div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-lg text-white">Agent Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {Object.entries(analytics.statusDistribution).length > 0 ? (
-                <div className="space-y-4">
-                  {Object.entries(analytics.statusDistribution).map(([status, count]) => (
-                    <div key={status} className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <div className="flex items-center">
-                          {(() => {
-                            const StatusIcon = AGENT_STATUSES[status as keyof typeof AGENT_STATUSES].icon
-                            return (
-                              <StatusIcon
-                                className={`w-4 h-4 mr-2 ${AGENT_STATUSES[status as keyof typeof AGENT_STATUSES].color}`}
-                              />
-                            )
-                          })()}
-                          <span className="text-white">{status}</span>
-                        </div>
-                        <div className="text-gray-300">
-                          {count} ({Math.round((count / analytics.totalAgents) * 100)}%)
-                        </div>
-                      </div>
-                      <div className="w-full h-2 bg-gray-800 rounded-full">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${(count / analytics.totalAgents) * 100}%` }}
-                          transition={{ duration: 1, ease: "easeOut" }}
-                          className={`h-full ${AGENT_STATUSES[status as keyof typeof AGENT_STATUSES].bgColor} rounded-full`}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-400">No data available</div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
-      </motion.div>
-    )
-  }, [getAgentAnalytics])
-
-  return (
-    <main className="min-h-screen bg-black text-gray-100" role="main">
-      <Container className="py-12 max-w-7xl">
-        <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-10"
-        >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">
-                NeuralOps AI: Agent Management
-              </h1>
-              <p className="text-lg text-gray-300 max-w-3xl">
-                Build, customize, and deploy intelligent AI agents that revolutionize your workflows.
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 text-purple-300 text-sm bg-gray-900 px-3 py-1.5 rounded-md border border-purple-900/50">
-                <Moon className="h-4 w-4 text-purple-300" />
-                <span>Dark Mode</span>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setIsSelectMode(!isSelectMode)
-                  if (isSelectMode) {
-                    setSelectedAgents([])
-                  }
-                }}
-              >
-                {isSelectMode ? (
-                  <>
-                    <X className="w-4 h-4 mr-2" />
-                    Cancel Selection
-                  </>
-                ) : (
-                  <>
-                    <Checkbox className="w-4 h-4 mr-2" />
-                    Select Agents
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </motion.header>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          {/* Left Column: Agent Creation Form */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="lg:col-span-1 space-y-6"
-          >
-            <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 shadow-md overflow-hidden">
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-xl flex items-center gap-2 text-white">
-                    <Plus className="w-5 h-5 text-purple-400" />
-                    Create New AI Agent
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowTemplates(!showTemplates)}
-                    className="text-xs hover:bg-gray-800"
-                  >
-                    <FolderPlus className="w-4 h-4 mr-1 text-purple-400" />
-                    Templates
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {showTemplates ? (
-                  <>
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-medium text-white">Agent Templates</h3>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowTemplates(false)}
-                        className="text-xs hover:bg-gray-800"
-                      >
-                        <X className="w-4 h-4 mr-1" />
-                        Close
-                      </Button>
-                    </div>
-                    {renderAgentTemplates()}
-                  </>
-                ) : (
-                  <form onSubmit={handleCreateAgent} className="space-y-4">
-                    {error && (
-                      <div
-                        className="p-3 bg-red-900/30 border border-red-800 rounded-md text-red-300 text-sm"
-                        role="alert"
-                      >
-                        <div className="flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4" />
-                          {error}
-                        </div>
-                      </div>
-                    )}
-
-                    <div>
-                      <Label htmlFor="name" className="text-sm font-medium text-gray-300">
-                        Agent Name*
-                      </Label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => handleInputChange("name", e.target.value)}
-                        className="mt-1 bg-gray-800 border-gray-700 text-white"
-                        placeholder="Enter agent name"
-                        required
-                        aria-required="true"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="description" className="text-sm font-medium text-gray-300">
-                        Description*
-                      </Label>
-                      <Textarea
-                        id="description"
-                        value={formData.description}
-                        onChange={(e) => handleInputChange("description", e.target.value)}
-                        className="mt-1 bg-gray-800 border-gray-700 text-white"
-                        placeholder="Enter agent description"
-                        required
-                        aria-required="true"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="status" className="text-sm font-medium text-gray-300">
-                          Status
-                        </Label>
-                        <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
-                          <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-gray-700">
-                            {Object.entries(AGENT_STATUSES).map(([value, { label }]) => (
-                              <SelectItem key={value} value={value}>
-                                {label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="type" className="text-sm font-medium text-gray-300">
-                          Type
-                        </Label>
-                        <Select value={formData.type} onValueChange={(value) => handleInputChange("type", value)}>
-                          <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
-                            <SelectValue placeholder="Select type" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-gray-700">
-                            {Object.entries(AGENT_TYPES).map(([value, { label }]) => (
-                              <SelectItem key={value} value={value}>
-                                {label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="priority" className="text-sm font-medium text-gray-300">
-                          Priority
-                        </Label>
-                        <Select
-                          value={formData.priority}
-                          onValueChange={(value) => handleInputChange("priority", value)}
-                        >
-                          <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
-                            <SelectValue placeholder="Select priority" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-gray-700">
-                            {Object.entries(AGENT_PRIORITIES).map(([value, { label }]) => (
-                              <SelectItem key={value} value={value}>
-                                {label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="category" className="text-sm font-medium text-gray-300">
-                          Category
-                        </Label>
-                        <Select
-                          value={formData.category}
-                          onValueChange={(value) => handleInputChange("category", value)}
-                        >
-                          <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-gray-700">
-                            {SAMPLE_CATEGORIES.map((category) => (
-                              <SelectItem key={category} value={category}>
-                                {category}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="version" className="text-sm font-medium text-gray-300">
-                        Version
-                      </Label>
-                      <Input
-                        id="version"
-                        value={formData.version}
-                        onChange={(e) => handleInputChange("version", e.target.value)}
-                        className="mt-1 bg-gray-800 border-gray-700 text-white"
-                        placeholder="1.0.0"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="schedule" className="text-sm font-medium text-gray-300">
-                        Schedule (Optional)
-                      </Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start text-left font-normal mt-1 bg-gray-800 border-gray-700 text-white"
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedDate ? format(selectedDate, "PPP") : "Select date"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 bg-gray-900 border-gray-700">
-                          <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={setSelectedDate}
-                            initialFocus
-                            className="bg-gray-900"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="capabilities" className="text-sm font-medium text-gray-300">
-                        Capabilities
-                      </Label>
-                      <div className="flex mt-1 mb-2">
-                        <Input
-                          id="capabilities"
-                          value={newCapability}
-                          onChange={(e) => setNewCapability(e.target.value)}
-                          placeholder="Add capability"
-                          className="rounded-r-none bg-gray-800 border-gray-700 text-white"
-                        />
-                        <Button type="button" onClick={addCapability} className="rounded-l-none" variant="secondary">
-                          Add
-                        </Button>
-                      </div>
-
-                      {formData.capabilities.length > 0 ? (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {formData.capabilities.map((capability, index) => (
-                            <Badge
-                              key={index}
-                              variant="secondary"
-                              className="flex items-center gap-1 bg-gray-800 text-gray-300"
-                            >
-                              {capability}
-                              <X
-                                className="w-3 h-3 cursor-pointer hover:text-red-400"
-                                onClick={() => removeCapability(capability)}
-                              />
-                            </Badge>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-gray-400 mt-1">
-                          No capabilities added. Default capabilities will be assigned.
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <Label htmlFor="tags" className="text-sm font-medium text-gray-300">
-                        Tags
-                      </Label>
-                      <div className="flex mt-1 mb-2">
-                        <Input
-                          id="tags"
-                          value={newTag}
-                          onChange={(e) => setNewTag(e.target.value)}
-                          placeholder="Add tag"
-                          className="rounded-r-none bg-gray-800 border-gray-700 text-white"
-                        />
-                        <Button type="button" onClick={addTag} className="rounded-l-none" variant="secondary">
-                          Add
-                        </Button>
-                      </div>
-
-                      {formData.tags && formData.tags.length > 0 ? (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {formData.tags.map((tag, index) => (
-                            <Badge
-                              key={index}
-                              variant="outline"
-                              className="flex items-center gap-1 border-gray-700 text-gray-300"
-                            >
-                              #{tag}
-                              <X className="w-3 h-3 cursor-pointer hover:text-red-400" onClick={() => removeTag(tag)} />
-                            </Badge>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-gray-400 mt-1">No tags added. Tags help categorize your agents.</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <Label htmlFor="notes" className="text-sm font-medium text-gray-300">
-                        Notes (Optional)
-                      </Label>
-                      <Textarea
-                        id="notes"
-                        value={formData.notes}
-                        onChange={(e) => handleInputChange("notes", e.target.value)}
-                        className="mt-1 bg-gray-800 border-gray-700 text-white"
-                        placeholder="Additional notes about this agent"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="avatar" className="text-sm font-medium text-gray-300">
-                        Upload Avatar (Optional)
-                      </Label>
-                      <Input
-                        id="avatar"
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        className="mt-1 bg-gray-800 border-gray-700 text-white"
-                        accept="image/*"
-                        aria-label="Upload agent avatar"
-                      />
-                      <p className="text-xs text-gray-400 mt-1">
-                        Max file size: 5MB. If no avatar is uploaded, one will be generated.
-                      </p>
-                    </div>
-
-                    <div className="pt-2">
-                      <Button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white font-medium"
-                        aria-busy={loading}
-                      >
-                        {loading ? (
-                          <div className="flex items-center">
-                            <motion.div
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-                            >
-                              <RefreshCw className="w-4 h-4 mr-2" />
-                            </motion.div>
-                            Creating...
-                          </div>
-                        ) : (
-                          <>
-                            <Sparkles className="w-4 h-4 mr-2" />
-                            Create Agent
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </form>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Live Preview */}
-            <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 shadow-md overflow-hidden">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl flex items-center gap-2 text-white">
-                  <Activity className="w-5 h-5 text-purple-400" />
-                  Live Preview
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-3 pb-8">
-                <div className="flex items-center space-x-5">
-                  {previewAvatar ? (
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-purple-500 rounded-full blur-md opacity-20"></div>
-                      <img
-                        src={previewAvatar || "/placeholder.svg"}
-                        alt="Agent Avatar Preview"
-                        className="h-24 w-24 rounded-full border-3 border-gray-700 shadow-xl relative z-10"
-                      />
-                      <div
-                        className={`absolute -bottom-1 -right-1 rounded-full p-1.5 ${
-                          AGENT_STATUSES[formData.status as keyof typeof AGENT_STATUSES].bgColor
-                        } border-2 border-gray-900 z-20`}
-                      >
-                        {(() => {
-                          const StatusIcon = AGENT_STATUSES[formData.status as keyof typeof AGENT_STATUSES].icon
-                          return (
-                            <StatusIcon
-                              className={`w-4 h-4 ${AGENT_STATUSES[formData.status as keyof typeof AGENT_STATUSES].color}`}
-                            />
-                          )
-                        })()}
-                      </div>
-                    </div>
-                  ) : (
-                    <Skeleton className="h-24 w-24 rounded-full" />
-                  )}
-                  <div>
-                    <h3 className="text-2xl font-bold text-white mb-1">{formData.name || "Agent Name"}</h3>
-                    <p className="text-gray-300 text-base line-clamp-2 mb-2">
-                      {formData.description || "Agent description will appear here."}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span
-                        className={`text-sm px-2 py-0.5 rounded ${AGENT_STATUSES[formData.status].bgColor} ${AGENT_STATUSES[formData.status].color}`}
-                      >
-                        {formData.status}
-                      </span>
-                      <span className="text-xs text-gray-500">•</span>
-                      <span className={`text-sm ${AGENT_TYPES[formData.type].color}`}>
-                        {AGENT_TYPES[formData.type].label}
-                      </span>
-                      {formData.version && (
-                        <>
-                          <span className="text-xs text-gray-500">•</span>
-                          <span className="text-sm text-gray-300">v{formData.version}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Right Column: Agent List */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="lg:col-span-2"
-          >
-            <Card className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 shadow-md overflow-hidden">
-              <CardHeader className="pb-2">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <CardTitle className="text-xl flex items-center gap-2 text-white">
-                    <Bot className="w-5 h-5 text-purple-400" />
-                    Your AI Agents ({filteredAndSortedAgents.length})
-                  </CardTitle>
-
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setViewMode("list")}
-                      className={`text-xs ${viewMode === "list" ? "bg-gray-800 border-purple-700" : "bg-gray-900 border-gray-700"}`}
-                    >
-                      <PanelLeft className="w-3.5 h-3.5 mr-1" />
-                      List
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setViewMode("grid")}
-                      className={`text-xs ${viewMode === "grid" ? "bg-gray-800 border-purple-700" : "bg-gray-900 border-gray-700"}`}
-                    >
-                      <Layers className="w-3.5 h-3.5 mr-1" />
-                      Grid
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setViewMode("analytics")}
-                      className={`text-xs ${viewMode === "analytics" ? "bg-gray-800 border-purple-700" : "bg-gray-900 border-gray-700"}`}
-                    >
-                      <BarChart2 className="w-3.5 h-3.5 mr-1" />
-                      Analytics
-                    </Button>
-
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="text-xs bg-gray-900 border-gray-700">
-                          <Download className="w-3.5 h-3.5 mr-1" />
-                          Export
-                          <ChevronDown className="w-3.5 h-3.5 ml-1" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-48 bg-gray-900 border-gray-700" align="end">
-                        <div className="grid gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={exportAgents}
-                            disabled={agents.length === 0}
-                            className="justify-start hover:bg-gray-800"
-                          >
-                            <FileText className="w-3.5 h-3.5 mr-2" />
-                            Export as JSON
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={exportAsCSV}
-                            disabled={agents.length === 0}
-                            className="justify-start hover:bg-gray-800"
-                          >
-                            <FileText className="w-3.5 h-3.5 mr-2" />
-                            Export as CSV
-                          </Button>
-                          {isSelectMode && selectedAgents.length > 0 && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={exportSelectedAgents}
-                              className="justify-start hover:bg-gray-800"
-                            >
-                              <Clipboard className="w-3.5 h-3.5 mr-2" />
-                              Export Selected
-                            </Button>
-                          )}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-
-                    <div className="relative">
-                      <Input
-                        type="file"
-                        id="import-agents"
-                        className="hidden"
-                        accept=".json"
-                        ref={importFileRef}
-                        onChange={importAgents}
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => importFileRef.current?.click()}
-                        className="text-xs bg-gray-900 border-gray-700"
-                      >
-                        <Upload className="w-3.5 h-3.5 mr-1" />
-                        Import
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {viewMode !== "analytics" && (
-                  <>
-                    <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mt-2">
-                      <TabsList className="grid grid-cols-5 mb-4 bg-gray-900">
-                        <TabsTrigger value="all" className="data-[state=active]:bg-gray-800">
-                          All
-                        </TabsTrigger>
-                        <TabsTrigger value="active" className="text-green-400 data-[state=active]:bg-gray-800">
-                          Active
-                        </TabsTrigger>
-                        <TabsTrigger value="maintenance" className="text-yellow-400 data-[state=active]:bg-gray-800">
-                          Maintenance
-                        </TabsTrigger>
-                        <TabsTrigger value="offline" className="text-red-400 data-[state=active]:bg-gray-800">
-                          Offline
-                        </TabsTrigger>
-                        <TabsTrigger value="favorites" className="text-yellow-400 data-[state=active]:bg-gray-800">
-                          Favorites
-                        </TabsTrigger>
-                      </TabsList>
-
-                      <div className="flex flex-col sm:flex-row gap-3 mb-2">
-                        <div className="flex-1 relative">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                          <Input
-                            placeholder="Search agents..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 bg-gray-800 border-gray-700 text-white"
-                          />
-                        </div>
-
-                        <div className="flex gap-2 flex-wrap">
-                          <Select value={filterStatus} onValueChange={setFilterStatus}>
-                            <SelectTrigger className="w-[130px] bg-gray-800 border-gray-700 text-white">
-                              <Filter className="w-3.5 h-3.5 mr-2" />
-                              <SelectValue placeholder="Status" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-gray-900 border-gray-700">
-                              <SelectItem value="all">All Status</SelectItem>
-                              {Object.entries(AGENT_STATUSES).map(([value]) => (
-                                <SelectItem key={value} value={value}>
-                                  {value}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-
-                          <Select value={filterType} onValueChange={setFilterType}>
-                            <SelectTrigger className="w-[130px] bg-gray-800 border-gray-700 text-white">
-                              <Tag className="w-3.5 h-3.5 mr-2" />
-                              <SelectValue placeholder="Type" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-gray-900 border-gray-700">
-                              <SelectItem value="all">All Types</SelectItem>
-                              {Object.entries(AGENT_TYPES).map(([value, { label }]) => (
-                                <SelectItem key={value} value={value}>
-                                  {label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))}
-                            className="aspect-square bg-gray-800 border-gray-700"
-                          >
-                            {sortOrder === "asc" ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
-                          </Button>
-                        </div>
-                      </div>
-
-                      {isSelectMode && selectedAgents.length > 0 && (
-                        <div className="bg-purple-900/20 border border-purple-800 rounded-md p-2 mb-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                checked={selectedAgents.length === filteredAndSortedAgents.length}
-                                onChange={toggleSelectAll}
-                                className="h-4 w-4 rounded border-gray-600 text-purple-600 focus:ring-purple-500"
-                              />
-                              <span className="text-sm font-medium text-white">
-                                {selectedAgents.length} agent{selectedAgents.length !== 1 ? "s" : ""} selected
-                              </span>
-                            </div>
-                            <div className="flex gap-2">
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button variant="outline" size="sm" className="text-xs bg-gray-800 border-gray-700">
-                                    Set Status
-                                    <ChevronDown className="w-3.5 h-3.5 ml-1" />
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-48 bg-gray-900 border-gray-700" align="end">
-                                  <div className="grid gap-1">
-                                    {Object.entries(AGENT_STATUSES).map(([status, { label, icon: Icon }]) => (
-                                      <Button
-                                        key={status}
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleBatchStatusChange(status as any)}
-                                        className="justify-start hover:bg-gray-800"
-                                      >
-                                        <Icon className="w-3.5 h-3.5 mr-2" />
-                                        Set to {label}
-                                      </Button>
-                                    ))}
-                                  </div>
-                                </PopoverContent>
-                              </Popover>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={exportSelectedAgents}
-                                className="text-xs bg-gray-800 border-gray-700"
-                              >
-                                <Download className="w-3.5 h-3.5 mr-1" />
-                                Export
-                              </Button>
-                              <Button variant="destructive" size="sm" onClick={handleBatchDelete} className="text-xs">
-                                <Trash2 className="w-3.5 h-3.5 mr-1" />
-                                Delete
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      <Separator className="my-2 bg-gray-800" />
-
-                      <TabsContent value="all" className="m-0">
-                        <AgentList
-                          agents={filteredAndSortedAgents}
-                          renderAgentCard={renderAgentCard}
-                          viewMode={viewMode}
-                        />
-                      </TabsContent>
-
-                      <TabsContent value="active" className="m-0">
-                        <AgentList
-                          agents={filteredAndSortedAgents}
-                          renderAgentCard={renderAgentCard}
-                          viewMode={viewMode}
-                        />
-                      </TabsContent>
-
-                      <TabsContent value="maintenance" className="m-0">
-                        <AgentList
-                          agents={filteredAndSortedAgents}
-                          renderAgentCard={renderAgentCard}
-                          viewMode={viewMode}
-                        />
-                      </TabsContent>
-
-                      <TabsContent value="offline" className="m-0">
-                        <AgentList
-                          agents={filteredAndSortedAgents}
-                          renderAgentCard={renderAgentCard}
-                          viewMode={viewMode}
-                        />
-                      </TabsContent>
-
-                      <TabsContent value="favorites" className="m-0">
-                        <AgentList
-                          agents={filteredAndSortedAgents}
-                          renderAgentCard={renderAgentCard}
-                          viewMode={viewMode}
-                        />
-                      </TabsContent>
-                    </Tabs>
-                  </>
-                )}
-
-                {viewMode === "analytics" && renderAnalytics()}
-              </CardHeader>
-
-              {viewMode !== "analytics" && (
-                <CardFooter className="flex justify-between pt-2">
-                  <Button variant="ghost" onClick={resetFilters} className="text-xs" size="sm">
-                    <RefreshCw className="w-3.5 h-3.5 mr-1" />
-                    Reset Filters
-                  </Button>
-
-                  <Select value={sortField} onValueChange={(value) => setSortField(value as any)}>
-                    <SelectTrigger className="w-[160px] text-xs h-9 bg-gray-800 border-gray-700 text-white">
-                      <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-700">
-                      <SelectItem value="createdAt">Sort by Date</SelectItem>
-                      <SelectItem value="name">Sort by Name</SelectItem>
-                      <SelectItem value="performance">Sort by Performance</SelectItem>
-                      <SelectItem value="priority">Sort by Priority</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </CardFooter>
-              )}
-            </Card>
-          </motion.div>
-        </div>
-
-        <motion.footer
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="mt-10 text-center"
-        >
-          <p className="text-gray-400">
-            Powered by <span className="text-purple-400">NeuralOps AI</span> &copy; {new Date().getFullYear()}
-          </p>
-        </motion.footer>
-      </Container>
-      <Toaster richColors closeButton position="top-right" />
-    </main>
-  )
-}
-
-// Helper Components
-const AgentList = ({
-  agents,
-  renderAgentCard,
-  viewMode = "grid",
-}: {
-  agents: Agent[]
-  renderAgentCard: (agent: Agent) => React.ReactNode
-  viewMode?: "list" | "grid"
-}) => {
-  if (agents.length === 0) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="text-center py-12 text-gray-400"
-      >
-        <Bot className="w-12 h-12 mx-auto mb-4 opacity-50" />
-        <p>No agents found. Create your first agent to get started!</p>
-      </motion.div>
-    )
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+
+    if (diffInSeconds < 60) return `${diffInSeconds}s ago`
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`
+
+    return date.toLocaleDateString()
+  }
+
+  const getPerformanceColor = (performance: number) => {
+    if (performance >= 80) return "bg-emerald-400"
+    if (performance >= 50) return "bg-amber-400"
+    return "bg-rose-400"
   }
 
   return (
-    <ScrollArea className="h-[650px] pr-4">
-      <motion.div
-        variants={staggerContainer}
-        initial="hidden"
-        animate="visible"
-        className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "grid grid-cols-1 gap-6"}
-      >
-        {agents.map(renderAgentCard)}
-      </motion.div>
-    </ScrollArea>
+    <TooltipProvider>
+      <div className="w-full bg-black text-white min-h-screen">
+        {/* Onboarding Dialog */}
+        <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
+          <DialogContent className="bg-black border border-gray-800 text-white max-w-sm p-5">
+            <DialogHeader className="space-y-1.5">
+              <DialogTitle className="text-lg font-medium flex items-center gap-2">
+                <Command className="h-4 w-4 text-white" />
+                AI Agent Manager
+              </DialogTitle>
+              <DialogDescription className="text-gray-400 text-xs">
+                Create and manage your AI agents with a few simple steps.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-1.5">
+              <div className="flex items-start gap-2.5">
+                <div className="mt-0.5">
+                  <Plus className="h-3.5 w-3.5 text-sky-400" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-xs text-white">Create Agents</h3>
+                  <p className="text-gray-400 text-[10px] mt-0.5">Add new AI agents to your workspace.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <div className="mt-0.5">
+                  <Bot className="h-3.5 w-3.5 text-violet-400" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-xs text-white">Manage Agents</h3>
+                  <p className="text-gray-400 text-[10px] mt-0.5">View and edit agent details and settings.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <div className="mt-0.5">
+                  <Play className="h-3.5 w-3.5 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-xs text-white">Run Agents</h3>
+                  <p className="text-gray-400 text-[10px] mt-0.5">Execute agents to perform automated tasks.</p>
+                </div>
+              </div>
+            </div>
+            <DialogFooter className="pt-1.5">
+              <Button
+                onClick={dismissOnboarding}
+                className="bg-white text-black hover:bg-gray-100 text-xs font-medium w-full"
+                size="sm"
+              >
+                Get Started
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Main Content */}
+        <div className="px-6 py-6 max-w-[1600px]">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-4">
+            <motion.h1
+              className="text-xl font-medium text-white"
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              AI Agents
+            </motion.h1>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-white text-black hover:bg-gray-100 text-xs font-medium" size="sm">
+                    <Plus className="h-3 w-3 mr-1.5" />
+                    Create Agent
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-black border border-gray-800 text-white max-w-lg p-5">
+                  <DialogHeader className="space-y-1">
+                    <DialogTitle className="text-base font-medium flex items-center gap-1.5">
+                      <Bot className="h-3.5 w-3.5 text-white" />
+                      Create New AI Agent
+                    </DialogTitle>
+                    <DialogDescription className="text-gray-400 text-xs">
+                      Fill in the details to create your new AI agent or choose from templates.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Tabs defaultValue="form" className="mt-3">
+                    <TabsList className="bg-black border border-gray-800 mb-3 h-7">
+                      <TabsTrigger value="form" className="text-xs data-[state=active]:bg-gray-900 h-5">
+                        Custom Agent
+                      </TabsTrigger>
+                      <TabsTrigger value="templates" className="text-xs data-[state=active]:bg-gray-900 h-5">
+                        Templates
+                      </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="form" className="animate-in fade-in-50 duration-200">
+                      <div className="mb-3">
+                        <div className="flex justify-between items-center mb-1">
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs font-medium text-gray-300">
+                              Step {formStep} of 3:{" "}
+                              {formStep === 1 ? "Basic Info" : formStep === 2 ? "Capabilities" : "Settings"}
+                            </span>
+                          </div>
+                          <span className="text-xs text-gray-400">{formProgress}%</span>
+                        </div>
+                        <Progress value={formProgress} className="h-1 bg-gray-900" />
+                      </div>
+                      <CreateAgentForm
+                        onSubmit={handleCreateAgent}
+                        updatePreviewAvatar={updatePreviewAvatar}
+                        previewAvatar={previewAvatar}
+                        formStep={formStep}
+                        nextStep={nextFormStep}
+                        prevStep={prevFormStep}
+                        isCreating={isCreating}
+                      />
+                    </TabsContent>
+                    <TabsContent value="templates" className="animate-in fade-in-50 duration-200">
+                      <ScrollArea className="h-[350px] pr-3">
+                        <div className="grid grid-cols-1 gap-2">
+                          {AGENT_TEMPLATES.map((template, index) => (
+                            <TemplateCard
+                              key={index}
+                              template={template}
+                              onUse={handleUseTemplate}
+                              isCreating={isCreating}
+                            />
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </TabsContent>
+                  </Tabs>
+                </DialogContent>
+              </Dialog>
+            </motion.div>
+          </div>
+
+          {/* Filters and Tabs - Only show when agents exist */}
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                className="mb-3"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                  <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="bg-black border border-gray-800 mb-2 w-full md:w-auto h-7">
+                      <TabsTrigger value="all" className="text-xs data-[state=active]:bg-gray-900 h-5">
+                        All
+                      </TabsTrigger>
+                      <TabsTrigger value="active" className="text-xs data-[state=active]:bg-gray-900 h-5">
+                        <div className="flex items-center gap-1">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+                          Active
+                        </div>
+                      </TabsTrigger>
+                      <TabsTrigger value="maintenance" className="text-xs data-[state=active]:bg-gray-900 h-5">
+                        <div className="flex items-center gap-1">
+                          <div className="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
+                          Maintenance
+                        </div>
+                      </TabsTrigger>
+                      <TabsTrigger value="offline" className="text-xs data-[state=active]:bg-gray-900 h-5">
+                        <div className="flex items-center gap-1">
+                          <div className="w-1.5 h-1.5 rounded-full bg-rose-400"></div>
+                          Offline
+                        </div>
+                      </TabsTrigger>
+                      <TabsTrigger value="favorites" className="text-xs data-[state=active]:bg-gray-900 h-5">
+                        <div className="flex items-center gap-1">
+                          <Star className="h-2.5 w-2.5 text-amber-400 fill-amber-400" />
+                          Favorites
+                        </div>
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                  <div className="flex gap-2 w-full md:w-auto">
+                    <div className="relative w-full md:w-40">
+                      <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
+                      <Input
+                        placeholder="Search agents..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="bg-black border border-gray-800 text-white pl-7 h-7 text-xs"
+                      />
+                    </div>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="bg-black border-gray-800 text-white h-7 text-xs" size="sm">
+                          <Filter className="w-3 h-3 mr-1" />
+                          Filter
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="bg-black border-gray-800 p-2 w-52">
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-xs text-white">Filter Agents</h4>
+                          <div className="space-y-1">
+                            <Label htmlFor="filter-status" className="text-xs text-gray-300">
+                              Status
+                            </Label>
+                            <Select value={filterStatus} onValueChange={setFilterStatus}>
+                              <SelectTrigger
+                                id="filter-status"
+                                className="w-full bg-black border-gray-800 text-white h-6 text-xs"
+                              >
+                                <SelectValue placeholder="All Status" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-black border-gray-800">
+                                <SelectItem value="all" className="text-white text-xs">
+                                  All Status
+                                </SelectItem>
+                                {Object.entries(AGENT_STATUSES).map(([value]) => (
+                                  <SelectItem key={value} value={value} className="text-white text-xs">
+                                    <div className="flex items-center gap-1">
+                                      {AGENT_STATUSES[value as keyof typeof AGENT_STATUSES].icon}
+                                      <span>{value}</span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-1">
+                            <Label htmlFor="filter-type" className="text-xs text-gray-300">
+                              Type
+                            </Label>
+                            <Select value={filterType} onValueChange={setFilterType}>
+                              <SelectTrigger
+                                id="filter-type"
+                                className="w-full bg-black border-gray-800 text-white h-6 text-xs"
+                              >
+                                <SelectValue placeholder="All Types" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-black border-gray-800">
+                                <SelectItem value="all" className="text-white text-xs">
+                                  All Types
+                                </SelectItem>
+                                {Object.entries(AGENT_TYPES).map(([value, { label, fullIcon }]) => (
+                                  <SelectItem key={value} value={value} className="text-white text-xs">
+                                    <div className="flex items-center gap-1">
+                                      {fullIcon}
+                                      <span>{label}</span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-1">
+                            <Label htmlFor="sort-order" className="text-xs text-gray-300">
+                              Sort Order
+                            </Label>
+                            <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as "asc" | "desc")}>
+                              <SelectTrigger
+                                id="sort-order"
+                                className="w-full bg-black border-gray-800 text-white h-6 text-xs"
+                              >
+                                <SelectValue placeholder="Sort Order" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-black border-gray-800">
+                                <SelectItem value="desc" className="text-white text-xs">
+                                  Newest First
+                                </SelectItem>
+                                <SelectItem value="asc" className="text-white text-xs">
+                                  Oldest First
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Agent List */}
+          {agents.length === 0 ? (
+            <motion.div
+              className="text-center py-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                className="mx-auto w-12 h-12 mb-2 flex items-center justify-center"
+              >
+                <Command className="h-12 w-12 text-gray-800" strokeWidth={1} />
+              </motion.div>
+              <motion.h2
+                className="text-base font-medium text-white mb-1"
+                initial={{ y: 5, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+              >
+                No AI Agents Created
+              </motion.h2>
+              <motion.p
+                className="text-xs text-gray-400 mb-3 max-w-md mx-auto"
+                initial={{ y: 5, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.3 }}
+              >
+                Create your first AI agent to automate tasks and enhance your workflow.
+              </motion.p>
+              <motion.div
+                initial={{ y: 5, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.4 }}
+              >
+                <Button
+                  className="bg-white text-black hover:bg-gray-100 text-xs font-medium"
+                  onClick={() => setIsCreateDialogOpen(true)}
+                  size="sm"
+                >
+                  <Plus className="h-3 w-3 mr-1.5" />
+                  Create Agent
+                </Button>
+              </motion.div>
+            </motion.div>
+          ) : (
+            <motion.div
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <AnimatePresence>
+                {filteredAgents.map((agent) => (
+                  <motion.div
+                    key={agent.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <AgentCard
+                      agent={agent}
+                      onClick={() => handleAgentClick(agent)}
+                      onDelete={() => handleDeleteAgent(agent.id)}
+                      onFavorite={() => handleToggleFavorite(agent.id)}
+                      isSelected={selectedAgent?.id === agent.id}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          )}
+
+          {/* Selected Agent Details */}
+          <AnimatePresence>
+            {selectedAgent && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 5 }}
+                transition={{ duration: 0.3 }}
+                className="mt-4 bg-black border border-gray-800 rounded-md p-3"
+              >
+                {isEditMode ? (
+                  <EditAgentForm
+                    agent={selectedAgent}
+                    formData={editFormData}
+                    onChange={handleEditFormChange}
+                    onSave={handleSaveEdit}
+                    onCancel={handleCancelEdit}
+                  />
+                ) : (
+                  <AgentDetails
+                    agent={selectedAgent}
+                    onEdit={handleEditAgent}
+                    onDelete={() => handleDeleteAgent(selectedAgent.id)}
+                    onDuplicate={() => handleDuplicateAgent(selectedAgent)}
+                    onFavorite={() => handleToggleFavorite(selectedAgent.id)}
+                    onUse={() => handleIncrementUsage(selectedAgent.id)}
+                    onClose={() => setSelectedAgent(null)}
+                    onOpenWorkflow={handleOpenWorkflow}
+                    formatTimeAgo={formatTimeAgo}
+                    getPerformanceColor={getPerformanceColor}
+                  />
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Workflow Dialog */}
+        <Dialog open={isWorkflowDialogOpen} onOpenChange={setIsWorkflowDialogOpen}>
+          <DialogContent className="bg-black border border-gray-800 text-white max-w-4xl p-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="text-sm font-medium flex items-center gap-1.5">
+                <Workflow className="h-3.5 w-3.5 text-white" />
+                {selectedWorkflow ? `${selectedWorkflow} Workflows` : "Workflows"}
+              </DialogTitle>
+              <DialogDescription className="text-gray-400 text-xs">
+                Design and manage automation workflows for this agent.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-3 border border-gray-800 rounded-sm p-4 h-[400px] flex items-center justify-center">
+              <div className="text-center">
+                <div className="mx-auto w-10 h-10 mb-2 flex items-center justify-center">
+                  <Workflow className="h-10 w-10 text-gray-800" strokeWidth={1} />
+                </div>
+                <h3 className="text-sm font-medium text-white mb-1">Workflow Designer</h3>
+                <p className="text-xs text-gray-400 mb-3 max-w-md mx-auto">
+                  Create automated workflows by connecting nodes and defining triggers and actions.
+                </p>
+                <div className="flex flex-wrap justify-center gap-2 mb-3">
+                  <div className="bg-black border border-gray-800 rounded-sm p-2 w-20 h-20 flex flex-col items-center justify-center">
+                    <div className="bg-sky-500/10 p-1.5 rounded-sm mb-1">
+                      <ArrowRight className="h-4 w-4 text-sky-400" />
+                    </div>
+                    <span className="text-[10px] text-gray-300">Trigger</span>
+                  </div>
+                  <div className="bg-black border border-gray-800 rounded-sm p-2 w-20 h-20 flex flex-col items-center justify-center">
+                    <div className="bg-violet-500/10 p-1.5 rounded-sm mb-1">
+                      <Cog className="h-4 w-4 text-violet-400" />
+                    </div>
+                    <span className="text-[10px] text-gray-300">Process</span>
+                  </div>
+                  <div className="bg-black border border-gray-800 rounded-sm p-2 w-20 h-20 flex flex-col items-center justify-center">
+                    <div className="bg-emerald-500/10 p-1.5 rounded-sm mb-1">
+                      <ArrowDown className="h-4 w-4 text-emerald-400" />
+                    </div>
+                    <span className="text-[10px] text-gray-300">Output</span>
+                  </div>
+                </div>
+                <Button className="bg-white text-black hover:bg-gray-100 text-xs font-medium" size="sm">
+                  <Plus className="h-3 w-3 mr-1.5" />
+                  Create Workflow
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </TooltipProvider>
   )
 }
 
-interface EditAgentFormProps {
+interface AgentCardProps {
   agent: Agent
-  onUpdate: (agent: Agent) => void
-  onDelete: (id: number, name: string) => void
-  agentTypes: typeof AGENT_TYPES
-  agentStatuses: typeof AGENT_STATUSES
-  agentPriorities: typeof AGENT_PRIORITIES
-  categories: string[]
+  onClick: () => void
+  onDelete: () => void
+  onFavorite: () => void
+  isSelected: boolean
 }
 
-const EditAgentForm = ({
-  agent,
-  onUpdate,
-  onDelete,
-  agentTypes,
-  agentStatuses,
-  agentPriorities,
-  categories,
-}: EditAgentFormProps) => {
+function AgentCard({ agent, onClick, onDelete, onFavorite, isSelected }: AgentCardProps) {
+  return (
+    <motion.div
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
+      className={`cursor-pointer ${isSelected ? "ring-1 ring-white" : ""}`}
+    >
+      <Card className="bg-black border border-gray-800 h-full" onClick={onClick}>
+        <CardHeader className="p-2 pb-1">
+          <div className="flex justify-between items-start mb-1">
+            <Badge
+              className={`${AGENT_STATUSES[agent.status].bgColor} text-[9px] px-1 py-0 h-3.5 flex items-center gap-0.5`}
+            >
+              {AGENT_STATUSES[agent.status].icon}
+              <span className={AGENT_STATUSES[agent.status].color}>{agent.status}</span>
+            </Badge>
+            <div className="flex gap-0.5">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-5 rounded-full hover:bg-gray-900"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onFavorite()
+                    }}
+                  >
+                    <Star
+                      className={`h-2.5 w-2.5 ${agent.favorited ? "text-amber-400 fill-amber-400" : "text-gray-500"}`}
+                    />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="text-[10px]">
+                  <p>{agent.favorited ? "Remove from favorites" : "Add to favorites"}</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-5 rounded-full hover:bg-gray-900"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onDelete()
+                    }}
+                  >
+                    <Trash className="h-2.5 w-2.5 text-gray-500 hover:text-rose-400" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="text-[10px]">
+                  <p>Delete agent</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Avatar className="h-6 w-6 border border-gray-800">
+              <AvatarImage src={agent.avatarUrl || "/placeholder.svg"} alt={agent.name} />
+              <AvatarFallback className="bg-gray-900 text-white text-[9px]">
+                {agent.name.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <CardTitle className="text-xs font-medium text-white">{agent.name}</CardTitle>
+              <div className="flex items-center gap-0.5 mt-0.5">
+                <div className={`p-0.5 rounded-sm ${AGENT_TYPES[agent.type].bgColor}`}>
+                  {AGENT_TYPES[agent.type].icon}
+                </div>
+                <CardDescription className="text-[9px] text-gray-400">{AGENT_TYPES[agent.type].label}</CardDescription>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-2 pt-0">
+          <p className="text-[9px] text-gray-300 line-clamp-2 mb-1">{agent.description}</p>
+
+          {agent.capabilities && agent.capabilities.length > 0 && (
+            <div className="flex flex-wrap gap-0.5 mb-1">
+              {agent.capabilities.slice(0, 2).map((capability, index) => (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="bg-black border border-gray-800 text-gray-300 text-[8px] px-1 py-0 h-3"
+                >
+                  {capability}
+                </Badge>
+              ))}
+              {agent.capabilities.length > 2 && (
+                <Badge
+                  variant="secondary"
+                  className="bg-black border border-gray-800 text-gray-300 text-[8px] px-1 py-0 h-3"
+                >
+                  +{agent.capabilities.length - 2}
+                </Badge>
+              )}
+            </div>
+          )}
+        </CardContent>
+        <CardFooter className="p-2 pt-0">
+          <div className="flex justify-between items-center w-full">
+            <div className="flex items-center gap-0.5">
+              <Clock className="h-2 w-2 text-gray-500" />
+              <span className="text-[8px] text-gray-500">
+                {agent.lastActive ? `${formatTimeAgo(agent.lastActive)}` : `${formatTimeAgo(agent.createdAt)}`}
+              </span>
+            </div>
+            {agent.version && (
+              <Badge variant="outline" className="border-gray-800 text-gray-400 text-[8px] px-1 py-0 h-3">
+                v{agent.version}
+              </Badge>
+            )}
+          </div>
+        </CardFooter>
+      </Card>
+    </motion.div>
+  )
+}
+
+interface CreateAgentFormProps {
+  onSubmit: (agent: Omit<Agent, "id" | "createdAt" | "avatarUrl">) => void
+  updatePreviewAvatar: (name: string) => void
+  previewAvatar: string | null
+  formStep: number
+  nextStep: () => void
+  prevStep: () => void
+  isCreating: boolean
+}
+
+function CreateAgentForm({
+  onSubmit,
+  updatePreviewAvatar,
+  previewAvatar,
+  formStep,
+  nextStep,
+  prevStep,
+  isCreating,
+}: CreateAgentFormProps) {
   const [formData, setFormData] = useState({
-    name: agent.name,
-    description: agent.description,
-    status: agent.status,
-    type: agent.type,
-    capabilities: [...agent.capabilities],
-    tags: [...(agent.tags || [])],
-    priority: agent.priority || "Medium",
-    category: agent.category || "",
-    version: agent.version || "1.0.0",
-    notes: agent.notes || "",
+    name: "",
+    description: "",
+    status: "Active" as Agent["status"],
+    type: "Assistant" as Agent["type"],
+    capabilities: [] as string[],
+    tags: [] as string[],
+    priority: "Medium" as Agent["priority"],
+    version: "1.0.0",
   })
+  const [error, setError] = useState<string | null>(null)
   const [newCapability, setNewCapability] = useState("")
   const [newTag, setNewTag] = useState("")
-  const [confirmDelete, setConfirmDelete] = useState(false)
-  const [activeTab, setActiveTab] = useState("general")
+  const [formErrors, setFormErrors] = useState({
+    name: false,
+    description: false,
+  })
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleChange = (field: keyof typeof formData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+    if (field === "name") {
+      updatePreviewAvatar(value)
+      setFormErrors((prev) => ({ ...prev, name: value.trim() === "" }))
+    }
+    if (field === "description") {
+      setFormErrors((prev) => ({ ...prev, description: value.trim() === "" }))
+    }
   }
 
   const addCapability = () => {
     if (newCapability.trim() && !formData.capabilities.includes(newCapability.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        capabilities: [...prev.capabilities, newCapability.trim()],
-      }))
+      handleChange("capabilities", [...formData.capabilities, newCapability.trim()])
       setNewCapability("")
     }
   }
 
   const removeCapability = (capability: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      capabilities: prev.capabilities.filter((c) => c !== capability),
-    }))
+    handleChange(
+      "capabilities",
+      formData.capabilities.filter((c) => c !== capability),
+    )
   }
 
   const addTag = () => {
     if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        tags: [...prev.tags, newTag.trim()],
-      }))
+      handleChange("tags", [...formData.tags, newTag.trim()])
       setNewTag("")
     }
   }
 
   const removeTag = (tag: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      tags: prev.tags.filter((t) => t !== tag),
-    }))
+    handleChange(
+      "tags",
+      formData.tags.filter((t) => t !== tag),
+    )
+  }
+
+  const validateStep = () => {
+    if (formStep === 1) {
+      if (!formData.name.trim()) {
+        setFormErrors((prev) => ({ ...prev, name: true }))
+        setError("Agent name is required")
+        return false
+      }
+      if (!formData.description.trim()) {
+        setFormErrors((prev) => ({ ...prev, description: true }))
+        setError("Agent description is required")
+        return false
+      }
+    }
+    setError(null)
+    return true
+  }
+
+  const handleNextStep = () => {
+    if (validateStep()) {
+      nextStep()
+    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const updatedAgent: Agent = {
-      ...agent,
-      ...formData,
-      lastModified: new Date(),
+    setError(null)
+
+    if (!formData.name.trim()) {
+      setFormErrors((prev) => ({ ...prev, name: true }))
+      setError("Agent name is required")
+      return
     }
-    onUpdate(updatedAgent)
+
+    if (!formData.description.trim()) {
+      setFormErrors((prev) => ({ ...prev, description: true }))
+      setError("Agent description is required")
+      return
+    }
+
+    onSubmit(formData)
   }
 
   return (
-    <div className="mt-4">
-      <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-3 mb-4 bg-gray-900">
-          <TabsTrigger value="general" className="data-[state=active]:bg-gray-800">
-            General
+    <form onSubmit={handleSubmit} className="space-y-2.5">
+      {error && (
+        <div className="bg-rose-500/10 border border-rose-800 rounded-sm p-1.5 text-rose-300 text-xs flex items-center gap-1">
+          <AlertCircle className="h-3 w-3" />
+          {error}
+        </div>
+      )}
+
+      {/* Step 1: Basic Info */}
+      {formStep === 1 && (
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-center mb-2.5">
+            {previewAvatar ? (
+              <Avatar className="h-14 w-14 border border-gray-800">
+                <AvatarImage src={previewAvatar || "/placeholder.svg"} alt="Agent Preview" />
+                <AvatarFallback className="bg-gray-900 text-white text-xs">
+                  {formData.name.substring(0, 2).toUpperCase() || "AI"}
+                </AvatarFallback>
+              </Avatar>
+            ) : (
+              <div className="h-14 w-14 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center">
+                <Bot className="h-7 w-7 text-gray-700" />
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="name" className="text-white text-xs">
+                  Agent Name <span className="text-rose-400">*</span>
+                </Label>
+                {formErrors.name && <span className="text-rose-400 text-[9px]">Required</span>}
+              </div>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => handleChange("name", e.target.value)}
+                placeholder="Enter agent name"
+                className={`bg-black border-gray-800 text-white text-xs h-7 ${
+                  formErrors.name ? "border-rose-500" : ""
+                }`}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="version" className="text-white text-xs">
+                Version
+              </Label>
+              <Input
+                id="version"
+                value={formData.version}
+                onChange={(e) => handleChange("version", e.target.value)}
+                placeholder="1.0.0"
+                className="bg-black border-gray-800 text-white text-xs h-7"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="description" className="text-white text-xs">
+                Description <span className="text-rose-400">*</span>
+              </Label>
+              {formErrors.description && <span className="text-rose-400 text-[9px]">Required</span>}
+            </div>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => handleChange("description", e.target.value)}
+              placeholder="Describe what this agent does"
+              className={`bg-black border-gray-800 text-white text-xs min-h-[50px] ${
+                formErrors.description ? "border-rose-500" : ""
+              }`}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+            <div className="space-y-1">
+              <Label htmlFor="type" className="text-white text-xs">
+                Agent Type
+              </Label>
+              <Select value={formData.type} onValueChange={(value) => handleChange("type", value as Agent["type"])}>
+                <SelectTrigger className="bg-black border-gray-800 text-white text-xs h-7">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent className="bg-black border-gray-800">
+                  {Object.entries(AGENT_TYPES).map(([value, { label, fullIcon }]) => (
+                    <SelectItem key={value} value={value} className="text-white text-xs">
+                      <div className="flex items-center gap-1.5">
+                        {fullIcon}
+                        <span>{label}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="status" className="text-white text-xs">
+                Status
+              </Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) => handleChange("status", value as Agent["status"])}
+              >
+                <SelectTrigger className="bg-black border-gray-800 text-white text-xs h-7">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent className="bg-black border-gray-800">
+                  {Object.entries(AGENT_STATUSES).map(([value]) => (
+                    <SelectItem key={value} value={value} className="text-white text-xs">
+                      <div className="flex items-center gap-1.5">
+                        {AGENT_STATUSES[value as keyof typeof AGENT_STATUSES].icon}
+                        <span>{value}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="priority" className="text-white text-xs">
+                Priority
+              </Label>
+              <Select
+                value={formData.priority}
+                onValueChange={(value) => handleChange("priority", value as Agent["priority"])}
+              >
+                <SelectTrigger className="bg-black border-gray-800 text-white text-xs h-7">
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent className="bg-black border-gray-800">
+                  {Object.entries(AGENT_PRIORITIES).map(([value]) => (
+                    <SelectItem key={value} value={value} className="text-white text-xs">
+                      <div className="flex items-center gap-1.5">
+                        {AGENT_PRIORITIES[value as keyof typeof AGENT_PRIORITIES].icon}
+                        <span>{value}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Step 2: Capabilities */}
+      {formStep === 2 && (
+        <div className="space-y-2.5">
+          <div className="space-y-1">
+            <Label htmlFor="capabilities" className="text-white text-xs">
+              Capabilities
+            </Label>
+            <div className="flex mt-1 mb-1">
+              <Input
+                id="capabilities"
+                value={newCapability}
+                onChange={(e) => setNewCapability(e.target.value)}
+                placeholder="Add capability"
+                className="rounded-r-none bg-black border-gray-800 text-white text-xs h-7"
+              />
+              <Button
+                type="button"
+                onClick={addCapability}
+                className="rounded-l-none bg-white text-black text-xs h-7"
+                size="sm"
+              >
+                Add
+              </Button>
+            </div>
+
+            {formData.capabilities.length > 0 ? (
+              <div className="flex flex-wrap gap-1 mt-1">
+                {formData.capabilities.map((capability, index) => (
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="flex items-center gap-1 bg-black border border-gray-800 text-white text-[9px] px-1 py-0 h-4"
+                  >
+                    {capability}
+                    <X
+                      className="w-2 h-2 cursor-pointer hover:text-rose-400"
+                      onClick={() => removeCapability(capability)}
+                    />
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[9px] text-gray-400 mt-1">
+                No capabilities added. Select from common capabilities or add your own.
+              </p>
+            )}
+
+            <div className="flex flex-wrap gap-1 mt-1">
+              {SAMPLE_CAPABILITIES.slice(0, 4).map((capability, index) => (
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className="cursor-pointer border-gray-800 text-gray-300 hover:border-white text-[9px] px-1 py-0 h-4"
+                  onClick={() => {
+                    if (!formData.capabilities.includes(capability)) {
+                      handleChange("capabilities", [...formData.capabilities, capability])
+                    }
+                  }}
+                >
+                  + {capability}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="tags" className="text-white text-xs">
+              Tags
+            </Label>
+            <div className="flex mt-1 mb-1">
+              <Input
+                id="tags"
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                placeholder="Add tag"
+                className="rounded-r-none bg-black border-gray-800 text-white text-xs h-7"
+              />
+              <Button
+                type="button"
+                onClick={addTag}
+                className="rounded-l-none bg-white text-black text-xs h-7"
+                size="sm"
+              >
+                Add
+              </Button>
+            </div>
+
+            {formData.tags.length > 0 ? (
+              <div className="flex flex-wrap gap-1 mt-1">
+                {formData.tags.map((tag, index) => (
+                  <Badge
+                    key={index}
+                    variant="outline"
+                    className="flex items-center gap-1 border-gray-800 text-white text-[9px] px-1 py-0 h-4"
+                  >
+                    #{tag}
+                    <X className="w-2 h-2 cursor-pointer hover:text-rose-400" onClick={() => removeTag(tag)} />
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[9px] text-gray-400 mt-1">No tags added. Tags help categorize and find your agents.</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Step 3: Advanced Settings */}
+      {formStep === 3 && (
+        <div className="space-y-2.5">
+          <div className="bg-black border border-gray-800 rounded-sm p-2.5">
+            <h3 className="text-white font-medium text-xs mb-1.5 flex items-center gap-1">
+              <Shield className="h-3 w-3 text-white" />
+              Agent Security
+            </h3>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <Switch id="secure-mode" className="scale-75" />
+                  <Label htmlFor="secure-mode" className="text-white text-xs">
+                    Enable Secure Mode
+                  </Label>
+                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-4 w-4 rounded-full">
+                      <HelpCircle className="h-2.5 w-2.5 text-gray-500" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="text-[9px]">
+                    <p>Restricts agent access to sensitive data</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <Switch id="rate-limiting" className="scale-75" />
+                  <Label htmlFor="rate-limiting" className="text-white text-xs">
+                    Enable Rate Limiting
+                  </Label>
+                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-4 w-4 rounded-full">
+                      <HelpCircle className="h-2.5 w-2.5 text-gray-500" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="text-[9px]">
+                    <p>Prevents excessive usage of the agent</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-black border border-gray-800 rounded-sm p-2.5">
+            <h3 className="text-white font-medium text-xs mb-1.5 flex items-center gap-1">
+              <Sliders className="h-3 w-3 text-white" />
+              Performance Settings
+            </h3>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <Switch id="high-performance" className="scale-75" />
+                  <Label htmlFor="high-performance" className="text-white text-xs">
+                    High Performance Mode
+                  </Label>
+                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-4 w-4 rounded-full">
+                      <HelpCircle className="h-2.5 w-2.5 text-gray-500" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="text-[9px]">
+                    <p>Allocates more resources to this agent</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <Switch id="auto-scaling" className="scale-75" />
+                  <Label htmlFor="auto-scaling" className="text-white text-xs">
+                    Enable Auto-scaling
+                  </Label>
+                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-4 w-4 rounded-full">
+                      <HelpCircle className="h-2.5 w-2.5 text-gray-500" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="text-[9px]">
+                    <p>Automatically adjusts resources based on demand</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-black border border-gray-800 rounded-sm p-2.5">
+            <h3 className="text-white font-medium text-xs mb-1.5 flex items-center gap-1">
+              <Workflow className="h-3 w-3 text-white" />
+              Integration Settings
+            </h3>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <Switch id="api-access" className="scale-75" />
+                  <Label htmlFor="api-access" className="text-white text-xs">
+                    Enable API Access
+                  </Label>
+                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-4 w-4 rounded-full">
+                      <HelpCircle className="h-2.5 w-2.5 text-gray-500" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="text-[9px]">
+                    <p>Allows this agent to be accessed via API</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <Switch id="webhook-notifications" className="scale-75" />
+                  <Label htmlFor="webhook-notifications" className="text-white text-xs">
+                    Webhook Notifications
+                  </Label>
+                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-4 w-4 rounded-full">
+                      <HelpCircle className="h-2.5 w-2.5 text-gray-500" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="text-[9px]">
+                    <p>Sends notifications when agent completes tasks</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <DialogFooter className="pt-1.5 flex justify-between">
+        {formStep > 1 ? (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={prevStep}
+            className="border-gray-800 text-white text-xs h-6"
+            disabled={isCreating}
+            size="sm"
+          >
+            <ChevronLeft className="h-2.5 w-2.5 mr-1" />
+            Back
+          </Button>
+        ) : (
+          <div></div>
+        )}
+
+        {formStep < 3 ? (
+          <Button
+            type="button"
+            onClick={handleNextStep}
+            className="bg-white text-black hover:bg-gray-100 text-xs h-6"
+            disabled={isCreating}
+            size="sm"
+          >
+            Next
+            <ChevronRight className="h-2.5 w-2.5 ml-1" />
+          </Button>
+        ) : (
+          <Button
+            type="submit"
+            className="bg-white text-black hover:bg-gray-100 text-xs h-6"
+            disabled={isCreating}
+            size="sm"
+          >
+            {isCreating ? (
+              <>
+                <Loader2 className="h-2.5 w-2.5 mr-1 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Check className="h-2.5 w-2.5 mr-1" />
+                Create Agent
+              </>
+            )}
+          </Button>
+        )}
+      </DialogFooter>
+    </form>
+  )
+}
+
+interface EditAgentFormProps {
+  agent: Agent
+  formData: Partial<Agent>
+  onChange: (field: keyof Agent, value: any) => void
+  onSave: () => void
+  onCancel: () => void
+}
+
+function EditAgentForm({ agent, formData, onChange, onSave, onCancel }: EditAgentFormProps) {
+  const [newCapability, setNewCapability] = useState("")
+  const [newTag, setNewTag] = useState("")
+  const [activeTab, setActiveTab] = useState("basic")
+
+  const addCapability = () => {
+    if (newCapability.trim() && !formData.capabilities?.includes(newCapability.trim())) {
+      onChange("capabilities", [...(formData.capabilities || []), newCapability.trim()])
+      setNewCapability("")
+    }
+  }
+
+  const removeCapability = (capability: string) => {
+    onChange("capabilities", formData.capabilities?.filter((c) => c !== capability) || [])
+  }
+
+  const addTag = () => {
+    if (newTag.trim() && !formData.tags?.includes(newTag.trim())) {
+      onChange("tags", [...(formData.tags || []), newTag.trim()])
+      setNewTag("")
+    }
+  }
+
+  const removeTag = (tag: string) => {
+    onChange("tags", formData.tags?.filter((t) => t !== tag) || [])
+  }
+
+  return (
+    <div className="space-y-2.5">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xs font-medium text-white flex items-center gap-1">
+          <Edit className="h-3 w-3 text-white" />
+          Edit Agent
+        </h2>
+        <div className="flex gap-1.5">
+          <Button variant="outline" onClick={onCancel} className="border-gray-800 text-white text-xs h-6" size="sm">
+            Cancel
+          </Button>
+          <Button onClick={onSave} className="bg-white text-black hover:bg-gray-100 text-xs h-6" size="sm">
+            <Save className="h-2.5 w-2.5 mr-1" />
+            Save
+          </Button>
+        </div>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="bg-black border border-gray-800 mb-2.5 w-full h-7">
+          <TabsTrigger value="basic" className="text-xs data-[state=active]:bg-gray-900 h-5">
+            Basic Info
           </TabsTrigger>
-          <TabsTrigger value="capabilities" className="data-[state=active]:bg-gray-800">
+          <TabsTrigger value="capabilities" className="text-xs data-[state=active]:bg-gray-900 h-5">
             Capabilities
           </TabsTrigger>
-          <TabsTrigger value="advanced" className="data-[state=active]:bg-gray-800">
+          <TabsTrigger value="advanced" className="text-xs data-[state=active]:bg-gray-900 h-5">
             Advanced
           </TabsTrigger>
         </TabsList>
 
-        <form onSubmit={handleSubmit}>
-          <TabsContent value="general" className="space-y-4">
-            <div>
-              <Label htmlFor="edit-name" className="text-sm font-medium text-white">
+        <TabsContent value="basic" className="animate-in fade-in-50 duration-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+            <div className="space-y-1">
+              <Label htmlFor="edit-name" className="text-white text-xs">
                 Agent Name
               </Label>
               <Input
                 id="edit-name"
-                value={formData.name}
-                onChange={(e) => handleInputChange("name", e.target.value)}
-                className="mt-1 bg-gray-800 border-gray-700 text-white"
-                required
+                value={formData.name || agent.name}
+                onChange={(e) => onChange("name", e.target.value)}
+                className="bg-black border-gray-800 text-white text-xs h-7"
               />
             </div>
 
-            <div>
-              <Label htmlFor="edit-description" className="text-sm font-medium text-white">
-                Description
-              </Label>
-              <Textarea
-                id="edit-description"
-                value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
-                className="mt-1 bg-gray-800 border-gray-700 text-white"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="edit-status" className="text-sm font-medium text-white">
-                  Status
-                </Label>
-                <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
-                  <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-gray-700">
-                    {Object.entries(agentStatuses).map(([value, { label }]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="edit-type" className="text-sm font-medium text-white">
-                  Type
-                </Label>
-                <Select value={formData.type} onValueChange={(value) => handleInputChange("type", value)}>
-                  <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-gray-700">
-                    {Object.entries(agentTypes).map(([value, { label }]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="edit-priority" className="text-sm font-medium text-white">
-                  Priority
-                </Label>
-                <Select value={formData.priority} onValueChange={(value) => handleInputChange("priority", value)}>
-                  <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
-                    <SelectValue placeholder="Select priority" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-gray-700">
-                    {Object.entries(agentPriorities).map(([value, { label }]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="edit-category" className="text-sm font-medium text-white">
-                  Category
-                </Label>
-                <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
-                  <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-gray-700">
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="edit-version" className="text-sm font-medium text-white">
+            <div className="space-y-1">
+              <Label htmlFor="edit-version" className="text-white text-xs">
                 Version
               </Label>
               <Input
                 id="edit-version"
-                value={formData.version}
-                onChange={(e) => handleInputChange("version", e.target.value)}
-                className="mt-1 bg-gray-800 border-gray-700 text-white"
-                placeholder="1.0.0"
+                value={formData.version || agent.version || "1.0.0"}
+                onChange={(e) => onChange("version", e.target.value)}
+                className="bg-black border-gray-800 text-white text-xs h-7"
               />
             </div>
+          </div>
 
-            <div>
-              <Label htmlFor="edit-notes" className="text-sm font-medium text-white">
-                Notes
+          <div className="space-y-1 mt-2.5">
+            <Label htmlFor="edit-description" className="text-white text-xs">
+              Description
+            </Label>
+            <Textarea
+              id="edit-description"
+              value={formData.description || agent.description}
+              onChange={(e) => onChange("description", e.target.value)}
+              className="bg-black border-gray-800 text-white text-xs min-h-[50px]"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 mt-2.5">
+            <div className="space-y-1">
+              <Label htmlFor="edit-type" className="text-white text-xs">
+                Agent Type
               </Label>
-              <Textarea
-                id="edit-notes"
-                value={formData.notes}
-                onChange={(e) => handleInputChange("notes", e.target.value)}
-                className="mt-1 bg-gray-800 border-gray-700 text-white"
-                placeholder="Additional notes about this agent"
-              />
+              <Select
+                value={formData.type || agent.type}
+                onValueChange={(value) => onChange("type", value as Agent["type"])}
+              >
+                <SelectTrigger className="bg-black border-gray-800 text-white text-xs h-7">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent className="bg-black border-gray-800">
+                  {Object.entries(AGENT_TYPES).map(([value, { label, fullIcon }]) => (
+                    <SelectItem key={value} value={value} className="text-white text-xs">
+                      <div className="flex items-center gap-1">
+                        {fullIcon}
+                        <span>{label}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          </TabsContent>
 
-          <TabsContent value="capabilities" className="space-y-4">
-            <div>
-              <Label htmlFor="edit-capabilities" className="text-sm font-medium text-white">
+            <div className="space-y-1">
+              <Label htmlFor="edit-status" className="text-white text-xs">
+                Status
+              </Label>
+              <Select
+                value={formData.status || agent.status}
+                onValueChange={(value) => onChange("status", value as Agent["status"])}
+              >
+                <SelectTrigger className="bg-black border-gray-800 text-white text-xs h-7">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent className="bg-black border-gray-800">
+                  {Object.entries(AGENT_STATUSES).map(([value]) => (
+                    <SelectItem key={value} value={value} className="text-white text-xs">
+                      <div className="flex items-center gap-1">
+                        {AGENT_STATUSES[value as keyof typeof AGENT_STATUSES].icon}
+                        <span>{value}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="edit-priority" className="text-white text-xs">
+                Priority
+              </Label>
+              <Select
+                value={formData.priority || agent.priority || "Medium"}
+                onValueChange={(value) => onChange("priority", value as Agent["priority"])}
+              >
+                <SelectTrigger className="bg-black border-gray-800 text-white text-xs h-7">
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent className="bg-black border-gray-800">
+                  {Object.entries(AGENT_PRIORITIES).map(([value]) => (
+                    <SelectItem key={value} value={value} className="text-white text-xs">
+                      <div className="flex items-center gap-1">
+                        {AGENT_PRIORITIES[value as keyof typeof AGENT_PRIORITIES].icon}
+                        <span>{value}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="capabilities" className="animate-in fade-in-50 duration-200">
+          <div className="space-y-2.5">
+            <div className="space-y-1">
+              <Label htmlFor="edit-capabilities" className="text-white text-xs">
                 Capabilities
               </Label>
-              <div className="flex mt-1">
+              <div className="flex mt-1 mb-1">
                 <Input
                   id="edit-capabilities"
                   value={newCapability}
                   onChange={(e) => setNewCapability(e.target.value)}
                   placeholder="Add capability"
-                  className="rounded-r-none bg-gray-800 border-gray-700 text-white"
+                  className="rounded-r-none bg-black border-gray-800 text-white text-xs h-7"
                 />
-                <Button type="button" onClick={addCapability} className="rounded-l-none" variant="secondary">
+                <Button
+                  type="button"
+                  onClick={addCapability}
+                  className="rounded-l-none bg-white text-black text-xs h-7"
+                  size="sm"
+                >
                   Add
                 </Button>
               </div>
 
-              {formData.capabilities.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
+              {formData.capabilities && formData.capabilities.length > 0 ? (
+                <div className="flex flex-wrap gap-1 mt-1">
                   {formData.capabilities.map((capability, index) => (
-                    <Badge key={index} variant="secondary" className="flex items-center gap-1 bg-gray-800 text-white">
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="flex items-center gap-1 bg-black border border-gray-800 text-white text-[9px] px-1 py-0 h-4"
+                    >
                       {capability}
                       <X
-                        className="w-3 h-3 cursor-pointer hover:text-red-400"
+                        className="w-2 h-2 cursor-pointer hover:text-rose-400"
                         onClick={() => removeCapability(capability)}
                       />
                     </Badge>
                   ))}
                 </div>
+              ) : (
+                <p className="text-[9px] text-gray-400 mt-1">
+                  No capabilities added. Select from common capabilities or add your own.
+                </p>
               )}
+
+              <div className="flex flex-wrap gap-1 mt-1">
+                {SAMPLE_CAPABILITIES.slice(0, 4).map((capability, index) => (
+                  <Badge
+                    key={index}
+                    variant="outline"
+                    className="cursor-pointer border-gray-800 text-gray-300 hover:border-white text-[9px] px-1 py-0 h-4"
+                    onClick={() => {
+                      if (!formData.capabilities?.includes(capability)) {
+                        onChange("capabilities", [...(formData.capabilities || []), capability])
+                      }
+                    }}
+                  >
+                    + {capability}
+                  </Badge>
+                ))}
+              </div>
             </div>
 
-            <div>
-              <Label htmlFor="edit-tags" className="text-sm font-medium text-white">
+            <div className="space-y-1">
+              <Label htmlFor="edit-tags" className="text-white text-xs">
                 Tags
               </Label>
-              <div className="flex mt-1">
+              <div className="flex mt-1 mb-1">
                 <Input
                   id="edit-tags"
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   placeholder="Add tag"
-                  className="rounded-r-none bg-gray-800 border-gray-700 text-white"
+                  className="rounded-r-none bg-black border-gray-800 text-white text-xs h-7"
                 />
-                <Button type="button" onClick={addTag} className="rounded-l-none" variant="secondary">
+                <Button
+                  type="button"
+                  onClick={addTag}
+                  className="rounded-l-none bg-white text-black text-xs h-7"
+                  size="sm"
+                >
                   Add
                 </Button>
               </div>
 
-              {formData.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
+              {formData.tags && formData.tags.length > 0 ? (
+                <div className="flex flex-wrap gap-1 mt-1">
                   {formData.tags.map((tag, index) => (
-                    <Badge key={index} variant="outline" className="flex items-center gap-1 border-gray-700 text-white">
+                    <Badge
+                      key={index}
+                      variant="outline"
+                      className="flex items-center gap-1 border-gray-800 text-white text-[9px] px-1 py-0 h-4"
+                    >
                       #{tag}
-                      <X className="w-3 h-3 cursor-pointer hover:text-red-400" onClick={() => removeTag(tag)} />
+                      <X className="w-2 h-2 cursor-pointer hover:text-rose-400" onClick={() => removeTag(tag)} />
                     </Badge>
                   ))}
                 </div>
+              ) : (
+                <p className="text-[9px] text-gray-400 mt-1">
+                  No tags added. Tags help categorize and find your agents.
+                </p>
               )}
             </div>
-          </TabsContent>
+          </div>
+        </TabsContent>
 
-          <TabsContent value="advanced" className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-sm font-medium text-white">Favorite Status</Label>
-                <p className="text-xs text-gray-400">Mark this agent as a favorite</p>
-              </div>
+        <TabsContent value="advanced" className="animate-in fade-in-50 duration-200">
+          <div className="space-y-2.5">
+            <div className="flex items-center space-x-2">
               <Switch
-                checked={agent.favorited}
-                onCheckedChange={(checked) => {
-                  const updatedAgent = {
-                    ...agent,
-                    favorited: checked,
-                    lastModified: new Date(),
-                  }
-                  onUpdate(updatedAgent)
-                }}
+                id="favorite"
+                checked={formData.favorited !== undefined ? formData.favorited : agent.favorited || false}
+                onCheckedChange={(checked) => onChange("favorited", checked)}
+                className="scale-75"
               />
+              <Label htmlFor="favorite" className="text-white text-xs">
+                Mark as favorite
+              </Label>
             </div>
 
-            <Separator className="bg-gray-800" />
-
-            <div>
-              <Label className="text-sm font-medium text-white">Usage Statistics</Label>
-              <div className="mt-2 space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Created:</span>
-                  <span className="text-white">{agent.createdAt.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Last Active:</span>
-                  <span className="text-white">{agent.lastActive?.toLocaleString() || "Never"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Last Modified:</span>
-                  <span className="text-white">{agent.lastModified?.toLocaleString() || "Never"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Usage Count:</span>
-                  <span className="text-white">{agent.usageCount || 0}</span>
-                </div>
-              </div>
-            </div>
-
-            <Separator className="bg-gray-800" />
-
-            <div>
-              <Label className="text-sm font-medium text-red-400">Danger Zone</Label>
-              <p className="text-xs text-gray-400 mt-1 mb-2">These actions cannot be undone.</p>
-
-              {!confirmDelete ? (
-                <Button type="button" variant="destructive" onClick={() => setConfirmDelete(true)} className="w-full">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Agent
-                </Button>
-              ) : (
-                <div className="space-y-2">
-                  <p className="text-sm text-red-400">
-                    Are you sure you want to delete <strong className="text-white">{agent.name}</strong>?
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() => onDelete(agent.id, agent.name)}
-                      className="flex-1"
-                    >
-                      Confirm Delete
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setConfirmDelete(false)}
-                      className="flex-1 bg-gray-800 border-gray-700"
-                    >
-                      Cancel
-                    </Button>
+            <div className="bg-black border border-gray-800 rounded-sm p-2.5">
+              <h3 className="text-white font-medium text-xs mb-1.5 flex items-center gap-1">
+                <Shield className="h-3 w-3 text-white" />
+                Agent Security
+              </h3>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <Switch id="edit-secure-mode" className="scale-75" />
+                    <Label htmlFor="edit-secure-mode" className="text-white text-xs">
+                      Enable Secure Mode
+                    </Label>
                   </div>
                 </div>
-              )}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <Switch id="edit-rate-limiting" className="scale-75" />
+                    <Label htmlFor="edit-rate-limiting" className="text-white text-xs">
+                      Enable Rate Limiting
+                    </Label>
+                  </div>
+                </div>
+              </div>
             </div>
-          </TabsContent>
 
-          <div className="flex justify-end gap-2 mt-4">
-            <Button
-              type="submit"
-              className="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white"
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save Changes
-            </Button>
+            <div className="bg-black border border-gray-800 rounded-sm p-2.5">
+              <h3 className="text-white font-medium text-xs mb-1.5 flex items-center gap-1">
+                <Sliders className="h-3 w-3 text-white" />
+                Performance Settings
+              </h3>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <Switch id="edit-high-performance" className="scale-75" />
+                    <Label htmlFor="edit-high-performance" className="text-white text-xs">
+                      High Performance Mode
+                    </Label>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <Switch id="edit-auto-scaling" className="scale-75" />
+                    <Label htmlFor="edit-auto-scaling" className="text-white text-xs">
+                      Enable Auto-scaling
+                    </Label>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </form>
+        </TabsContent>
       </Tabs>
     </div>
   )
 }
 
-// Helper functions
-const formatTimeAgo = (date: Date) => {
+interface AgentDetailsProps {
+  agent: Agent
+  onEdit: () => void
+  onDelete: () => void
+  onDuplicate: () => void
+  onFavorite: () => void
+  onUse: () => void
+  onClose: () => void
+  onOpenWorkflow: (agentName: string) => void
+  formatTimeAgo: (date: Date) => string
+  getPerformanceColor: (performance: number) => string
+}
+
+function AgentDetails({
+  agent,
+  onEdit,
+  onDelete,
+  onDuplicate,
+  onFavorite,
+  onUse,
+  onClose,
+  onOpenWorkflow,
+  formatTimeAgo,
+  getPerformanceColor,
+}: AgentDetailsProps) {
+  return (
+    <div>
+      <div className="flex justify-between items-start mb-2.5">
+        <div className="flex items-center gap-2.5">
+          <Avatar className="h-8 w-8 border border-gray-800">
+            <AvatarImage src={agent.avatarUrl || "/placeholder.svg"} alt={agent.name} />
+            <AvatarFallback className="bg-gray-900 text-white text-[9px]">
+              {agent.name.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="flex items-center gap-1">
+              <h2 className="text-xs font-medium text-white">{agent.name}</h2>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-5 rounded-full hover:bg-gray-900"
+                    onClick={onFavorite}
+                  >
+                    <Star
+                      className={`h-2.5 w-2.5 ${agent.favorited ? "text-amber-400 fill-amber-400" : "text-gray-500"}`}
+                    />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="text-[9px]">
+                  <p>{agent.favorited ? "Remove from favorites" : "Add to favorites"}</p>
+                </TooltipContent>
+              </Tooltip>
+              {agent.version && (
+                <Badge variant="outline" className="border-gray-800 text-gray-400 text-[9px] px-1 py-0 h-3.5">
+                  v{agent.version}
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-1 mt-0.5">
+              <Badge
+                className={`${AGENT_STATUSES[agent.status].bgColor} px-1 py-0 h-3.5 text-[9px] flex items-center gap-0.5`}
+              >
+                {AGENT_STATUSES[agent.status].icon}
+                <span className={`${AGENT_STATUSES[agent.status].color}`}>{agent.status}</span>
+              </Badge>
+              <span className="text-gray-500 text-[9px]">•</span>
+              <span className={`${AGENT_TYPES[agent.type].color} text-[9px] flex items-center gap-0.5`}>
+                {AGENT_TYPES[agent.type].icon}
+                {AGENT_TYPES[agent.type].label}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-0.5">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={onClose} className="h-5 w-5 rounded-full hover:bg-gray-900">
+                <X className="h-2.5 w-2.5 text-gray-500" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="text-[9px]">
+              <p>Close details</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      </div>
+
+      <p className="text-[9px] text-gray-300 mb-3">{agent.description}</p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+        <div className="space-y-1.5">
+          <h3 className="text-[9px] font-medium text-white">Details</h3>
+          <div className="space-y-1 text-[9px]">
+            <div className="flex justify-between">
+              <span className="text-gray-400">Created</span>
+              <span className="text-white">{agent.createdAt.toLocaleDateString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Last Active</span>
+              <span className="text-white">{agent.lastActive ? formatTimeAgo(agent.lastActive) : "Never"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Type</span>
+              <span className={AGENT_TYPES[agent.type].color}>{AGENT_TYPES[agent.type].label}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Status</span>
+              <span className={AGENT_STATUSES[agent.status].color}>{agent.status}</span>
+            </div>
+            {agent.priority && (
+              <div className="flex justify-between">
+                <span className="text-gray-400">Priority</span>
+                <span className={AGENT_PRIORITIES[agent.priority].color}>{agent.priority}</span>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <span className="text-gray-400">Usage Count</span>
+              <span className="text-white">{agent.usageCount || 0}</span>
+            </div>
+            {agent.performance !== undefined && (
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400">Performance</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-white">{agent.performance}%</span>
+                  <div className="w-10 h-1 bg-gray-900 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${agent.performance}%` }}
+                      transition={{ duration: 0.6, ease: "easeOut" }}
+                      className={`h-full ${getPerformanceColor(agent.performance)}`}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <h3 className="text-[9px] font-medium text-white">Actions</h3>
+          <div className="flex flex-wrap gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button className="bg-white text-black hover:bg-gray-100 text-[9px] h-6" onClick={onEdit} size="sm">
+                  <Edit className="h-2.5 w-2.5 mr-1" />
+                  Edit
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="text-[9px]">
+                <p>Edit agent details</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="border-gray-800 text-white hover:bg-gray-900 text-[9px] h-6"
+                  onClick={onUse}
+                  size="sm"
+                >
+                  <Zap className="h-2.5 w-2.5 mr-1 text-amber-400" />
+                  Run
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="text-[9px]">
+                <p>Run this agent</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="border-gray-800 text-white hover:bg-gray-900 text-[9px] h-6"
+                  onClick={onDuplicate}
+                  size="sm"
+                >
+                  <Copy className="h-2.5 w-2.5 mr-1 text-sky-400" />
+                  Duplicate
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="text-[9px]">
+                <p>Create a copy of this agent</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="border-gray-800 text-rose-400 hover:bg-gray-900 text-[9px] h-6"
+                  onClick={onDelete}
+                  size="sm"
+                >
+                  <Trash className="h-2.5 w-2.5 mr-1" />
+                  Delete
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="text-[9px]">
+                <p>Permanently delete this agent</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+          <div className="mt-2 pt-2 border-t border-gray-800">
+            <div className="flex items-center justify-between mb-1">
+              <h4 className="text-[9px] font-medium text-white">Quick Actions</h4>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full hover:bg-gray-900">
+                    <MoreHorizontal className="h-2.5 w-2.5 text-gray-500" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="bg-black border-gray-800 p-1.5 w-36">
+                  <div className="space-y-0.5">
+                    <Button variant="ghost" className="w-full justify-start text-[9px] h-6 px-1.5" size="sm">
+                      <BarChart className="h-2.5 w-2.5 mr-1 text-violet-400" />
+                      View Analytics
+                    </Button>
+                    <Button variant="ghost" className="w-full justify-start text-[9px] h-6 px-1.5" size="sm">
+                      <Settings className="h-2.5 w-2.5 mr-1 text-sky-400" />
+                      Configure
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-[9px] h-6 px-1.5"
+                      size="sm"
+                      onClick={() => onOpenWorkflow(agent.name)}
+                    >
+                      <Workflow className="h-2.5 w-2.5 mr-1 text-emerald-400" />
+                      Workflows
+                    </Button>
+                    <Button variant="ghost" className="w-full justify-start text-[9px] h-6 px-1.5" size="sm">
+                      <Shield className="h-2.5 w-2.5 mr-1 text-rose-400" />
+                      Permissions
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="grid grid-cols-2 gap-1">
+              <Button
+                variant="outline"
+                className="border-gray-800 text-white hover:bg-gray-900 text-[8px] h-5 justify-start"
+                size="sm"
+              >
+                <BarChart className="h-2.5 w-2.5 mr-1 text-violet-400" />
+                Analytics
+              </Button>
+              <Button
+                variant="outline"
+                className="border-gray-800 text-white hover:bg-gray-900 text-[8px] h-5 justify-start"
+                size="sm"
+              >
+                <Settings className="h-2.5 w-2.5 mr-1 text-sky-400" />
+                Settings
+              </Button>
+              <Button
+                variant="outline"
+                className="border-gray-800 text-white hover:bg-gray-900 text-[8px] h-5 justify-start"
+                size="sm"
+                onClick={() => onOpenWorkflow(agent.name)}
+              >
+                <Workflow className="h-2.5 w-2.5 mr-1 text-emerald-400" />
+                Workflows
+              </Button>
+              <Button
+                variant="outline"
+                className="border-gray-800 text-white hover:bg-gray-900 text-[8px] h-5 justify-start"
+                size="sm"
+              >
+                <Power className="h-2.5 w-2.5 mr-1 text-rose-400" />
+                API
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <h3 className="text-[9px] font-medium text-white">Capabilities</h3>
+          {agent.capabilities && agent.capabilities.length > 0 ? (
+            <div className="flex flex-wrap gap-0.5">
+              {agent.capabilities.map((capability, index) => (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="bg-black border border-gray-800 text-white text-[8px] px-1 py-0 h-4"
+                >
+                  {capability}
+                </Badge>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400 text-[9px]">No capabilities defined</p>
+          )}
+        </div>
+
+        <div className="space-y-1.5">
+          <h3 className="text-[9px] font-medium text-white">Tags</h3>
+          {agent.tags && agent.tags.length > 0 ? (
+            <div className="flex flex-wrap gap-0.5">
+              {agent.tags.map((tag, index) => (
+                <Badge key={index} variant="outline" className="border-gray-800 text-white text-[8px] px-1 py-0 h-4">
+                  #{tag}
+                </Badge>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400 text-[9px]">No tags defined</p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+interface TemplateCardProps {
+  template: (typeof AGENT_TEMPLATES)[0]
+  onUse: (template: (typeof AGENT_TEMPLATES)[0]) => void
+  isCreating: boolean
+}
+
+function TemplateCard({ template, onUse, isCreating }: TemplateCardProps) {
+  return (
+    <motion.div whileHover={{ y: -2, transition: { duration: 0.2 } }} className="h-full">
+      <Card className="bg-black border border-gray-800 h-full">
+        <CardHeader className="p-2.5 pb-1.5">
+          <div className="flex justify-between items-start">
+            <Badge
+              className={`${AGENT_STATUSES[template.status as keyof typeof AGENT_STATUSES].bgColor} text-[9px] px-1 py-0 h-3.5 flex items-center gap-0.5`}
+            >
+              {AGENT_STATUSES[template.status as keyof typeof AGENT_STATUSES].icon}
+              <span className={AGENT_STATUSES[template.status as keyof typeof AGENT_STATUSES].color}>
+                {template.status}
+              </span>
+            </Badge>
+            <div className="p-1 rounded-sm bg-gray-900/50">{template.icon}</div>
+          </div>
+          <CardTitle className="text-xs font-medium mt-1.5 text-white">{template.name}</CardTitle>
+          <CardDescription className="text-gray-300 mt-0.5 text-[9px]">{template.description}</CardDescription>
+        </CardHeader>
+        <CardContent className="p-2.5 pt-0">
+          {template.capabilities && template.capabilities.length > 0 && (
+            <div className="flex flex-wrap gap-0.5 mb-1.5">
+              {template.capabilities.map((capability, index) => (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="bg-black border border-gray-800 text-gray-300 text-[8px] px-1 py-0 h-3.5"
+                >
+                  {capability}
+                </Badge>
+              ))}
+            </div>
+          )}
+
+          {template.tags && template.tags.length > 0 && (
+            <div className="flex flex-wrap gap-0.5 mb-1.5">
+              {template.tags.map((tag, index) => (
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className="border-gray-800 text-gray-300 text-[8px] px-1 py-0 h-3.5"
+                >
+                  #{tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </CardContent>
+        <CardFooter className="p-2.5 pt-0">
+          <Button
+            className="w-full bg-white text-black hover:bg-gray-100 text-[9px] h-6"
+            onClick={() => onUse(template)}
+            disabled={isCreating}
+            size="sm"
+          >
+            {isCreating ? (
+              <>
+                <Loader2 className="h-2.5 w-2.5 mr-1 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-2.5 w-2.5 mr-1" />
+                Use Template
+              </>
+            )}
+          </Button>
+        </CardFooter>
+      </Card>
+    </motion.div>
+  )
+}
+
+function formatTimeAgo(date: Date) {
   const now = new Date()
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
 
-  if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`
-  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} days ago`
+  if (diffInSeconds < 60) return `${diffInSeconds}s ago`
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
+  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`
 
   return date.toLocaleDateString()
 }
-
-const getPerformanceColor = (performance: number) => {
-  if (performance >= 80) return "bg-green-400"
-  if (performance >= 50) return "bg-yellow-400"
-  return "bg-red-400"
-}
-
-export default AgentCreationPage

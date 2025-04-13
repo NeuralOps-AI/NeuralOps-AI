@@ -356,3 +356,84 @@ img {
 .gradient {
   background: conic-gradient(from 230.29deg at 51.63% 52.16%, rgb(36, 0, 255) 0deg, rgb(0, 135, 255) 67.5deg, rgb(108, 39, 157) 198.75deg, rgb(24, 38, 163) 251.25deg, rgb(54, 103, 196) 301.88deg, rgb(105, 30, 255) 360deg);
 }
+
+
+
+/* Custom scrollbar for the horizontal agent list */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 2px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 2px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+/* Animation utilities */
+.animate-in {
+  animation-duration: 200ms;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.fade-in-50 {
+  animation-name: fadeIn50;
+}
+
+.slide-in-from-left-5 {
+  animation-name: slideInFromLeft5;
+}
+
+.slide-in-from-right-5 {
+  animation-name: slideInFromRight5;
+}
+
+@keyframes fadeIn50 {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromLeft5 {
+  from {
+    transform: translateX(-5%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromRight5 {
+  from {
+    transform: translateX(5%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Tabs styling */
+.tabs-list {
+  background-color: black !important;
+  border: 1px solid #222 !important;
+}
+
+.tab-trigger[data-state="active"] {
+  background-color: #111 !important;
+}

@@ -2040,11 +2040,7 @@ export default function AIAgentsDivider() {
                   className="space-y-3"
                 >
                   <div className="flex items-center justify-center mb-3">
-                    <img
-                      src="https://illustrations.popsy.co/amber/artificial-intelligence.svg"
-                      alt="AI Agent"
-                      className="h-32 w-32"
-                    />
+                  
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-start gap-2.5">
@@ -2136,11 +2132,7 @@ export default function AIAgentsDivider() {
                   className="space-y-3"
                 >
                   <div className="flex items-center justify-center mb-3">
-                    <img
-                      src="https://illustrations.popsy.co/amber/robot-working.svg"
-                      alt="AI Agent at work"
-                      className="h-32 w-32"
-                    />
+               
                   </div>
                   <div className="text-center space-y-2">
                     <h3 className="font-medium text-sm text-white">Ready to create your first agent?</h3>

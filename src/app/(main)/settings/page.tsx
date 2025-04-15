@@ -75,6 +75,7 @@ import {
   Bell,
   Settings,
 } from "lucide-react"
+import { AccountTab } from "@/components/global/account"
 
 // Types
 type Session = {
@@ -691,7 +692,7 @@ const SettingsPage = () => {
       
       // Sync the change to the database
       try {
-        await syncUserWithDatabase();
+        await syncUserWithDatabase(user?.imageUrl || null);
       } catch (syncError) {
         console.error("Failed to sync user after avatar removal:", syncError);
         // Continue anyway as the UI has already been updated
@@ -720,79 +721,79 @@ const SettingsPage = () => {
 
   // Handle profile save
   const handleSaveProfile = async () => {
-    setLoading(true)
+    if (!isLoaded || !user) return;
+    setLoading(true);
+    setSaveSuccess(false);
+  
     try {
-      // Validate inputs
+      // 1) Validate inputs
       if (!fullName.trim()) {
-        toast.error("Full name is required")
-        setLoading(false)
-        return
+        toast.error("Full name is required");
+        return;
       }
-
-      if (!username.trim()) {
-        toast.error("Username is required")
-        setLoading(false)
-        return
-      }
-
-      // Prepare first and last name
-      const nameParts = fullName.trim().split(" ")
-      const firstName = nameParts[0]
-      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : ""
-
-      try {
-        // First, update profile information
-        await user?.update({
-          firstName: firstName,
-          lastName: lastName,
-          username: username,
-          unsafeMetadata: {
-            ...user.unsafeMetadata,
-            bio: bio || ""
-          }
-        });
-
-        // Then handle avatar upload separately
-        if (avatarFile) {
-          try {
-            await user?.setProfileImage({ file: avatarFile });
-            setAvatarFile(null);
-          } catch (avatarError) {
-            console.error("Error uploading profile image:", avatarError);
-            toast.error("Profile updated but couldn't upload profile picture");
-          }
-        }
-
-        // Sync user with database after Clerk profile update
+  
+      // 2) Split into first/last name
+      const nameParts = fullName.trim().split(" ");
+      const firstName = nameParts[0];
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
+  
+      // 3) Update Clerk profile
+      await user.update({
+        unsafeMetadata: {
+          ...user.unsafeMetadata,
+          bio: bio || "",
+          firstName,
+          lastName,
+        },
+      });
+  
+      // 4) Avatar upload if provided
+      if (avatarFile) {
         try {
-          await syncUserWithDatabase();
-        } catch (syncError) {
-          console.error("Failed to sync user with database:", syncError);
-          // Continue anyway as this won't affect the user experience
+          await user.setProfileImage({ file: avatarFile });
+          setAvatarFile(null);
+        } catch (avatarError) {
+          console.error("Error uploading profile image:", avatarError);
+          toast.error("Profile updated but couldn't upload profile picture");
         }
-
-        setSaveSuccess(true);
-        toast.success("Profile updated successfully");
-        
-        // Add to activity log
-        const newActivity = {
-          id: Date.now().toString(),
-          action: "Profile updated",
-          timestamp: new Date().toISOString(),
-          ip: sessions[0]?.ip || "192.168.1.1",
-          location: sessions[0]?.location || "Unknown Location",
-          status: "success" as const,
-        };
-        
-        setActivityLog([newActivity, ...activityLog]);
-      } catch (clerkError: any) {
-        console.error("Clerk Error:", clerkError);
-        const errorMessage = clerkError.errors?.[0]?.message || "Failed to update profile";
-        toast.error(errorMessage);
       }
-    } catch (error: any) {
-      console.error("Error updating profile:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+  
+      // 5) Sync to your Prisma DB
+      try {
+        const avatarUrl = user.imageUrl || null;
+        await syncUserWithDatabase(avatarUrl);
+      } catch (syncError) {
+        console.error("Failed to sync user with database:", syncError);
+        // non‑blocking
+      }
+  
+      // 6) Success UI & activity log
+      setSaveSuccess(true);
+      toast.success("Profile updated successfully");
+  
+      const newActivity = {
+        id: Date.now().toString(),
+        action: "Profile updated",
+        timestamp: new Date().toISOString(),
+        ip: sessions[0]?.ip || "Unknown IP",
+        location: sessions[0]?.location || "Unknown Location",
+        status: "success" as const,
+      };
+      setActivityLog([newActivity, ...activityLog]);
+    } catch (clerkError: any) {
+      console.error("Clerk Error:", clerkError);
+      const errorMessage = clerkError.errors?.[0]?.message || "Failed to update profile";
+      toast.error(errorMessage);
+  
+      const failActivity = {
+        id: Date.now().toString(),
+        action: "Profile update failed",
+        timestamp: new Date().toISOString(),
+        ip: sessions[0]?.ip || "Unknown IP",
+        location: sessions[0]?.location || "Unknown Location",
+        status: "error" as const,
+      };
+      setActivityLog([failActivity, ...activityLog]);
     } finally {
       setLoading(false);
     }
@@ -811,7 +812,7 @@ const SettingsPage = () => {
 
       // Sync user with database after Clerk profile update
       try {
-        await syncUserWithDatabase();
+        await syncUserWithDatabase(user?.imageUrl || null);
       } catch (syncError) {
         console.error("Failed to sync user with database:", syncError);
         // Continue anyway as this won't affect the user experience
@@ -861,7 +862,7 @@ const SettingsPage = () => {
 
       // Sync user with database after Clerk profile update
       try {
-        await syncUserWithDatabase();
+        await syncUserWithDatabase(user?.imageUrl || null);
       } catch (syncError) {
         console.error("Failed to sync user with database:", syncError);
         // Continue anyway as this won't affect the user experience
@@ -948,7 +949,7 @@ const SettingsPage = () => {
 
       // Sync user with database after Clerk profile update
       try {
-        await syncUserWithDatabase();
+        await syncUserWithDatabase(user?.imageUrl || null);
       } catch (syncError) {
         console.error("Failed to sync user with database:", syncError);
         // Continue anyway as this won't affect the user experience
@@ -1266,6 +1267,8 @@ const SettingsPage = () => {
         </TabsList>
 
         {/* Account Tab */}
+
+
         <AnimatePresence mode="wait">
           <TabsContent value="account" className={tabChangeAnimation ? "animate-in fade-in-50" : ""}>
             <motion.div key="account-tab" initial="hidden" animate="visible" exit="exit" variants={slideUp}>
@@ -2344,5 +2347,4 @@ const SettingsPage = () => {
 }
 
 export default SettingsPage
-// No specific instructions provided. Please clarify the required changes or additions.
 

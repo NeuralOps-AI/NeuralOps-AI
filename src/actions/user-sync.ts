@@ -10,7 +10,7 @@ import { User } from "@prisma/client";
  * 
  * @returns The synchronized user data or null if no user is authenticated
  */
-export async function syncUserWithDatabase(): Promise<User | null> {
+export async function syncUserWithDatabase(avatarUrl: string | null): Promise<User | null> {
   try {
     // Get the authenticated user from Clerk
     const user = await currentUser();

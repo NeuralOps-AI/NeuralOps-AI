@@ -18,7 +18,8 @@ export function AuthSync() {
     if (isLoaded && isSignedIn && userId) {
       const syncUser = async () => {
         try {
-          await syncUserWithDatabase();
+          const avatarUrl = userId; // Assuming userId is updated by the user
+          await syncUserWithDatabase(avatarUrl); // Pass the updated avatarUrl
         } catch (error) {
           console.error("Failed to sync user:", error);
           // We could add additional error handling here if needed
@@ -44,4 +45,4 @@ export function withAuthSync(Component: React.ComponentType<any>) {
       </>
     );
   };
-} 
+}

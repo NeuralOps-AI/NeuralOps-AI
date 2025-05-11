@@ -532,7 +532,7 @@ const SignUpForm = () => {
         // Sign up successful
         try {
           // Sync user to database immediately after sign-up
-          await syncUserWithDatabase();
+          await syncUserWithDatabase(null);
           toast.success("Account created successfully!");
         } catch (syncError) {
           console.error("User sync error:", syncError);

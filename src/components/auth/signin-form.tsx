@@ -548,49 +548,50 @@ const SignInForm = () => {
 
   // Handle complete sign in
   const handleCompleteSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    
-    try {
-      setIsPasswordLoading(true)
-      
-      if (!signIn) {
-        throw new Error("signIn is undefined");
+  e.preventDefault();
+  setIsPasswordLoading(true);
+
+  try {
+    if (!signIn) {
+      throw new Error("signIn client object is not ready");
+    }
+
+    const result = await signIn.attemptFirstFactor({
+      strategy: "password",
+      password,
+    });
+
+    if (result.status === "complete") {
+      // Sync user to database immediately after sign-in
+      try {
+        await syncUserWithDatabase(null);  // Passing null as avatarUrl
+        toast.success("Signed in successfully!");
+      } catch (syncError) {
+        console.error("User sync error:", syncError);
+        // We proceed anyway; AuthSync upsert will retry later if needed
       }
 
-      const result = await signIn.attemptFirstFactor({
-        strategy: "password",
-        password,
-      })
-      
-      if (result.status === "complete") {
-        // Successful sign-in
-        try {
-          // Sync user to database immediately after sign-in
-          await syncUserWithDatabase();
-          toast.success("Signed in successfully!");
-        } catch (syncError) {
-          console.error("User sync error:", syncError);
-          // Continue anyway, as the AuthSync component will retry
-        }
-        
-        // Redirect user
-        router.push(redirectUrl || "/app")
-      } else {
-        toast.error("Sign-in failed with an unexpected status")
-      }
-    } catch (err: any) {
-      console.error("Password error:", err)
-      toast.error(err.errors?.[0]?.message || "Failed to sign in")
-    } finally {
-      setIsPasswordLoading(false)
+      // Redirect on successful sign-in
+      router.push(redirectUrl || "/app");
+    } else {
+      // unexpected status (e.g. MFA required, restart flow, etc.)
+      toast.error("Sign-in failed with an unexpected status");
     }
+
+  } catch (err: any) {
+    console.error("Password error:", err);
+    toast.error(err.errors?.[0]?.message || "Failed to sign in");
+  } finally {
+    setIsPasswordLoading(false);
   }
+};
 
-  useEffect(() => {
-    if (from) {
-      setIsEmailOpen(false)
-    }
-  }, [from])
+// keep your existing useEffect as-is:
+useEffect(() => {
+  if (from) {
+    setIsEmailOpen(false);
+  }
+}, [from]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-b from-black to-zinc-900 text-white">
